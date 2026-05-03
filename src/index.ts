@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { NoArg } from 'noarg'
-import { main } from './main.js'
+import { runApp } from './app.js'
 
 const app = NoArg.create('openusage', {
   description: 'CLI tool to see detailed opencode usage',
@@ -30,23 +30,23 @@ const providerProgram = app.create('provider', {
 })
 
 app.on(([], flags) => {
-  void main('model', flags.db)
+  void runApp({ opencodeDbPath: flags.db })
 })
 
 allProgram.on(([], flags) => {
-  void main('all', flags.db)
+  void runApp({ opencodeDbPath: flags.db })
 })
 
 modelProgram.on(([], flags) => {
-  void main('model', flags.db)
+  void runApp({ opencodeDbPath: flags.db })
 })
 
 totalProgram.on(([], flags) => {
-  void main('total', flags.db)
+  void runApp({ opencodeDbPath: flags.db })
 })
 
 providerProgram.on(([], flags) => {
-  void main('provider', flags.db)
+  void runApp({ opencodeDbPath: flags.db })
 })
 
 app.start()
