@@ -1,5 +1,20 @@
-export type UsageDataApp = 'opencode' | 'codex' | 'claude' | 'gemini'
-export type UsageDataMode = 'chat' | 'plan' | 'build' | 'agent' | 'other'
+export type UsageDataApp =
+  | 'opencode'
+  | 'codex'
+  | 'claude'
+  | 'gemini'
+  | 'copilot'
+  | 'unknown'
+
+export type UsageDataMode =
+  | 'ask'
+  | 'chat'
+  | 'plan'
+  | 'build'
+  | 'agent'
+  | 'debug'
+  | 'unknown'
+
 export type UsageDataType =
   | 'user'
   | 'system'
