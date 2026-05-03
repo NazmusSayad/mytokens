@@ -11,14 +11,14 @@ export type UsageDataType =
 export type UsageDataModel = {
   id: string
   provider: string
-  apiUrl?: string
+  providerUrl?: string
   metadata?: Record<string, unknown>
 }
 
 export type UsageDataToken = {
   input: number
   output: number
-  reasoning?: string
+  reasoning: number
   cacheInput: number
   cacheOutput: number
 }
@@ -30,6 +30,7 @@ export type UsageDataProject = {
 
 export type UsageDataMessage = {
   app: UsageDataApp
+  mode: UsageDataMode
   type: UsageDataType
 
   date: Date
