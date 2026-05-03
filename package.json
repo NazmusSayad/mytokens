@@ -8,8 +8,8 @@
     "fix": "eslint . --fix",
     "tc": "tsc --noEmit --watch",
     "build": "tsdown --config ./tsdown.config.ts",
-    "dev": "concurrently --names \"R,T\" --prefix-colors \"blue.dim,magenta.dim\" \"tsdown --config ./tsdown.config.ts --watch\" \"tsc --noEmit --watch\"",
-    "start": "tsx --watch ./src/index.ts"
+    "build:watch": "concurrently --names \"R,T\" --prefix-colors \"blue.dim,magenta.dim\" \"tsdown --config ./tsdown.config.ts --watch\" \"tsc --noEmit --watch\"",
+    "dev": "tsx --watch ./src/index.ts"
   },
   "bin": "./dist/index.js",
   "devDependencies": {
