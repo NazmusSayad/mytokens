@@ -11,9 +11,9 @@ import chalk from 'chalk'
 import path from 'path'
 import { ulid } from 'ulid'
 
-function readRegistry() {
+async function readRegistry() {
   return (
-    readFileAsJSON<
+    (await readFileAsJSON<
       Record<
         string,
         {
@@ -21,12 +21,12 @@ function readRegistry() {
           filePath: string
         }
       >
-    >(OPENUSAGE_CACHE_REGISTRY_PATH) ?? {}
+    >(OPENUSAGE_CACHE_REGISTRY_PATH)) ?? {}
   )
 }
 
-function writeCache(url: string, data: Record<string, unknown>) {
-  const registry = readRegistry()
+async function writeCache(url: string, data: Record<string, unknown>) {
+  const registry = await readRegistry()
 
   const previousEntry = registry[url]
   const cacheFilePath = previousEntry
@@ -35,12 +35,12 @@ function writeCache(url: string, data: Record<string, unknown>) {
 
   registry[url] = { timestamp: Date.now(), filePath: cacheFilePath }
 
-  writeFileForced(cacheFilePath, JSON.stringify(data))
-  writeFileAsJSON(OPENUSAGE_CACHE_REGISTRY_PATH, registry)
+  await writeFileForced(cacheFilePath, JSON.stringify(data))
+  await writeFileAsJSON(OPENUSAGE_CACHE_REGISTRY_PATH, registry)
 }
 
-function readFromCache<T>(url: string): T | null {
-  const registry = readRegistry()
+async function readFromCache<T>(url: string): Promise<T | null> {
+  const registry = await readRegistry()
 
   const entry = registry[url]
   if (!entry) return null
@@ -48,7 +48,9 @@ function readFromCache<T>(url: string): T | null {
   const isCacheInvalid = Date.now() - entry.timestamp > CACHE_VALIDITY_DURATION
   if (isCacheInvalid) return null
 
-  const cacheContent = readFileAsJSON<Record<string, unknown>>(entry.filePath)
+  const cacheContent = await readFileAsJSON<Record<string, unknown>>(
+    entry.filePath
+  )
   if (!cacheContent) return null
 
   return cacheContent as T
@@ -58,7 +60,7 @@ export async function cachedFetchJSON<T>(
   url: string,
   init?: RequestInit
 ): Promise<T> {
-  const cachedData = readFromCache<T>(url)
+  const cachedData = await readFromCache<T>(url)
   if (cachedData) {
     console.log(chalk.gray(`Using cached data for ${url}`))
     return cachedData
@@ -66,7 +68,7 @@ export async function cachedFetchJSON<T>(
 
   const response = await fetch(url, init)
   const data = (await response.json()) as unknown as Record<string, unknown>
-  writeCache(url, data)
+  await writeCache(url, data)
 
   console.log(chalk.blue(`Fetched fresh data for ${url}`))
   return data as T

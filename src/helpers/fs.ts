@@ -1,13 +1,23 @@
-import fs from 'fs'
+import fs from 'fs/promises'
 import path from 'path'
 
-export function readFileForced(filePath: string): string | null {
-  if (!fs.existsSync(filePath)) return null
-  return fs.readFileSync(filePath, { encoding: 'utf-8' })
+export async function existsAsync(target: string) {
+  try {
+    await fs.access(target)
+    return true
+  } catch {
+    return false
+  }
 }
 
-export function readFileAsJSON<T>(filePath: string): T | null {
-  const fileContent = readFileForced(filePath)
+export async function readFileForced(filePath: string): Promise<string | null> {
+  if (!(await existsAsync(filePath))) return null
+
+  return fs.readFile(filePath, { encoding: 'utf-8' })
+}
+
+export async function readFileAsJSON<T>(filePath: string): Promise<T | null> {
+  const fileContent = await readFileForced(filePath)
   if (!fileContent) return null
 
   try {
@@ -17,13 +27,13 @@ export function readFileAsJSON<T>(filePath: string): T | null {
   }
 }
 
-export function writeFileForced(filePath: string, content: string) {
+export async function writeFileForced(filePath: string, content: string) {
   const dirName = path.dirname(filePath)
-  if (!fs.existsSync(dirName)) {
-    fs.mkdirSync(dirName, { recursive: true })
+  if (!(await existsAsync(dirName))) {
+    await fs.mkdir(dirName, { recursive: true })
   }
 
-  return fs.writeFileSync(filePath, content, { encoding: 'utf-8' })
+  return fs.writeFile(filePath, content, { encoding: 'utf-8' })
 }
 
 export function writeFileAsJSON(

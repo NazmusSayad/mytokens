@@ -1,8 +1,8 @@
-import fs from 'fs'
 import sqlite3, { Database } from 'sqlite3'
+import { existsAsync } from './fs.js'
 
 export async function readSQLiteDB(db: string): Promise<Database | null> {
-  if (!fs.existsSync(db)) return null
+  if (!(await existsAsync(db))) return null
 
   return new Promise((resolve) => {
     const database = new sqlite3.Database(db, sqlite3.OPEN_READONLY, (err) => {
