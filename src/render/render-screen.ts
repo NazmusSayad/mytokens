@@ -36,19 +36,19 @@ export class RenderScreen {
   private isMessageIgnored(message: UsageDataMessage) {
     const { dateStart, dateEnd, enabledApps, disabledApps } = this.options
 
-    if (dateStart && message.date.getTime() < dateStart.getTime()) {
-      return true
-    }
-
     if (dateEnd && message.date.getTime() > dateEnd.getTime()) {
       return true
     }
 
-    if (disabledApps && disabledApps.includes(message.app)) {
+    if (dateStart && message.date.getTime() < dateStart.getTime()) {
       return true
     }
 
-    if (enabledApps && !enabledApps.includes(message.app)) {
+    if (enabledApps?.length && !enabledApps.includes(message.app)) {
+      return true
+    }
+
+    if (disabledApps?.length && disabledApps.includes(message.app)) {
       return true
     }
 
@@ -76,7 +76,9 @@ export class RenderScreen {
     const resolvedData: RenderDataItem[] = []
     for (let i = 0; i < this.data.length; i++) {
       const message = this.data[i]
-      if (this.isMessageIgnored(message)) continue
+      if (this.isMessageIgnored(message)) {
+        continue
+      }
 
       const resolved = this.resolveItem(message)
       if (resolved) resolvedData.push(resolved)

@@ -57,8 +57,8 @@ const SCREENS_MAP: Record<ScreenType, typeof RenderScreen> = {
 }
 
 export type RunAppOptions = {
-  screen?: ScreenType
-  showBy?: 'day' | 'week' | 'month' | 'year'
+  screen: ScreenType
+  showBy: 'day' | 'week' | 'month' | 'year'
 
   dateStart?: Date
   dateEnd?: Date
