@@ -22,23 +22,45 @@ import { parsePi } from './parsers/pi.js'
 import { parseQwen } from './parsers/qwen.js'
 import { parseKiloCode, parseRooCode } from './parsers/roocode.js'
 import { parseSynthetic } from './parsers/synthetic.js'
-import { RenderDataItem, renderScreen } from './render/render-screen.js'
+import { renderAppsByCostsScreen } from './screens/apps-by-costs.js'
+import { renderAppsByTokensScreen } from './screens/apps-by-tokens.js'
+import { renderCostsScreen } from './screens/costs.js'
+import { renderModelsByCostsScreen } from './screens/models-by-costs.js'
+import { renderModelsByTokensScreen } from './screens/models-by-tokens.js'
+import { renderModesByCostsScreen } from './screens/modes-by-costs.js'
+import { renderModesByTokensScreen } from './screens/modes-by-tokens.js'
+import { renderProjectsByCostsScreen } from './screens/projects-by-costs.js'
+import { renderProjectsByTokensScreen } from './screens/projects-by-tokens.js'
+import { renderProvidersByCostsScreen } from './screens/providers-by-costs.js'
+import { renderProvidersByTokensScreen } from './screens/providers-by-tokens.js'
+import { renderTokensScreen } from './screens/tokens.js'
+import { RenderScreenOptions } from './screens/types.js'
+
+type ScreenType =
+  | 'costs'
+  | 'tokens'
+  | `${'apps' | 'modes' | 'models' | 'projects' | 'providers'}-by-${'costs' | 'tokens'}`
+
+const SCREENS_MAP: Record<
+  ScreenType,
+  (options: RenderScreenOptions) => Promise<void>
+> = {
+  costs: renderCostsScreen,
+  tokens: renderTokensScreen,
+  'apps-by-costs': renderAppsByCostsScreen,
+  'apps-by-tokens': renderAppsByTokensScreen,
+  'modes-by-costs': renderModesByCostsScreen,
+  'modes-by-tokens': renderModesByTokensScreen,
+  'models-by-costs': renderModelsByCostsScreen,
+  'models-by-tokens': renderModelsByTokensScreen,
+  'projects-by-costs': renderProjectsByCostsScreen,
+  'projects-by-tokens': renderProjectsByTokensScreen,
+  'providers-by-costs': renderProvidersByCostsScreen,
+  'providers-by-tokens': renderProvidersByTokensScreen,
+}
 
 export type RunAppOptions = {
-  screen?:
-    | 'costs'
-    | 'tokens'
-    | 'apps-by-costs'
-    | 'apps-by-tokens'
-    | 'modes-by-costs'
-    | 'modes-by-tokens'
-    | 'models-by-costs'
-    | 'models-by-tokens'
-    | 'projects-by-costs'
-    | 'projects-by-tokens'
-    | 'providers-by-costs'
-    | 'providers-by-tokens'
-
+  screen?: ScreenType
   showBy?: 'day' | 'week' | 'month' | 'year'
 
   dateStart?: Date
@@ -88,59 +110,10 @@ export async function runApp(options: RunAppOptions) {
     JSON.stringify(priceDetector, null, 2)
   )
 
-  const renderItems: RenderDataItem[] = []
-  data.forEach((item) => {
-    if (item.tokens.input) {
-      renderItems.push({
-        id: 'input',
-        name: 'Input',
-        date: item.date,
-        value: item.tokens.input,
-      })
-    }
-
-    if (item.tokens.output) {
-      renderItems.push({
-        id: 'output',
-        name: 'Output',
-        date: item.date,
-        value: item.tokens.output,
-      })
-    }
-
-    if (item.tokens.reasoning) {
-      renderItems.push({
-        id: 'reasoning',
-        name: 'Reasoning',
-        date: item.date,
-        value: item.tokens.reasoning,
-      })
-    }
-
-    if (item.tokens.cacheInput) {
-      renderItems.push({
-        id: 'cacheInput',
-        name: 'Cache Input',
-        date: item.date,
-        value: item.tokens.cacheInput,
-      })
-    }
-
-    if (item.tokens.cacheOutput) {
-      renderItems.push({
-        id: 'cacheOutput',
-        name: 'Cache Output',
-        date: item.date,
-        value: item.tokens.cacheOutput,
-      })
-    }
-  })
-
-  await renderScreen({
-    title: 'Token Usage',
-    data: renderItems,
+  const screen = SCREENS_MAP[options.screen ?? 'tokens']
+  await screen({
+    data,
     showBy: options.showBy ?? 'day',
-
     screenWidth: options.screenWidth ?? process.stdout.columns ?? 80,
     screenPadding: 1,
   })
