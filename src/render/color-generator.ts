@@ -51,8 +51,8 @@ export async function colorGenerator(input: string): Promise<string> {
   const bytes = new Uint8Array(digest)
 
   const hue = ((bytes[0] * 256 + bytes[1]) / 65535) * 360
-  const saturation = 65 + (bytes[2] / 255) * 35
-  const lightness = 40 + (bytes[3] / 255) * 20
+  const saturation = 35 + (bytes[2] / 255) * 30
+  const lightness = 45 + (bytes[3] / 255) * 10
 
   return hslToHex(hue, saturation, lightness)
 }

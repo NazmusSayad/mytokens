@@ -18,10 +18,12 @@ export async function renderScreen(
   data: RenderDataItem[],
   showBy: 'day' | 'week' | 'month' | 'year' = 'day'
 ) {
-  const AVAILABLE_WIDTH = (process.stdout.columns ?? 80) - 2
+  const SCREEN_LEFT_PADDING = 1
+  const AVAILABLE_WIDTH =
+    (process.stdout.columns ?? 80) - SCREEN_LEFT_PADDING * 2
 
   if (data.length === 0) {
-    console.log('No data to display.')
+    console.log(+'No data to display.')
     return
   }
 
@@ -60,12 +62,13 @@ export async function renderScreen(
   }
 
   const dateWidth = getDateLabelWidth(showBy)
-  const SEPARATOR_TEXT = ' │ '
-  const separator = chalk.dim(SEPARATOR_TEXT)
+  const leftPaddingChars = ' '.repeat(SCREEN_LEFT_PADDING)
+  const separatorText = ' │ '
+  const separator = chalk.dim(separatorText)
   const rightPad = 1
   const chartWidth = Math.max(
     10,
-    AVAILABLE_WIDTH - dateWidth - SEPARATOR_TEXT.length - rightPad
+    AVAILABLE_WIDTH - dateWidth - separatorText.length - rightPad
   )
 
   const ids = Array.from(idToName.keys()).sort()
@@ -82,7 +85,7 @@ export async function renderScreen(
   )
 
   console.log()
-  console.log(' '.repeat(titlePadding) + chalk.bold(title))
+  console.log(leftPaddingChars + ' '.repeat(titlePadding) + chalk.bold(title))
   console.log()
 
   for (const key of sortedKeys) {
@@ -137,11 +140,13 @@ export async function renderScreen(
       }
     }
 
-    console.log(`${label}${separator}${bar}`)
+    console.log(leftPaddingChars + `${label}${separator}${bar}`)
   }
 
   const cornerPrefix = ' '.repeat(dateWidth + 1) + '└'
-  console.log(chalk.dim(cornerPrefix + '─'.repeat(chartWidth + 1)))
+  console.log(
+    leftPaddingChars + chalk.dim(cornerPrefix + '─'.repeat(chartWidth + 1))
+  )
 
   const maxDivisions = Math.max(2, Math.floor(chartWidth / 16))
   let divisions = maxDivisions
@@ -187,7 +192,7 @@ export async function renderScreen(
 
   const axisLabels = placeLabels(chartWidth, labels)
   const labelPrefix = ' '.repeat(dateWidth + 2)
-  console.log(labelPrefix + axisLabels)
+  console.log(leftPaddingChars + labelPrefix + axisLabels)
 
   console.log()
 
@@ -202,6 +207,6 @@ export async function renderScreen(
     0,
     Math.floor((AVAILABLE_WIDTH - plainLegend.length) / 2)
   )
-  console.log(' '.repeat(legendPadding) + legendLine)
+  console.log(leftPaddingChars + ' '.repeat(legendPadding) + legendLine)
   console.log()
 }
