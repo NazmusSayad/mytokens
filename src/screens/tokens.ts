@@ -2,7 +2,7 @@ import { UsageDataMessage } from '@/core/types.js'
 import { RenderScreen } from '@/render/render-screen.js'
 
 export class RenderTokensScreen extends RenderScreen {
-  protected title = 'Tokens'
+  protected title = 'Tokens Usage'
 
   protected resolveItem(item: UsageDataMessage) {
     if (item.tokens.input) {
