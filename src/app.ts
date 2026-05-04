@@ -100,7 +100,7 @@ export async function runApp(options: RunAppOptions) {
   }
 
   const screen = new ScreenConstructor(data, {
-    showBy: options.showBy ?? 'day',
+    showBy: options.showBy,
 
     screenPadding: 1,
     screenWidth: options.screenWidth ?? process.stdout.columns ?? 80,
