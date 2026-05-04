@@ -1,4 +1,4 @@
-export type RenderValueUnit = 'none' | 'time' | 'dollar'
+export type RenderValueUnit = 'none' | 'dollar'
 
 export type RenderDataItem = {
   id: string
