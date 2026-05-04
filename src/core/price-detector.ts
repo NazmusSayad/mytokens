@@ -36,14 +36,6 @@ export class PriceDetector {
       return modelsDotDevModel.cost.input
     }
 
-    const model = this.openrouter.data.find(
-      (m) => m.name === `${input.provider}/${input.id}`
-    )
-
-    if (model) {
-      return model.pricing.request ? parseInt(model.pricing.request) : 0
-    }
-
     return 0
   }
 
