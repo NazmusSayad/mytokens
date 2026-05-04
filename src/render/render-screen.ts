@@ -1,4 +1,5 @@
 import chalk from 'chalk'
+import { colorGenerator } from './color-generator.js'
 import {
   formatDateKey,
   formatHumanReadable,
@@ -12,19 +13,6 @@ export type RenderDataItem = {
   date: Date
   value: number
 }
-
-const COLORS = [
-  chalk.hex('#4472C4'),
-  chalk.hex('#ED7D31'),
-  chalk.hex('#A5A5A5'),
-  chalk.hex('#FFC000'),
-  chalk.hex('#5B9BD5'),
-  chalk.hex('#70AD47'),
-  chalk.hex('#264478'),
-  chalk.hex('#9E480E'),
-  chalk.hex('#636363'),
-  chalk.hex('#997300'),
-]
 
 export async function renderScreen(
   data: RenderDataItem[],
@@ -82,8 +70,9 @@ export async function renderScreen(
 
   const ids = Array.from(idToName.keys()).sort()
   const idToColor = new Map<string, (s: string) => string>()
-  for (let i = 0; i < ids.length; i++) {
-    idToColor.set(ids[i], COLORS[i % COLORS.length])
+  for (const id of ids) {
+    const hex = await colorGenerator(id)
+    idToColor.set(id, chalk.hex(hex))
   }
 
   const title = 'Usage'
