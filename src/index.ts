@@ -1,52 +1,62 @@
 #!/usr/bin/env node
 
-import { NoArg } from 'noarg'
+import { Command } from '@commander-js/extra-typings'
 import { runApp } from './app.js'
 
-const app = NoArg.create('openusage', {
-  description: 'CLI tool to see detailed opencode usage',
-  globalFlags: {
-    db: NoArg.string().description(
-      'Path to the opencode.db file. Overrides OPENCODE_DB_PATH environment variable'
-    ),
-  },
-})
+const program = new Command('openusage')
+  .description('CLI tool to see detailed opencode usage')
+  .option(
+    '--db <path>',
+    'Path to the opencode.db file. Overrides OPENCODE_DB_PATH environment variable'
+  )
+  .action((options) => {
+    void runApp({ opencodeDbPath: options.db })
+  })
 
-const allProgram = app.create('all', {
-  description:
-    'Show detailed usage and cost per day, broken down by model and provider',
-})
+program
+  .command('all')
+  .description(
+    'Show detailed usage and cost per day, broken down by model and provider'
+  )
+  .option(
+    '--db <path>',
+    'Path to the opencode.db file. Overrides OPENCODE_DB_PATH environment variable'
+  )
+  .action((options) => {
+    void runApp({ opencodeDbPath: options.db })
+  })
 
-const modelProgram = app.create('model', {
-  description: 'Show usage and cost per day, broken down by model',
-})
+program
+  .command('model')
+  .description('Show usage and cost per day, broken down by model')
+  .option(
+    '--db <path>',
+    'Path to the opencode.db file. Overrides OPENCODE_DB_PATH environment variable'
+  )
+  .action((options) => {
+    void runApp({ opencodeDbPath: options.db })
+  })
 
-const totalProgram = app.create('total', {
-  description: 'Show total usage and cost per day',
-})
+program
+  .command('total')
+  .description('Show total usage and cost per day')
+  .option(
+    '--db <path>',
+    'Path to the opencode.db file. Overrides OPENCODE_DB_PATH environment variable'
+  )
+  .action((options) => {
+    void runApp({ opencodeDbPath: options.db })
+  })
 
-const providerProgram = app.create('provider', {
-  description: 'Show usage and cost per day, broken down by provider',
-})
+program
+  .command('provider')
+  .description('Show usage and cost per day, broken down by provider')
+  .option(
+    '--db <path>',
+    'Path to the opencode.db file. Overrides OPENCODE_DB_PATH environment variable'
+  )
+  .action((options) => {
+    void runApp({ opencodeDbPath: options.db })
+  })
 
-app.on(([], flags) => {
-  void runApp({ opencodeDbPath: flags.db })
-})
-
-allProgram.on(([], flags) => {
-  void runApp({ opencodeDbPath: flags.db })
-})
-
-modelProgram.on(([], flags) => {
-  void runApp({ opencodeDbPath: flags.db })
-})
-
-totalProgram.on(([], flags) => {
-  void runApp({ opencodeDbPath: flags.db })
-})
-
-providerProgram.on(([], flags) => {
-  void runApp({ opencodeDbPath: flags.db })
-})
-
-app.start()
+program.parse()
