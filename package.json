@@ -10,7 +10,8 @@
     "test:watch": "vitest watch",
     "build": "tsdown --config ./tsdown.config.ts",
     "build:watch": "concurrently --names \"R,T\" --prefix-colors \"blue.dim,magenta.dim\" \"tsdown --config ./tsdown.config.ts --watch\" \"tsc --noEmit --watch\"",
-    "dev": "tsx --watch ./src/index.ts"
+    "dev": "tsx --watch ./src/index.ts",
+    "start": "tsx ./src/index.ts"
   },
   "bin": "./dist/index.js",
   "devDependencies": {
