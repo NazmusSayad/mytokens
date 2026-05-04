@@ -19,7 +19,23 @@ export class PriceDetector {
     this.openrouter = input.openrouter
   }
 
+  public getModelsDotDevModel(input: UsageDataModel) {
+    const modelsDotDevProvider = this.modelsDotDev[input.provider]
+
+    if (modelsDotDevProvider) {
+      const model = modelsDotDevProvider.models[input.id]
+      if (model) return model
+    }
+
+    return null
+  }
+
   public getInputPrice(input: UsageDataModel): number {
+    const modelsDotDevModel = this.getModelsDotDevModel(input)
+    if (modelsDotDevModel?.cost.input) {
+      return modelsDotDevModel.cost.input
+    }
+
     const model = this.openrouter.data.find(
       (m) => m.name === `${input.provider}/${input.id}`
     )
@@ -32,19 +48,39 @@ export class PriceDetector {
   }
 
   public getOutputPrice(input: UsageDataModel): number {
-    return 10
+    const modelsDotDevModel = this.getModelsDotDevModel(input)
+    if (modelsDotDevModel?.cost.output) {
+      return modelsDotDevModel.cost.output
+    }
+
+    return 0
   }
 
   public getReasoningPrice(input: UsageDataModel): number {
-    return 10
+    const modelsDotDevModel = this.getModelsDotDevModel(input)
+    if (modelsDotDevModel?.cost.output) {
+      return modelsDotDevModel.cost.output
+    }
+
+    return 0
   }
 
   public getCacheInputPrice(input: UsageDataModel): number {
-    return 10
+    const modelsDotDevModel = this.getModelsDotDevModel(input)
+    if (modelsDotDevModel?.cost.cache_read) {
+      return modelsDotDevModel.cost.cache_read
+    }
+
+    return 0
   }
 
   public getCacheOutputPrice(input: UsageDataModel): number {
-    return 10
+    const modelsDotDevModel = this.getModelsDotDevModel(input)
+    if (modelsDotDevModel?.cost.cache_write) {
+      return modelsDotDevModel.cost.cache_write
+    }
+
+    return 0
   }
 }
 
