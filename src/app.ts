@@ -1,4 +1,3 @@
-import { writeFileForced } from './helpers/fs.js'
 import { parseAmp } from './parsers/amp.js'
 import { parseAntigravity } from './parsers/antigravity.js'
 import { parseClaude } from './parsers/claude.js'
@@ -85,15 +84,12 @@ export async function runApp(options: RunAppOptions) {
     ])
   ).flat()
 
-  await writeFileForced('./.trash/data.json', JSON.stringify(data, null, 2))
-
   const ScreenConstructor = SCREENS_MAP[options.screen]
   if (!ScreenConstructor) {
     throw new Error(`Screen "${options.screen}" not found`)
   }
 
   const screen = new ScreenConstructor(data, options)
-
   await screen.setup()
   await screen.render()
 }
