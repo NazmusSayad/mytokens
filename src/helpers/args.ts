@@ -21,34 +21,24 @@ export function parseScreenArg(input: string): AppScreenType | null {
     case 'providers-by-tokens':
       return input
 
-    case '$app':
-    case 'app$':
-    case '$apps':
-    case 'apps$':
+    case 'app/':
+    case 'apps/':
       return 'apps-by-costs'
 
-    case '$mode':
-    case 'mode$':
-    case '$modes':
-    case 'modes$':
+    case 'mode/':
+    case 'modes/':
       return 'modes-by-costs'
 
-    case '$model':
-    case 'model$':
-    case '$models':
-    case 'models$':
+    case 'model/':
+    case 'models/':
       return 'models-by-costs'
 
-    case '$project':
-    case 'project$':
-    case '$projects':
-    case 'projects$':
+    case 'project/':
+    case 'projects/':
       return 'projects-by-costs'
 
-    case '$provider':
-    case 'provider$':
-    case '$providers':
-    case 'providers$':
+    case 'provider/':
+    case 'providers/':
       return 'providers-by-costs'
 
     default:

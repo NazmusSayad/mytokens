@@ -1,4 +1,5 @@
 export type RenderValueUnit = 'none' | 'dollar'
+export type RenderValueShowBy = 'day' | 'week' | 'month' | 'year'
 
 export type RenderDataItem = {
   id: string
@@ -8,7 +9,7 @@ export type RenderDataItem = {
 }
 
 export type RenderScreenOptions = {
-  showBy: 'day' | 'week' | 'month' | 'year'
+  showBy: RenderValueShowBy
 
   screenWidth: number
   screenPadding: number
