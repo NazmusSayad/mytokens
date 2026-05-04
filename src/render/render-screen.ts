@@ -1,59 +1,16 @@
 import chalk from 'chalk'
+import {
+  formatDateKey,
+  formatHumanReadable,
+  getDateLabelWidth,
+  placeLabels,
+} from './utils.js'
 
 export type RenderDataItem = {
   id: string
   name: string
   date: Date
   value: number
-}
-
-const AVAILABLE_WIDTH = (process.stdout.columns ?? 80) - 2
-
-function formatDateKey(date: Date, showBy: string): string {
-  const d = new Date(date)
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-
-  if (showBy === 'year') {
-    return String(year)
-  }
-  if (showBy === 'month') {
-    return `${year}-${month}`
-  }
-  if (showBy === 'week') {
-    const tmp = new Date(d)
-    const dayOfWeek = tmp.getDay()
-    const diff = tmp.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)
-    tmp.setDate(diff)
-    const wy = tmp.getFullYear()
-    const wm = String(tmp.getMonth() + 1).padStart(2, '0')
-    const wd = String(tmp.getDate()).padStart(2, '0')
-    return `${wy}-${wm}-${wd}`
-  }
-  return `${year}-${month}-${day}`
-}
-
-function getDateLabelWidth(showBy: string): number {
-  if (showBy === 'year') return 4
-  if (showBy === 'month') return 7
-  return 10
-}
-
-function placeLabels(
-  width: number,
-  labels: Array<{ text: string; pos: number }>
-): string {
-  const chars: string[] = new Array(width).fill(' ')
-  for (const label of labels) {
-    for (let i = 0; i < label.text.length; i++) {
-      const p = label.pos + i
-      if (p >= 0 && p < width) {
-        chars[p] = label.text[i]
-      }
-    }
-  }
-  return chars.join('')
 }
 
 const COLORS = [
@@ -73,6 +30,8 @@ export async function renderScreen(
   data: RenderDataItem[],
   showBy: 'day' | 'week' | 'month' | 'year' = 'day'
 ) {
+  const AVAILABLE_WIDTH = (process.stdout.columns ?? 80) - 2
+
   if (data.length === 0) {
     console.log('No data to display.')
     return
@@ -113,11 +72,12 @@ export async function renderScreen(
   }
 
   const dateWidth = getDateLabelWidth(showBy)
-  const separator = chalk.dim(' │ ')
+  const SEPARATOR_TEXT = ' │ '
+  const separator = chalk.dim(SEPARATOR_TEXT)
   const rightPad = 1
   const chartWidth = Math.max(
     10,
-    AVAILABLE_WIDTH - dateWidth - separator.length - rightPad
+    AVAILABLE_WIDTH - dateWidth - SEPARATOR_TEXT.length - rightPad
   )
 
   const ids = Array.from(idToName.keys()).sort()
@@ -161,12 +121,10 @@ export async function renderScreen(
   }
 
   const cornerPrefix = ' '.repeat(dateWidth) + ' └'
-  console.log(
-    chalk.dim(cornerPrefix + '─'.repeat(AVAILABLE_WIDTH - cornerPrefix.length))
-  )
+  console.log(chalk.dim(cornerPrefix + '─'.repeat(chartWidth)))
 
-  const maxLabel = String(Math.round(maxTotal))
-  const midLabel = String(Math.round(maxTotal / 2))
+  const maxLabel = formatHumanReadable(Math.round(maxTotal))
+  const midLabel = formatHumanReadable(Math.round(maxTotal / 2))
   const axisLabels = placeLabels(chartWidth, [
     { text: '0', pos: 1 },
     {
@@ -185,5 +143,11 @@ export async function renderScreen(
     const name = idToName.get(id)!
     return colorFn('■') + ' ' + name
   })
-  console.log(legendItems.join('  '))
+  const legendLine = legendItems.join('  ')
+  const plainLegend = legendLine.replace(/\u001b\[[0-9;]*m/g, '')
+  const legendPadding = Math.max(
+    0,
+    Math.floor((AVAILABLE_WIDTH - plainLegend.length) / 2)
+  )
+  console.log(' '.repeat(legendPadding) + legendLine)
 }

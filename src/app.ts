@@ -114,5 +114,5 @@ export async function runApp(_options: RunAppOptions) {
     }
   })
 
-  await renderScreen(renderItems)
+  await renderScreen(renderItems, 'month')
 }
