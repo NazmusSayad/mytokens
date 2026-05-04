@@ -1,11 +1,3 @@
-export type UsageDataApp =
-  | 'opencode'
-  | 'codex'
-  | 'claude'
-  | 'gemini'
-  | 'copilot'
-  | 'unknown'
-
 export type UsageDataMode =
   | 'ask'
   | 'chat'
@@ -44,7 +36,7 @@ export type UsageDataProject = {
 }
 
 export type UsageDataMessage = {
-  app: UsageDataApp
+  app: string
   mode: UsageDataMode
   type: UsageDataType
 
