@@ -69,7 +69,7 @@ function parseClaudeFile(
   path: string,
   parentCache: Map<string, Map<string, string>>
 ): UsageDataMessage[] {
-  const [workspaceKey, workspaceLabel] = claudeWorkspaceFromPath(path)
+  const [workspaceKeyFromPath, workspaceLabelFromPath] = claudeWorkspaceFromPath(path)
   let sessionId = basename(path, extname(path)) || 'unknown'
   const fallbackTimestamp = fileModifiedTimestampMs(path)
 
@@ -79,13 +79,19 @@ function parseClaudeFile(
       path,
       sessionId,
       fallbackTimestamp,
-      workspaceKey,
-      workspaceLabel
+      workspaceKeyFromPath,
+      workspaceLabelFromPath
     )
     if (jsonMessages.length > 0) return jsonMessages
   }
 
   const lines = readJsonlSync(path)
+
+  // Try to extract real project path from cwd in file entries
+  const [cwdKey, cwdLabel] = extractClaudeProjectFromLines(lines)
+  const workspaceKey = cwdKey || workspaceKeyFromPath
+  const workspaceLabel = cwdLabel || workspaceLabelFromPath
+
   const messages: UsageDataMessage[] = []
   const processedHashes = new Map<string, number>() // dedup_key -> index
   const headlessState = createHeadlessState()
@@ -267,6 +273,22 @@ function claudeWorkspaceFromPath(
   for (let i = 0; i < parts.length - 2; i++) {
     if (parts[i] === '.claude' && parts[i + 1] === 'projects') {
       const key = normalizeWorkspaceKey(parts[i + 2])
+      const label = key ? workspaceLabelFromKey(key) : undefined
+      return [key, label]
+    }
+  }
+  return [undefined, undefined]
+}
+
+function extractClaudeProjectFromLines(
+  lines: unknown[]
+): [string | undefined, string | undefined] {
+  for (const raw of lines) {
+    if (!raw || typeof raw !== 'object') continue
+    const entry = raw as Record<string, unknown>
+    const cwd = extractString(entry.cwd)
+    if (cwd) {
+      const key = normalizeWorkspaceKey(cwd)
       const label = key ? workspaceLabelFromKey(key) : undefined
       return [key, label]
     }

@@ -89,6 +89,19 @@ describe('parseClaude', () => {
     expect(result[0].project?.path).toBe('myproject')
   })
 
+  it('prefers cwd over encoded project directory name', async () => {
+    const projectDir = join(tempHome, '.claude', 'projects', 'C--Users-test-Desktop')
+    mkdirSync(projectDir, { recursive: true })
+    const content = `{"type":"assistant","timestamp":"2024-12-01T10:00:00.000Z","cwd":"C:\\\\Users\\\\test\\\\Desktop","message":{"model":"claude-3-5-sonnet","usage":{"input_tokens":100,"output_tokens":50}}}`
+    writeFileSync(join(projectDir, 'session.jsonl'), content)
+
+    const result = await parseClaude()
+    expect(result).toHaveLength(1)
+    expect(result[0].project).toBeDefined()
+    expect(result[0].project?.path).toBe('C:/Users/test/Desktop')
+    expect(result[0].project?.name).toBe('Desktop')
+  })
+
   it('skips user messages and processes only assistant', async () => {
     const claudeDir = join(tempHome, '.claude')
     mkdirSync(claudeDir, { recursive: true })
