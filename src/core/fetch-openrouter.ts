@@ -61,5 +61,15 @@ export type OpenrouterResponse = {
 }
 
 export async function fetchOpenrouter(): Promise<OpenrouterResponse> {
-  return await cachedFetchJSON('https://openrouter.ai/api/v1/models')
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  }
+  if (process.env.OPENROUTER_API_KEY) {
+    headers['Authorization'] = `Bearer ${process.env.OPENROUTER_API_KEY}`
+  }
+
+  return await cachedFetchJSON('https://openrouter.ai/api/v1/models', {
+    headers: headers,
+  })
 }

@@ -45,5 +45,12 @@ type ModelsDotDevProvider = {
 export type ModelsDotDevResponse = Record<string, ModelsDotDevProvider>
 
 export async function fetchModelsDotDev(): Promise<ModelsDotDevResponse> {
-  return await cachedFetchJSON('https://models.dev/api.json')
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  }
+
+  return await cachedFetchJSON('https://models.dev/api.json', {
+    headers: headers,
+  })
 }

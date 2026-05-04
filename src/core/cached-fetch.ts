@@ -54,14 +54,17 @@ function readFromCache<T>(url: string): T | null {
   return cacheContent as T
 }
 
-export async function cachedFetchJSON<T>(url: string): Promise<T> {
+export async function cachedFetchJSON<T>(
+  url: string,
+  init?: RequestInit
+): Promise<T> {
   const cachedData = readFromCache<T>(url)
   if (cachedData) {
     console.log(chalk.gray(`Using cached data for ${url}`))
     return cachedData
   }
 
-  const response = await fetch(url)
+  const response = await fetch(url, init)
   const data = (await response.json()) as unknown as Record<string, unknown>
   writeCache(url, data)
 
