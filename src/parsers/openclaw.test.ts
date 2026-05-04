@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { parsePi } from './pi.js'
+import { parseOpenClaw } from './openclaw.js'
 
 let originalUserProfile: string | undefined
 let originalHome: string | undefined
@@ -30,7 +30,7 @@ function restoreHome() {
   }
 }
 
-describe('parsePi', () => {
+describe('parseOpenClaw', () => {
   beforeEach(() => {
     setupTempHome()
   })
@@ -40,18 +40,18 @@ describe('parsePi', () => {
   })
 
   it('returns empty array when no files exist', async () => {
-    const result = await parsePi()
+    const result = await parseOpenClaw()
     expect(result).toEqual([])
   })
 
-  it('parses session header and assistant messages', async () => {
-    const dir = join(tempHome, '.pi', 'agent', 'sessions')
+  it('parses jsonl transcript with model_change and message', async () => {
+    const dir = join(tempHome, '.openclaw', 'agents')
     mkdirSync(dir, { recursive: true })
     const lines = [
       JSON.stringify({
-        type: 'session',
-        id: 'ses-1',
-        cwd: '/home/alice/project',
+        type: 'model_change',
+        modelId: 'gpt-4o',
+        provider: 'openai',
       }),
       JSON.stringify({
         type: 'message',
@@ -59,64 +59,66 @@ describe('parsePi', () => {
           role: 'assistant',
           model: 'gpt-4o',
           provider: 'openai',
-          usage: { input: 100, output: 50, cacheRead: 10, cacheWrite: 5 },
+          usage: { input: 100, output: 50, cacheRead: 20, cacheWrite: 5 },
+          timestamp: 1700000000000,
         },
-        timestamp: '2024-12-01T10:00:00Z',
       }),
     ]
-    writeFileSync(join(dir, 'session.jsonl'), lines.join('\n'))
+    writeFileSync(join(dir, 'session-1.jsonl'), lines.join('\n'))
 
-    const result = await parsePi()
+    const result = await parseOpenClaw()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('pi')
+    expect(result[0].app).toBe('openclaw')
     expect(result[0].model.id).toBe('gpt-4o')
     expect(result[0].model.provider).toBe('openai')
     expect(result[0].tokens.input).toBe(100)
     expect(result[0].tokens.output).toBe(50)
-    expect(result[0].tokens.cacheInput).toBe(10)
+    expect(result[0].tokens.cacheInput).toBe(20)
     expect(result[0].tokens.cacheOutput).toBe(5)
-    expect(result[0].project?.path).toBe('/home/alice/project')
   })
 
-  it('skips non-assistant messages', async () => {
-    const dir = join(tempHome, '.pi', 'agent', 'sessions')
+  it('parses sessions.json index', async () => {
+    const dir = join(tempHome, '.openclaw', 'agents')
     mkdirSync(dir, { recursive: true })
-    const lines = [
-      JSON.stringify({ type: 'session', id: 'ses-1' }),
-      JSON.stringify({
-        type: 'message',
-        message: {
-          role: 'user',
-          model: 'gpt-4o',
-          provider: 'openai',
-          usage: { input: 100, output: 50 },
-        },
-      }),
-    ]
-    writeFileSync(join(dir, 'session.jsonl'), lines.join('\n'))
+    const sessionsIndex = {
+      'session-1': { sessionId: 'session-1', sessionFile: 'session-1.jsonl' },
+    }
+    writeFileSync(join(dir, 'sessions.json'), JSON.stringify(sessionsIndex))
 
-    const result = await parsePi()
-    expect(result).toHaveLength(0)
-  })
-
-  it('aborts on invalid first line', async () => {
-    const dir = join(tempHome, '.pi', 'agent', 'sessions')
-    mkdirSync(dir, { recursive: true })
     const lines = [
-      JSON.stringify({ type: 'not-session', id: 'ses-1' }),
       JSON.stringify({
         type: 'message',
         message: {
           role: 'assistant',
-          model: 'gpt-4o',
-          provider: 'openai',
+          model: 'claude-sonnet-4',
+          provider: 'anthropic',
+          usage: { input: 10, output: 5 },
+          timestamp: 1700000000000,
+        },
+      }),
+    ]
+    writeFileSync(join(dir, 'session-1.jsonl'), lines.join('\n'))
+
+    const result = await parseOpenClaw()
+    expect(result.length).toBeGreaterThanOrEqual(1)
+    expect(result.some((m) => m.model.id === 'claude-sonnet-4')).toBe(true)
+  })
+
+  it('skips non-assistant messages', async () => {
+    const dir = join(tempHome, '.openclaw', 'agents')
+    mkdirSync(dir, { recursive: true })
+    const lines = [
+      JSON.stringify({
+        type: 'message',
+        message: {
+          role: 'user',
           usage: { input: 100, output: 50 },
         },
       }),
     ]
-    writeFileSync(join(dir, 'session.jsonl'), lines.join('\n'))
+    writeFileSync(join(dir, 'session-1.jsonl'), lines.join('\n'))
 
-    const result = await parsePi()
+    const result = await parseOpenClaw()
     expect(result).toHaveLength(0)
   })
 })

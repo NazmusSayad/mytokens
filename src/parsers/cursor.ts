@@ -57,11 +57,11 @@ function parseCursorFile(path: string): UsageDataMessage[] {
   } else if (hasKindColumn) {
     // v2 format
     modelIdx = 2
-    inputCacheWriteIdx = 4
-    inputNoCacheIdx = 5
-    cacheReadIdx = 6
-    outputIdx = 7
-    costIdx = 9
+    inputCacheWriteIdx = 3
+    inputNoCacheIdx = 4
+    cacheReadIdx = 5
+    outputIdx = 6
+    costIdx = 8
   } else {
     // v1 format
     modelIdx = 1
