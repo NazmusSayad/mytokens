@@ -1,4 +1,6 @@
-import { initializePriceDetector } from './core/proce-detector.js'
+import path from 'path'
+import { initializePriceDetector } from './core/price-detector.js'
+import { writeFileForced } from './helpers/fs.js'
 import { parseClaude } from './parsers/claude.js'
 import { parseCodex } from './parsers/codex.js'
 import { parseCopilot } from './parsers/copilot.js'
@@ -20,5 +22,10 @@ export async function runApp(_options: RunAppOptions) {
     ...(await parseOpenCode()),
   ]
 
-  console.log(priceDetector, data)
+  console.log(priceDetector)
+
+  writeFileForced(
+    path.resolve('.trash/output.json'),
+    JSON.stringify(data, null, 2)
+  )
 }
