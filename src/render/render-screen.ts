@@ -267,10 +267,25 @@ export class RenderScreen {
 
     printLn()
 
+    const idToTotal = new Map<string, number>()
+    for (const key of sortedKeys) {
+      const bucket = grouped.get(key)!
+      for (const [id, val] of bucket) {
+        idToTotal.set(id, (idToTotal.get(id) ?? 0) + val)
+      }
+    }
+
     const legendItems = ids.map((id) => {
       const colorFn = idToColor.get(id)!
       const name = idToName.get(id)!
-      return colorFn('■') + ' ' + name
+      const totalVal = idToTotal.get(id) ?? 0
+      return (
+        colorFn('■') +
+        ' ' +
+        name +
+        ' ' +
+        chalk.dim(formatHumanReadable(totalVal.toFixed(2)))
+      )
     })
     const legendLine = legendItems.join('  ')
     const plainLegend = legendLine.replace(/\u001b\[[0-9;]*m/g, '')

@@ -29,7 +29,10 @@ export function getDateLabelWidth(showBy: string): number {
   return 10
 }
 
-export function formatHumanReadable(n: number): string {
+export function formatHumanReadable(input: number | string): string {
+  const n = typeof input === 'string' ? parseFloat(input) : input
+  if (Number.isNaN(n)) return 'N/A'
+
   if (n === 0) return '0'
 
   const absN = Math.abs(n)
