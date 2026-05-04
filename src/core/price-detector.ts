@@ -50,15 +50,6 @@ export class PriceDetector {
     return 0
   }
 
-  public getReasoningPrice(input: UsageDataModel): number {
-    const modelsDotDevModel = this.getModelsDotDevModel(input)
-    if (modelsDotDevModel?.cost.output) {
-      return modelsDotDevModel.cost.output / $1_M
-    }
-
-    return 0
-  }
-
   public getCacheInputPrice(input: UsageDataModel): number {
     const modelsDotDevModel = this.getModelsDotDevModel(input)
     if (modelsDotDevModel?.cost.cache_read) {

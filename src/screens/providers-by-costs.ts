@@ -45,7 +45,7 @@ export class RenderProvidersByCostsScreen extends RenderScreen {
     }
 
     if (item.tokens.reasoning) {
-      const cost = this.priceDetector.getReasoningPrice(item.model)
+      const cost = this.priceDetector.getOutputPrice(item.model)
       if (cost) {
         add({
           id: item.model.provider,

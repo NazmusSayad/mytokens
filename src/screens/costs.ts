@@ -45,11 +45,11 @@ export class RenderCostsScreen extends RenderScreen {
     }
 
     if (item.tokens.reasoning) {
-      const cost = this.priceDetector.getReasoningPrice(item.model)
+      const cost = this.priceDetector.getOutputPrice(item.model)
       if (cost) {
         add({
-          id: 'reasoning',
-          name: 'Reasoning',
+          id: 'output',
+          name: 'Output',
           date: item.date,
           value: cost * item.tokens.reasoning,
         })
