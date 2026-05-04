@@ -12,17 +12,27 @@ import {
 
 export class RenderScreen {
   private initialized = false
-  protected data: UsageDataMessage[]
-  protected options: RenderScreenOptions
+  private data: UsageDataMessage[]
+  private options: RenderScreenOptions
 
   protected title: string = '' // Should be overridden by subclasses
+
+  protected async init() {
+    // Ignore, anyone can override this if needed
+  }
+
+  protected resolveItem(item: UsageDataMessage): RenderDataItem | undefined {
+    throw new Error('Not implemented, should be implemented by subclasses', {
+      cause: item,
+    })
+  }
 
   constructor(data: UsageDataMessage[], options: RenderScreenOptions) {
     this.data = data
     this.options = options
   }
 
-  protected isMessageIgnored(message: UsageDataMessage) {
+  private isMessageIgnored(message: UsageDataMessage) {
     const { dateStart, dateEnd, enabledApps, disabledApps } = this.options
 
     if (dateStart && message.date.getTime() < dateStart.getTime()) {
@@ -42,16 +52,6 @@ export class RenderScreen {
     }
 
     return false
-  }
-
-  protected resolveItem(item: UsageDataMessage): RenderDataItem | undefined {
-    throw new Error('Not implemented, should be implemented by subclasses', {
-      cause: item,
-    })
-  }
-
-  protected async init() {
-    // Ignore, anyone can override this if needed
   }
 
   public async setup() {
