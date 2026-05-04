@@ -279,15 +279,13 @@ export class RenderScreen {
       const colorFn = idToColor.get(id)!
       const name = idToName.get(id)!
       const totalVal = idToTotal.get(id) ?? 0
-      return (
-        colorFn('■') +
-        ' ' +
-        name +
-        ' ' +
-        chalk.dim(formatHumanReadable(totalVal.toFixed(2)))
-      )
+      return [
+        colorFn('■'),
+        name,
+        chalk.dim(`(${formatHumanReadable(totalVal.toFixed(2))})`),
+      ].join(' ')
     })
-    const legendLine = legendItems.join('  ')
+    const legendLine = legendItems.join('   ')
     const plainLegend = legendLine.replace(/\u001b\[[0-9;]*m/g, '')
     const legendPadding = Math.max(
       0,
