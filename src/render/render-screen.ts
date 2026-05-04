@@ -129,7 +129,7 @@ export async function renderScreen(
         allocated = chars.reduce((a, b) => a + b, 0)
       }
 
-      let remainder = barWidth - allocated
+      const remainder = barWidth - allocated
       const indexed = portions.map((p, i) => ({
         i,
         frac: p - Math.floor(p),
@@ -152,16 +152,49 @@ export async function renderScreen(
   const cornerPrefix = ' '.repeat(dateWidth + 1) + '└'
   console.log(chalk.dim(cornerPrefix + '─'.repeat(chartWidth + 1)))
 
-  const maxLabel = formatHumanReadable(Math.round(maxTotal))
-  const midLabel = formatHumanReadable(Math.round(maxTotal / 2))
-  const axisLabels = placeLabels(chartWidth, [
-    { text: '0', pos: 1 },
-    {
-      text: midLabel,
-      pos: Math.floor(chartWidth / 2) - Math.floor(midLabel.length / 2),
-    },
-    { text: maxLabel, pos: chartWidth - maxLabel.length },
-  ])
+  const maxDivisions = Math.max(2, Math.floor(chartWidth / 16))
+  let divisions = maxDivisions
+
+  const labels: Array<{ text: string; pos: number }> = []
+  while (divisions >= 2) {
+    labels.length = 0
+    let fits = true
+
+    for (let i = 0; i <= divisions; i++) {
+      const fraction = i / divisions
+      const value = Math.round(maxTotal * fraction)
+      const text = formatHumanReadable(value)
+
+      let pos: number
+      if (i === 0) {
+        pos = 1
+      } else if (i === divisions) {
+        pos = chartWidth - text.length
+      } else {
+        pos = Math.floor(chartWidth * fraction) - Math.floor(text.length / 2)
+      }
+
+      const newStart = pos - 1
+      const newEnd = pos + text.length + 1
+      const overlaps = labels.some((l) => {
+        const exStart = l.pos - 1
+        const exEnd = l.pos + l.text.length + 1
+        return newStart < exEnd && newEnd > exStart
+      })
+
+      if (overlaps) {
+        fits = false
+        break
+      }
+
+      labels.push({ text, pos })
+    }
+
+    if (fits) break
+    divisions--
+  }
+
+  const axisLabels = placeLabels(chartWidth, labels)
   const labelPrefix = ' '.repeat(dateWidth + 2)
   console.log(labelPrefix + axisLabels)
 
