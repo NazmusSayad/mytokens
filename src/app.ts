@@ -25,10 +25,10 @@ import { parseSynthetic } from './parsers/synthetic.js'
 import { RenderDataItem, renderScreen } from './render/render-screen.js'
 
 export type RunAppOptions = {
-  opencodeDbPath?: string
+  showBy?: 'day' | 'week' | 'month' | 'year'
 }
 
-export async function runApp(_options: RunAppOptions) {
+export async function runApp(options: RunAppOptions) {
   const priceDetector = await initializePriceDetector()
 
   await writeFileForced(
@@ -114,5 +114,10 @@ export async function runApp(_options: RunAppOptions) {
     }
   })
 
-  await renderScreen(renderItems)
+  await renderScreen({
+    data: renderItems,
+    showBy: options.showBy ?? 'day',
+    screenWidth: process.stdout.columns ?? 80,
+    screenPadding: 1,
+  })
 }

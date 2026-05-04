@@ -15,13 +15,21 @@ export type RenderDataItem = {
   value: number
 }
 
-export async function renderScreen(
-  data: RenderDataItem[],
-  showBy: 'day' | 'week' | 'month' | 'year' = 'day'
-) {
-  const SCREEN_LEFT_PADDING = 1
-  const AVAILABLE_WIDTH =
-    (process.stdout.columns ?? 80) - SCREEN_LEFT_PADDING * 2
+type RenderScreenOptions = {
+  data: RenderDataItem[]
+  showBy: 'day' | 'week' | 'month' | 'year'
+
+  screenWidth: number
+  screenPadding: number
+}
+
+export async function renderScreen({
+  data,
+  showBy,
+  screenWidth,
+  screenPadding,
+}: RenderScreenOptions) {
+  const availableWidth = screenWidth - screenPadding * 2
 
   if (data.length === 0) {
     console.warn('No data to display.')
@@ -63,13 +71,13 @@ export async function renderScreen(
   }
 
   const dateWidth = getDateLabelWidth(showBy)
-  const leftPaddingChars = ' '.repeat(SCREEN_LEFT_PADDING)
+  const leftPaddingChars = ' '.repeat(screenPadding)
   const separatorText = ' │ '
   const separator = chalk.dim(separatorText)
   const rightPad = 1
   const chartWidth = Math.max(
     10,
-    AVAILABLE_WIDTH - dateWidth - separatorText.length - rightPad
+    availableWidth - dateWidth - separatorText.length - rightPad
   )
 
   const ids = Array.from(idToName.keys()).sort()
@@ -82,7 +90,7 @@ export async function renderScreen(
   const title = 'Usage'
   const titlePadding = Math.max(
     0,
-    Math.floor((AVAILABLE_WIDTH - title.length) / 2)
+    Math.floor((availableWidth - title.length) / 2)
   )
 
   printLn()
@@ -206,7 +214,7 @@ export async function renderScreen(
   const plainLegend = legendLine.replace(/\u001b\[[0-9;]*m/g, '')
   const legendPadding = Math.max(
     0,
-    Math.floor((AVAILABLE_WIDTH - plainLegend.length) / 2)
+    Math.floor((availableWidth - plainLegend.length) / 2)
   )
   printLn(leftPaddingChars + ' '.repeat(legendPadding) + legendLine)
   printLn()
