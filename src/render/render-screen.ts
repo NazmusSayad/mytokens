@@ -1,5 +1,6 @@
 import chalk from 'chalk'
 import { colorGenerator } from './color-generator.js'
+import { printLn } from './stdout.js'
 import {
   formatDateKey,
   formatHumanReadable,
@@ -12,10 +13,6 @@ export type RenderDataItem = {
   name: string
   date: Date
   value: number
-}
-
-function printLn(...strings: string[]) {
-  process.stdout.write(strings.join(' ') + '\n')
 }
 
 export async function renderScreen(
