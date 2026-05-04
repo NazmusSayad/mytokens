@@ -356,6 +356,18 @@ export class RenderScreen {
       ].join(' ')
     })
 
+    const grandTotal = Array.from(idToTotal.values()).reduce((a, b) => a + b, 0)
+
+    legendItems.push(
+      [
+        '●',
+        'Total',
+        chalk.dim(
+          `(${formatHumanReadableNumber(grandTotal.toFixed(2), this.valueUnit)})`
+        ),
+      ].join(' ')
+    )
+
     function stripAnsi(s: string) {
       return s.replace(/\u001b\[[0-9;]*m/g, '')
     }
