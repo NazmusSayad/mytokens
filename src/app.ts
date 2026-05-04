@@ -26,13 +26,18 @@ import { RenderDataItem, renderScreen } from './render/render-screen.js'
 
 export type RunAppOptions = {
   screen?:
-    | 'apps'
-    | 'modes'
     | 'costs'
     | 'tokens'
-    | 'models'
-    | 'projects'
-    | 'providers'
+    | 'apps-by-costs'
+    | 'apps-by-tokens'
+    | 'modes-by-costs'
+    | 'modes-by-tokens'
+    | 'models-by-costs'
+    | 'models-by-tokens'
+    | 'projects-by-costs'
+    | 'projects-by-tokens'
+    | 'providers-by-costs'
+    | 'providers-by-tokens'
 
   showBy?: 'day' | 'week' | 'month' | 'year'
 
