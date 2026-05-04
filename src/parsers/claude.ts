@@ -69,7 +69,8 @@ function parseClaudeFile(
   path: string,
   parentCache: Map<string, Map<string, string>>
 ): UsageDataMessage[] {
-  const [workspaceKeyFromPath, workspaceLabelFromPath] = claudeWorkspaceFromPath(path)
+  const [workspaceKeyFromPath, workspaceLabelFromPath] =
+    claudeWorkspaceFromPath(path)
   let sessionId = basename(path, extname(path)) || 'unknown'
   const fallbackTimestamp = fileModifiedTimestampMs(path)
 

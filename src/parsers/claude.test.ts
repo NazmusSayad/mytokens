@@ -90,7 +90,12 @@ describe('parseClaude', () => {
   })
 
   it('prefers cwd over encoded project directory name', async () => {
-    const projectDir = join(tempHome, '.claude', 'projects', 'C--Users-test-Desktop')
+    const projectDir = join(
+      tempHome,
+      '.claude',
+      'projects',
+      'C--Users-test-Desktop'
+    )
     mkdirSync(projectDir, { recursive: true })
     const content = `{"type":"assistant","timestamp":"2024-12-01T10:00:00.000Z","cwd":"C:\\\\Users\\\\test\\\\Desktop","message":{"model":"claude-3-5-sonnet","usage":{"input_tokens":100,"output_tokens":50}}}`
     writeFileSync(join(projectDir, 'session.jsonl'), content)

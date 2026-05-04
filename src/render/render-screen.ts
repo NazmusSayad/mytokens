@@ -206,7 +206,17 @@ export class RenderScreen {
       availableWidth - dateWidth - separatorText.length - rightPad
     )
 
-    const ids = Array.from(idToName.keys()).sort()
+    const idToTotal = new Map<string, number>()
+    for (const key of sortedKeys) {
+      const bucket = grouped.get(key)!
+      for (const [id, val] of bucket) {
+        idToTotal.set(id, (idToTotal.get(id) ?? 0) + val)
+      }
+    }
+
+    const ids = Array.from(idToName.keys()).sort(
+      (a, b) => (idToTotal.get(b) ?? 0) - (idToTotal.get(a) ?? 0)
+    )
     const idToColor = new Map<string, (s: string) => string>()
     for (const id of ids) {
       const hex = await colorGenerator(id)
@@ -332,14 +342,6 @@ export class RenderScreen {
 
     printLn()
 
-    const idToTotal = new Map<string, number>()
-    for (const key of sortedKeys) {
-      const bucket = grouped.get(key)!
-      for (const [id, val] of bucket) {
-        idToTotal.set(id, (idToTotal.get(id) ?? 0) + val)
-      }
-    }
-
     const legendItems = ids.map((id) => {
       const colorFn = idToColor.get(id)!
       const name = idToName.get(id)!
@@ -352,13 +354,44 @@ export class RenderScreen {
         ),
       ].join(' ')
     })
-    const legendLine = legendItems.join('   ')
-    const plainLegend = legendLine.replace(/\u001b\[[0-9;]*m/g, '')
-    const legendPadding = Math.max(
-      0,
-      Math.floor((availableWidth - plainLegend.length) / 2)
-    )
-    printLn(leftPaddingChars + ' '.repeat(legendPadding) + legendLine)
+
+    function stripAnsi(s: string) {
+      return s.replace(/\u001b\[[0-9;]*m/g, '')
+    }
+    const legendSeparator = '   '
+
+    const legendLines: string[][] = [[]]
+    const lineLengths: number[] = [0]
+
+    for (const item of legendItems) {
+      const plainItem = stripAnsi(item)
+      const itemLength = plainItem.length
+      const currentLineIndex = lineLengths.length - 1
+
+      if (lineLengths[currentLineIndex] === 0) {
+        legendLines[currentLineIndex].push(item)
+        lineLengths[currentLineIndex] = itemLength
+      } else if (
+        lineLengths[currentLineIndex] + legendSeparator.length + itemLength <=
+        availableWidth
+      ) {
+        legendLines[currentLineIndex].push(item)
+        lineLengths[currentLineIndex] += legendSeparator.length + itemLength
+      } else {
+        legendLines.push([item])
+        lineLengths.push(itemLength)
+      }
+    }
+
+    for (const line of legendLines) {
+      const lineStr = line.join(legendSeparator)
+      const plainLine = stripAnsi(lineStr)
+      const legendPadding = Math.max(
+        0,
+        Math.floor((availableWidth - plainLine.length) / 2)
+      )
+      printLn(leftPaddingChars + ' '.repeat(legendPadding) + lineStr)
+    }
     printLn()
   }
 }
