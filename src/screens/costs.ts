@@ -26,7 +26,7 @@ export class RenderCostsScreen extends RenderScreen {
           id: 'input',
           name: 'Input',
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.input,
         })
       }
     }
@@ -38,7 +38,7 @@ export class RenderCostsScreen extends RenderScreen {
           id: 'output',
           name: 'Output',
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.output,
         })
       }
     }
@@ -50,7 +50,7 @@ export class RenderCostsScreen extends RenderScreen {
           id: 'reasoning',
           name: 'Reasoning',
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.reasoning,
         })
       }
     }
@@ -62,7 +62,7 @@ export class RenderCostsScreen extends RenderScreen {
           id: 'cacheInput',
           name: 'Cache Input',
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.cacheInput,
         })
       }
     }
@@ -74,7 +74,7 @@ export class RenderCostsScreen extends RenderScreen {
           id: 'cacheOutput',
           name: 'Cache Output',
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.cacheOutput,
         })
       }
     }

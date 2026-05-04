@@ -28,7 +28,7 @@ export class RenderProjectsByCostsScreen extends RenderScreen {
           id: projectId,
           name: projectId,
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.input,
         })
       }
     }
@@ -40,7 +40,7 @@ export class RenderProjectsByCostsScreen extends RenderScreen {
           id: projectId,
           name: projectId,
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.output,
         })
       }
     }
@@ -52,7 +52,7 @@ export class RenderProjectsByCostsScreen extends RenderScreen {
           id: projectId,
           name: projectId,
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.reasoning,
         })
       }
     }
@@ -64,7 +64,7 @@ export class RenderProjectsByCostsScreen extends RenderScreen {
           id: projectId,
           name: projectId,
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.cacheInput,
         })
       }
     }
@@ -76,7 +76,7 @@ export class RenderProjectsByCostsScreen extends RenderScreen {
           id: projectId,
           name: projectId,
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.cacheOutput,
         })
       }
     }

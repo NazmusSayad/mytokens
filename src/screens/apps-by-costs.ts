@@ -26,7 +26,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           id: item.app,
           name: item.app,
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.input,
         })
       }
     }
@@ -38,7 +38,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           id: item.app,
           name: item.app,
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.output,
         })
       }
     }
@@ -50,7 +50,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           id: item.app,
           name: item.app,
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.reasoning,
         })
       }
     }
@@ -62,7 +62,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           id: item.app,
           name: item.app,
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.cacheInput,
         })
       }
     }
@@ -74,7 +74,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           id: item.app,
           name: item.app,
           date: item.date,
-          value: cost,
+          value: cost * item.tokens.cacheOutput,
         })
       }
     }

@@ -10,6 +10,8 @@ type ConstructorInput = {
   openrouter: OpenrouterResponse
 }
 
+const $1_M = 1_000_000
+
 export class PriceDetector {
   private modelsDotDev: ModelsDotDevResponse
   private openrouter: OpenrouterResponse
@@ -33,7 +35,7 @@ export class PriceDetector {
   public getInputPrice(input: UsageDataModel): number {
     const modelsDotDevModel = this.getModelsDotDevModel(input)
     if (modelsDotDevModel?.cost.input) {
-      return modelsDotDevModel.cost.input
+      return modelsDotDevModel.cost.input / $1_M
     }
 
     return 0
@@ -42,7 +44,7 @@ export class PriceDetector {
   public getOutputPrice(input: UsageDataModel): number {
     const modelsDotDevModel = this.getModelsDotDevModel(input)
     if (modelsDotDevModel?.cost.output) {
-      return modelsDotDevModel.cost.output
+      return modelsDotDevModel.cost.output / $1_M
     }
 
     return 0
@@ -51,7 +53,7 @@ export class PriceDetector {
   public getReasoningPrice(input: UsageDataModel): number {
     const modelsDotDevModel = this.getModelsDotDevModel(input)
     if (modelsDotDevModel?.cost.output) {
-      return modelsDotDevModel.cost.output
+      return modelsDotDevModel.cost.output / $1_M
     }
 
     return 0
@@ -60,7 +62,7 @@ export class PriceDetector {
   public getCacheInputPrice(input: UsageDataModel): number {
     const modelsDotDevModel = this.getModelsDotDevModel(input)
     if (modelsDotDevModel?.cost.cache_read) {
-      return modelsDotDevModel.cost.cache_read
+      return modelsDotDevModel.cost.cache_read / $1_M
     }
 
     return 0
@@ -69,7 +71,7 @@ export class PriceDetector {
   public getCacheOutputPrice(input: UsageDataModel): number {
     const modelsDotDevModel = this.getModelsDotDevModel(input)
     if (modelsDotDevModel?.cost.cache_write) {
-      return modelsDotDevModel.cost.cache_write
+      return modelsDotDevModel.cost.cache_write / $1_M
     }
 
     return 0
