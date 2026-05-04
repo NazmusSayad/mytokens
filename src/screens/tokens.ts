@@ -29,8 +29,8 @@ export class RenderTokensScreen extends RenderScreen {
 
     if (item.tokens.reasoning) {
       add({
-        id: 'reasoning',
-        name: 'Reasoning',
+        id: 'output',
+        name: 'Output',
         date: item.date,
         value: item.tokens.reasoning,
       })
