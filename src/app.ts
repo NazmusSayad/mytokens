@@ -25,7 +25,19 @@ import { parseSynthetic } from './parsers/synthetic.js'
 import { RenderDataItem, renderScreen } from './render/render-screen.js'
 
 export type RunAppOptions = {
+  screen?:
+    | 'apps'
+    | 'modes'
+    | 'costs'
+    | 'tokens'
+    | 'models'
+    | 'projects'
+    | 'providers'
+
   showBy?: 'day' | 'week' | 'month' | 'year'
+
+  dateStart?: Date
+  dateEnd?: Date
 }
 
 export async function runApp(options: RunAppOptions) {
