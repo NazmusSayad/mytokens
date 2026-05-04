@@ -41,6 +41,8 @@ export type RunAppOptions = {
 
   enabledApps?: string[]
   disabledApps?: string[]
+
+  screenWidth?: number
 }
 
 export async function runApp(options: RunAppOptions) {
@@ -133,7 +135,8 @@ export async function runApp(options: RunAppOptions) {
     title: 'Token Usage',
     data: renderItems,
     showBy: options.showBy ?? 'day',
-    screenWidth: process.stdout.columns ?? 80,
+
+    screenWidth: options.screenWidth ?? process.stdout.columns ?? 80,
     screenPadding: 1,
   })
 }
