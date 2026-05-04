@@ -3,7 +3,7 @@
   "version": "1.0.7",
   "type": "module",
   "scripts": {
-    "lint": "eslint .",
+    "lint": "tsc --noEmit && eslint .",
     "fix": "eslint . --fix",
     "tc": "tsc --noEmit --watch",
     "test": "vitest run",
