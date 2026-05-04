@@ -106,22 +106,51 @@ export async function renderScreen(
     const label = key.padEnd(dateWidth)
     let bar = ''
 
-    for (const id of ids) {
-      const val = bucket.get(id) ?? 0
-      if (val === 0) continue
-      let chars = Math.round((val / total) * barWidth)
-      if (chars === 0 && val > 0) {
-        chars = 1
+    const segments = ids
+      .map((id) => ({ id, val: bucket.get(id) ?? 0 }))
+      .filter((s) => s.val > 0)
+
+    if (segments.length === 0) {
+      // nothing
+    } else if (segments.length === 1) {
+      const colorFn = idToColor.get(segments[0].id)!
+      bar = colorFn('█'.repeat(barWidth))
+    } else {
+      const portions = segments.map((s) => (s.val / total) * barWidth)
+
+      // Ensure every non-zero segment gets at least 1 char
+      let chars = portions.map((p) => Math.max(1, Math.floor(p)))
+      let allocated = chars.reduce((a, b) => a + b, 0)
+
+      // If forcing 1 char each exceeded barWidth, scale everything down proportionally
+      if (allocated > barWidth) {
+        const scale = barWidth / allocated
+        chars = chars.map((c) => Math.max(1, Math.floor(c * scale)))
+        allocated = chars.reduce((a, b) => a + b, 0)
       }
-      const colorFn = idToColor.get(id)!
-      bar += colorFn('█'.repeat(chars))
+
+      let remainder = barWidth - allocated
+      const indexed = portions.map((p, i) => ({
+        i,
+        frac: p - Math.floor(p),
+      }))
+      indexed.sort((a, b) => b.frac - a.frac)
+
+      for (let r = 0; r < remainder; r++) {
+        chars[indexed[r % indexed.length].i]++
+      }
+
+      for (let i = 0; i < segments.length; i++) {
+        const colorFn = idToColor.get(segments[i].id)!
+        bar += colorFn('█'.repeat(chars[i]))
+      }
     }
 
     console.log(`${label}${separator}${bar}`)
   }
 
-  const cornerPrefix = ' '.repeat(dateWidth) + ' └'
-  console.log(chalk.dim(cornerPrefix + '─'.repeat(chartWidth)))
+  const cornerPrefix = ' '.repeat(dateWidth + 1) + '└'
+  console.log(chalk.dim(cornerPrefix + '─'.repeat(chartWidth + 1)))
 
   const maxLabel = formatHumanReadable(Math.round(maxTotal))
   const midLabel = formatHumanReadable(Math.round(maxTotal / 2))
