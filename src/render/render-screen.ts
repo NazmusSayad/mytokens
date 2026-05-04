@@ -15,12 +15,13 @@ export class RenderScreen {
   private data: UsageDataMessage[]
   private options: RenderScreenOptions
 
-  protected title: string = '' // Should be overridden by subclasses
+  // Should be overridden by subclasses
+  protected title: string = ''
 
-  protected async init() {
-    // Ignore, anyone can override this if needed
-  }
+  // Ignore, anyone can override this if needed
+  protected async init() {}
 
+  // Must be implemented by subclasses to resolve a UsageDataMessage into a RenderDataItem
   protected resolveItem(item: UsageDataMessage): RenderDataItem | undefined {
     throw new Error('Not implemented, should be implemented by subclasses', {
       cause: item,
