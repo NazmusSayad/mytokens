@@ -2,7 +2,11 @@ import {
   CACHE_VALIDITY_DURATION,
   OPENUSAGE_CACHE_REGISTRY_PATH,
 } from '@/config.js'
-import { readFileAsJSON, writeFileAsJSON } from '@/helpers/fs.js'
+import {
+  readFileAsJSON,
+  writeFileAsJSON,
+  writeFileForced,
+} from '@/helpers/fs.js'
 import chalk from 'chalk'
 import path from 'path'
 import { ulid } from 'ulid'
@@ -31,7 +35,7 @@ function writeCache(url: string, data: Record<string, unknown>) {
 
   registry[url] = { timestamp: Date.now(), filePath: cacheFilePath }
 
-  writeFileAsJSON(cacheFilePath, data)
+  writeFileForced(cacheFilePath, JSON.stringify(data))
   writeFileAsJSON(OPENUSAGE_CACHE_REGISTRY_PATH, registry)
 }
 
@@ -58,7 +62,7 @@ export async function cachedFetchJSON<T>(url: string): Promise<T> {
   }
 
   const response = await fetch(url)
-  const data = response.json() as unknown as Record<string, unknown>
+  const data = (await response.json()) as unknown as Record<string, unknown>
   writeCache(url, data)
 
   console.log(chalk.blue(`Fetched fresh data for ${url}`))
