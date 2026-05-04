@@ -1,14 +1,16 @@
 import { UsageDataMessage } from '@/core/types.js'
 import { RenderScreen } from '@/render/render-screen.js'
 
-export class RenderTokensScreen extends RenderScreen {
-  protected title = 'Tokens'
+export class RenderProjectsByTokensScreen extends RenderScreen {
+  protected title = 'Projects by Tokens'
 
   protected resolveItem(item: UsageDataMessage) {
+    const projectId = item.project?.name ?? item.project?.path ?? '(no project)'
+
     if (item.tokens.input) {
       return {
-        id: 'input',
-        name: 'Input',
+        id: projectId,
+        name: projectId,
         date: item.date,
         value: item.tokens.input,
       }
@@ -16,8 +18,8 @@ export class RenderTokensScreen extends RenderScreen {
 
     if (item.tokens.output) {
       return {
-        id: 'output',
-        name: 'Output',
+        id: projectId,
+        name: projectId,
         date: item.date,
         value: item.tokens.output,
       }
@@ -25,8 +27,8 @@ export class RenderTokensScreen extends RenderScreen {
 
     if (item.tokens.reasoning) {
       return {
-        id: 'reasoning',
-        name: 'Reasoning',
+        id: projectId,
+        name: projectId,
         date: item.date,
         value: item.tokens.reasoning,
       }
@@ -34,8 +36,8 @@ export class RenderTokensScreen extends RenderScreen {
 
     if (item.tokens.cacheInput) {
       return {
-        id: 'cacheInput',
-        name: 'Cache Input',
+        id: projectId,
+        name: projectId,
         date: item.date,
         value: item.tokens.cacheInput,
       }
@@ -43,8 +45,8 @@ export class RenderTokensScreen extends RenderScreen {
 
     if (item.tokens.cacheOutput) {
       return {
-        id: 'cacheOutput',
-        name: 'Cache Output',
+        id: projectId,
+        name: projectId,
         date: item.date,
         value: item.tokens.cacheOutput,
       }
