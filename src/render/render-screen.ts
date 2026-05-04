@@ -16,6 +16,7 @@ export type RenderDataItem = {
 }
 
 type RenderScreenOptions = {
+  title: string
   data: RenderDataItem[]
   showBy: 'day' | 'week' | 'month' | 'year'
 
@@ -25,6 +26,7 @@ type RenderScreenOptions = {
 
 export async function renderScreen({
   data,
+  title,
   showBy,
   screenWidth,
   screenPadding,
@@ -87,7 +89,6 @@ export async function renderScreen({
     idToColor.set(id, chalk.hex(hex))
   }
 
-  const title = 'Usage'
   const titlePadding = Math.max(
     0,
     Math.floor((availableWidth - title.length) / 2)

@@ -115,6 +115,7 @@ export async function runApp(options: RunAppOptions) {
   })
 
   await renderScreen({
+    title: 'Token Usage',
     data: renderItems,
     showBy: options.showBy ?? 'day',
     screenWidth: process.stdout.columns ?? 80,
