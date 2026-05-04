@@ -44,43 +44,43 @@ export type RunAppOptions = {
 }
 
 export async function runApp(options: RunAppOptions) {
+  const data = (
+    await Promise.all([
+      parseAntigravity(),
+      parseAmp(),
+      parseClaude(),
+      parseCodebuff(),
+      parseCodex(),
+      parseCopilot(),
+      parseCrush(),
+      parseCursor(),
+      parseDroid(),
+      parseGemini(),
+      parseGoose(),
+      parseHermes(),
+      parseKilo(),
+      parseKiloCode(),
+      parseKimi(),
+      parseMux(),
+      parseOpenClaw(),
+      parseOpenCode(),
+      parsePi(),
+      parseQwen(),
+      parseRooCode(),
+      parseSynthetic(),
+    ])
+  ).flat()
+
+  await writeFileForced(
+    path.resolve('.trash/output.json'),
+    JSON.stringify(data, null, 2)
+  )
+
   const priceDetector = await initializePriceDetector()
 
   await writeFileForced(
     path.resolve('.trash/price.json'),
     JSON.stringify(priceDetector, null, 2)
-  )
-
-  const dataPromises = [
-    parseAntigravity(),
-    parseAmp(),
-    parseClaude(),
-    parseCodebuff(),
-    parseCodex(),
-    parseCopilot(),
-    parseCrush(),
-    parseCursor(),
-    parseDroid(),
-    parseGemini(),
-    parseGoose(),
-    parseHermes(),
-    parseKilo(),
-    parseKiloCode(),
-    parseKimi(),
-    parseMux(),
-    parseOpenClaw(),
-    parseOpenCode(),
-    parsePi(),
-    parseQwen(),
-    parseRooCode(),
-    parseSynthetic(),
-  ]
-
-  const data = (await Promise.all(dataPromises)).flat()
-
-  await writeFileForced(
-    path.resolve('.trash/output.json'),
-    JSON.stringify(data, null, 2)
   )
 
   const renderItems: RenderDataItem[] = []
