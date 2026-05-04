@@ -1,3 +1,5 @@
+export type RenderValueUnit = 'none' | 'time' | 'dollar'
+
 export type RenderDataItem = {
   id: string
   name: string
@@ -7,7 +9,6 @@ export type RenderDataItem = {
 
 export type RenderScreenOptions = {
   showBy: 'day' | 'week' | 'month' | 'year'
-  unit?: 'time' | 'dollar'
 
   screenWidth: number
   screenPadding: number

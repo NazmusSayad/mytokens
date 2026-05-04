@@ -2,7 +2,11 @@ import { UsageDataMessage } from '@/core/types.js'
 import chalk from 'chalk'
 import { colorGenerator } from './color-generator.js'
 import { printLn } from './stdout.js'
-import { RenderDataItem, RenderScreenOptions } from './types.js'
+import {
+  RenderDataItem,
+  RenderScreenOptions,
+  RenderValueUnit,
+} from './types.js'
 import {
   formatDateKey,
   formatHumanReadable,
@@ -17,6 +21,9 @@ export class RenderScreen {
 
   // Should be overridden by subclasses
   protected title: string = ''
+
+  // Should be overridden by subclasses if they want to support units other than 'none'
+  protected valueUnit: RenderValueUnit = 'none'
 
   // Ignore, anyone can override this if needed
   protected async init() {}

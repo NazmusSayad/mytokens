@@ -4,12 +4,13 @@ import {
 } from '@/core/price-detector.js'
 import { UsageDataMessage } from '@/core/types.js'
 import { RenderScreen } from '@/render/render-screen.js'
-import { RenderDataItem } from '@/render/types.js'
+import { RenderDataItem, RenderValueUnit } from '@/render/types.js'
 
 export class RenderProvidersByCostsScreen extends RenderScreen {
   private priceDetector = null as unknown as PriceDetector
 
   protected title = 'Providers by Costs'
+  protected valueUnit: RenderValueUnit = 'dollar'
 
   protected async init() {
     this.priceDetector = await initializePriceDetector()
