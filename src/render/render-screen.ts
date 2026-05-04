@@ -14,6 +14,10 @@ export type RenderDataItem = {
   value: number
 }
 
+function printLn(...strings: string[]) {
+  process.stdout.write(strings.join(' ') + '\n')
+}
+
 export async function renderScreen(
   data: RenderDataItem[],
   showBy: 'day' | 'week' | 'month' | 'year' = 'day'
@@ -23,7 +27,7 @@ export async function renderScreen(
     (process.stdout.columns ?? 80) - SCREEN_LEFT_PADDING * 2
 
   if (data.length === 0) {
-    console.log(+'No data to display.')
+    console.warn('No data to display.')
     return
   }
 
@@ -57,7 +61,7 @@ export async function renderScreen(
   }
 
   if (maxTotal === 0) {
-    console.log('All values are zero.')
+    console.warn('All values are zero.')
     return
   }
 
@@ -84,9 +88,9 @@ export async function renderScreen(
     Math.floor((AVAILABLE_WIDTH - title.length) / 2)
   )
 
-  console.log()
-  console.log(leftPaddingChars + ' '.repeat(titlePadding) + chalk.bold(title))
-  console.log()
+  printLn()
+  printLn(leftPaddingChars + ' '.repeat(titlePadding) + chalk.bold(title))
+  printLn()
 
   for (const key of sortedKeys) {
     const bucket = grouped.get(key)!
@@ -140,11 +144,11 @@ export async function renderScreen(
       }
     }
 
-    console.log(leftPaddingChars + `${label}${separator}${bar}`)
+    printLn(leftPaddingChars + `${label}${separator}${bar}`)
   }
 
   const cornerPrefix = ' '.repeat(dateWidth + 1) + '└'
-  console.log(
+  printLn(
     leftPaddingChars + chalk.dim(cornerPrefix + '─'.repeat(chartWidth + 1))
   )
 
@@ -192,9 +196,9 @@ export async function renderScreen(
 
   const axisLabels = placeLabels(chartWidth, labels)
   const labelPrefix = ' '.repeat(dateWidth + 2)
-  console.log(leftPaddingChars + labelPrefix + axisLabels)
+  printLn(leftPaddingChars + labelPrefix + axisLabels)
 
-  console.log()
+  printLn()
 
   const legendItems = ids.map((id) => {
     const colorFn = idToColor.get(id)!
@@ -207,6 +211,6 @@ export async function renderScreen(
     0,
     Math.floor((AVAILABLE_WIDTH - plainLegend.length) / 2)
   )
-  console.log(leftPaddingChars + ' '.repeat(legendPadding) + legendLine)
-  console.log()
+  printLn(leftPaddingChars + ' '.repeat(legendPadding) + legendLine)
+  printLn()
 }
