@@ -62,6 +62,64 @@ export class RenderScreen {
       return true
     }
 
+    if (
+      this.options.enabledProviders?.length &&
+      !this.options.enabledProviders.includes(message.model.provider)
+    ) {
+      return true
+    }
+
+    if (
+      this.options.disabledProviders?.length &&
+      this.options.disabledProviders.includes(message.model.provider)
+    ) {
+      return true
+    }
+
+    if (
+      this.options.enabledModels?.length &&
+      !this.options.enabledModels.includes(message.model.id)
+    ) {
+      return true
+    }
+
+    if (
+      this.options.disabledModels?.length &&
+      this.options.disabledModels.includes(message.model.id)
+    ) {
+      return true
+    }
+
+    if (
+      this.options.enabledModes?.length &&
+      !this.options.enabledModes.includes(message.mode)
+    ) {
+      return true
+    }
+
+    if (
+      this.options.disabledModes?.length &&
+      this.options.disabledModes.includes(message.mode)
+    ) {
+      return true
+    }
+
+    if (
+      message.project?.name &&
+      this.options.enabledProjects?.length &&
+      !this.options.enabledProjects.includes(message.project.name)
+    ) {
+      return true
+    }
+
+    if (
+      message.project?.name &&
+      this.options.disabledProjects?.length &&
+      this.options.disabledProjects.includes(message.project.name)
+    ) {
+      return true
+    }
+
     return false
   }
 

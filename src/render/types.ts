@@ -16,6 +16,18 @@ export type RenderScreenOptions = {
   enabledApps: string[] | null
   disabledApps: string[] | null
 
+  enabledProviders: string[] | null
+  disabledProviders: string[] | null
+
+  enabledModels: string[] | null
+  disabledModels: string[] | null
+
+  enabledModes: string[] | null
+  disabledModes: string[] | null
+
+  enabledProjects: string[] | null
+  disabledProjects: string[] | null
+
   dateStart: Date | null
   dateEnd: Date | null
 }

@@ -21,6 +21,7 @@ import { parseQwen } from './parsers/qwen.js'
 import { parseKiloCode, parseRooCode } from './parsers/roocode.js'
 import { parseSynthetic } from './parsers/synthetic.js'
 import { RenderScreen } from './render/render-screen.js'
+import { RenderScreenOptions } from './render/types.js'
 import { RenderAppsByCostsScreen } from './screens/apps-by-costs.js'
 import { RenderAppsByTokensScreen } from './screens/apps-by-tokens.js'
 import { RenderCostsScreen } from './screens/costs.js'
@@ -34,12 +35,12 @@ import { RenderProvidersByCostsScreen } from './screens/providers-by-costs.js'
 import { RenderProvidersByTokensScreen } from './screens/providers-by-tokens.js'
 import { RenderTokensScreen } from './screens/tokens.js'
 
-type ScreenType =
+export type AppScreenType =
   | 'costs'
   | 'tokens'
   | `${'apps' | 'modes' | 'models' | 'projects' | 'providers'}-by-${'costs' | 'tokens'}`
 
-const SCREENS_MAP: Record<ScreenType, typeof RenderScreen> = {
+const SCREENS_MAP: Record<AppScreenType, typeof RenderScreen> = {
   costs: RenderCostsScreen,
   tokens: RenderTokensScreen,
   'apps-by-costs': RenderAppsByCostsScreen,
@@ -54,18 +55,7 @@ const SCREENS_MAP: Record<ScreenType, typeof RenderScreen> = {
   'providers-by-tokens': RenderProvidersByTokensScreen,
 }
 
-export type RunAppOptions = {
-  screen: ScreenType
-  showBy: 'day' | 'week' | 'month' | 'year'
-
-  dateStart?: Date
-  dateEnd?: Date
-
-  enabledApps?: string[]
-  disabledApps?: string[]
-
-  screenWidth?: number
-}
+export type RunAppOptions = RenderScreenOptions & { screen: AppScreenType }
 
 export async function runApp(options: RunAppOptions) {
   const data = (
@@ -102,18 +92,7 @@ export async function runApp(options: RunAppOptions) {
     throw new Error(`Screen "${options.screen}" not found`)
   }
 
-  const screen = new ScreenConstructor(data, {
-    showBy: options.showBy,
-
-    screenPadding: 1,
-    screenWidth: options.screenWidth ?? process.stdout.columns ?? 80,
-
-    enabledApps: options.enabledApps ?? null,
-    disabledApps: options.disabledApps ?? null,
-
-    dateStart: options.dateStart ?? null,
-    dateEnd: options.dateEnd ?? null,
-  })
+  const screen = new ScreenConstructor(data, options)
 
   await screen.setup()
   await screen.render()
