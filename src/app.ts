@@ -1,5 +1,4 @@
 import path from 'path'
-import { initializePriceDetector } from './core/price-detector.js'
 import { writeFileForced } from './helpers/fs.js'
 import { parseAmp } from './parsers/amp.js'
 import { parseAntigravity } from './parsers/antigravity.js'
@@ -96,15 +95,10 @@ export async function runApp(options: RunAppOptions) {
       parseSynthetic(),
     ])
   ).flat()
+
   await writeFileForced(
     path.resolve('.trash/output.json'),
     JSON.stringify(data, null, 2)
-  )
-
-  const priceDetector = await initializePriceDetector()
-  await writeFileForced(
-    path.resolve('.trash/price.json'),
-    JSON.stringify(priceDetector, null, 2)
   )
 
   const ScreenConstructor = SCREENS_MAP[options.screen ?? 'tokens']
