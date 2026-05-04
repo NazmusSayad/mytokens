@@ -38,6 +38,9 @@ export type RunAppOptions = {
 
   dateStart?: Date
   dateEnd?: Date
+
+  enabledApps?: string[]
+  disabledApps?: string[]
 }
 
 export async function runApp(options: RunAppOptions) {
@@ -48,30 +51,32 @@ export async function runApp(options: RunAppOptions) {
     JSON.stringify(priceDetector, null, 2)
   )
 
-  const data = [
-    ...(await parseAntigravity()),
-    ...(await parseAmp()),
-    ...(await parseClaude()),
-    ...(await parseCodebuff()),
-    ...(await parseCodex()),
-    ...(await parseCopilot()),
-    ...(await parseCrush()),
-    ...(await parseCursor()),
-    ...(await parseDroid()),
-    ...(await parseGemini()),
-    ...(await parseGoose()),
-    ...(await parseHermes()),
-    ...(await parseKilo()),
-    ...(await parseKiloCode()),
-    ...(await parseKimi()),
-    ...(await parseMux()),
-    ...(await parseOpenClaw()),
-    ...(await parseOpenCode()),
-    ...(await parsePi()),
-    ...(await parseQwen()),
-    ...(await parseRooCode()),
-    ...(await parseSynthetic()),
+  const dataPromises = [
+    parseAntigravity(),
+    parseAmp(),
+    parseClaude(),
+    parseCodebuff(),
+    parseCodex(),
+    parseCopilot(),
+    parseCrush(),
+    parseCursor(),
+    parseDroid(),
+    parseGemini(),
+    parseGoose(),
+    parseHermes(),
+    parseKilo(),
+    parseKiloCode(),
+    parseKimi(),
+    parseMux(),
+    parseOpenClaw(),
+    parseOpenCode(),
+    parsePi(),
+    parseQwen(),
+    parseRooCode(),
+    parseSynthetic(),
   ]
+
+  const data = (await Promise.all(dataPromises)).flat()
 
   await writeFileForced(
     path.resolve('.trash/output.json'),
