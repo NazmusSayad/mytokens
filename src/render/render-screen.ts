@@ -9,7 +9,7 @@ import {
 } from './types.js'
 import {
   formatDateKey,
-  formatHumanReadable,
+  formatHumanReadableNumber,
   getDateLabelWidth,
   placeLabels,
 } from './utils.js'
@@ -295,7 +295,7 @@ export class RenderScreen {
       for (let i = 0; i <= divisions; i++) {
         const fraction = i / divisions
         const value = Math.round(maxTotal * fraction)
-        const text = formatHumanReadable(value, this.valueUnit)
+        const text = formatHumanReadableNumber(value, this.valueUnit)
 
         let pos: number
         if (i === 0) {
@@ -348,7 +348,7 @@ export class RenderScreen {
         colorFn('■'),
         name,
         chalk.dim(
-          `(${formatHumanReadable(totalVal.toFixed(2), this.valueUnit)})`
+          `(${formatHumanReadableNumber(totalVal.toFixed(2), this.valueUnit)})`
         ),
       ].join(' ')
     })

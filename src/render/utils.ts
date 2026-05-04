@@ -9,9 +9,11 @@ export function formatDateKey(date: Date, showBy: string): string {
   if (showBy === 'year') {
     return String(year)
   }
+
   if (showBy === 'month') {
-    return `${year}-${month}`
+    return `${year}/${month}`
   }
+
   if (showBy === 'week') {
     const tmp = new Date(d)
     const dayOfWeek = tmp.getDay()
@@ -20,9 +22,10 @@ export function formatDateKey(date: Date, showBy: string): string {
     const wy = tmp.getFullYear()
     const wm = String(tmp.getMonth() + 1).padStart(2, '0')
     const wd = String(tmp.getDate()).padStart(2, '0')
-    return `${wy}-${wm}-${wd}`
+    return `${wy}/${wm}/${wd}`
   }
-  return `${year}-${month}-${day}`
+
+  return `${year}/${month}/${day}`
 }
 
 export function getDateLabelWidth(showBy: string): number {
@@ -31,7 +34,7 @@ export function getDateLabelWidth(showBy: string): number {
   return 10
 }
 
-export function formatHumanReadable(
+export function formatHumanReadableNumber(
   input: number | string,
   unit: RenderValueUnit
 ): string {
