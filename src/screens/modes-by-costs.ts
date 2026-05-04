@@ -4,6 +4,7 @@ import {
 } from '@/core/price-detector.js'
 import { UsageDataMessage } from '@/core/types.js'
 import { RenderScreen } from '@/render/render-screen.js'
+import { RenderDataItem } from '@/render/types.js'
 
 export class RenderModesByCostsScreen extends RenderScreen {
   private priceDetector = null as unknown as PriceDetector
@@ -14,64 +15,67 @@ export class RenderModesByCostsScreen extends RenderScreen {
     this.priceDetector = await initializePriceDetector()
   }
 
-  protected resolveItem(item: UsageDataMessage) {
+  protected resolveItem(
+    item: UsageDataMessage,
+    add: (resolved: RenderDataItem) => void
+  ) {
     if (item.tokens.input) {
       const cost = this.priceDetector.getInputPrice(item.model)
       if (cost) {
-        return {
+        add({
           id: item.mode,
           name: item.mode,
           date: item.date,
           value: cost,
-        }
+        })
       }
     }
 
     if (item.tokens.output) {
       const cost = this.priceDetector.getOutputPrice(item.model)
       if (cost) {
-        return {
+        add({
           id: item.mode,
           name: item.mode,
           date: item.date,
           value: cost,
-        }
+        })
       }
     }
 
     if (item.tokens.reasoning) {
       const cost = this.priceDetector.getReasoningPrice(item.model)
       if (cost) {
-        return {
+        add({
           id: item.mode,
           name: item.mode,
           date: item.date,
           value: cost,
-        }
+        })
       }
     }
 
     if (item.tokens.cacheInput) {
       const cost = this.priceDetector.getCacheInputPrice(item.model)
       if (cost) {
-        return {
+        add({
           id: item.mode,
           name: item.mode,
           date: item.date,
           value: cost,
-        }
+        })
       }
     }
 
     if (item.tokens.cacheOutput) {
       const cost = this.priceDetector.getCacheOutputPrice(item.model)
       if (cost) {
-        return {
+        add({
           id: item.mode,
           name: item.mode,
           date: item.date,
           value: cost,
-        }
+        })
       }
     }
   }

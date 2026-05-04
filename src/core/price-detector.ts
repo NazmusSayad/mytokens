@@ -10,11 +10,6 @@ type ConstructorInput = {
   openrouter: OpenrouterResponse
 }
 
-type GetPriceInput = {
-  model: string
-  provider: string
-}
-
 export class PriceDetector {
   private modelsDotDev: ModelsDotDevResponse
   private openrouter: OpenrouterResponse
@@ -25,31 +20,49 @@ export class PriceDetector {
   }
 
   public getInputPrice(input: UsageDataModel): number {
+    const model = this.openrouter.data.find(
+      (m) => m.name === `${input.provider}/${input.id}`
+    )
+
+    if (model) {
+      return model.pricing.request ? parseInt(model.pricing.request) : 0
+    }
+
     return 0
   }
 
   public getOutputPrice(input: UsageDataModel): number {
-    return 0
+    return 10
   }
 
   public getReasoningPrice(input: UsageDataModel): number {
-    return 0
+    return 10
   }
 
   public getCacheInputPrice(input: UsageDataModel): number {
-    return 0
+    return 10
   }
 
   public getCacheOutputPrice(input: UsageDataModel): number {
-    return 0
+    return 10
   }
 }
 
+let cachedPriceDetector: PriceDetector | null = null
 export async function initializePriceDetector() {
+  if (cachedPriceDetector) {
+    return cachedPriceDetector
+  }
+
   const [modelsDotDev, openrouter] = await Promise.all([
     fetchModelsDotDev(),
     fetchOpenrouter(),
   ])
 
-  return new PriceDetector({ modelsDotDev, openrouter })
+  cachedPriceDetector = new PriceDetector({
+    modelsDotDev,
+    openrouter,
+  })
+
+  return cachedPriceDetector
 }

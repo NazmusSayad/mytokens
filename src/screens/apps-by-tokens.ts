@@ -1,53 +1,57 @@
 import { UsageDataMessage } from '@/core/types.js'
 import { RenderScreen } from '@/render/render-screen.js'
+import { RenderDataItem } from '@/render/types.js'
 
 export class RenderAppsByTokensScreen extends RenderScreen {
   protected title = 'Apps by Tokens'
 
-  protected resolveItem(item: UsageDataMessage) {
+  protected resolveItem(
+    item: UsageDataMessage,
+    add: (resolved: RenderDataItem) => void
+  ) {
     if (item.tokens.input) {
-      return {
+      add({
         id: item.app,
         name: item.app,
         date: item.date,
         value: item.tokens.input,
-      }
+      })
     }
 
     if (item.tokens.output) {
-      return {
+      add({
         id: item.app,
         name: item.app,
         date: item.date,
         value: item.tokens.output,
-      }
+      })
     }
 
     if (item.tokens.reasoning) {
-      return {
+      add({
         id: item.app,
         name: item.app,
         date: item.date,
         value: item.tokens.reasoning,
-      }
+      })
     }
 
     if (item.tokens.cacheInput) {
-      return {
+      add({
         id: item.app,
         name: item.app,
         date: item.date,
         value: item.tokens.cacheInput,
-      }
+      })
     }
 
     if (item.tokens.cacheOutput) {
-      return {
+      add({
         id: item.app,
         name: item.app,
         date: item.date,
         value: item.tokens.cacheOutput,
-      }
+      })
     }
   }
 }
