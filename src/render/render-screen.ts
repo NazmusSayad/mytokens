@@ -237,7 +237,7 @@ export class RenderScreen {
       for (let i = 0; i <= divisions; i++) {
         const fraction = i / divisions
         const value = Math.round(maxTotal * fraction)
-        const text = formatHumanReadable(value)
+        const text = formatHumanReadable(value, this.valueUnit)
 
         let pos: number
         if (i === 0) {
@@ -289,7 +289,9 @@ export class RenderScreen {
       return [
         colorFn('■'),
         name,
-        chalk.dim(`(${formatHumanReadable(totalVal.toFixed(2))})`),
+        chalk.dim(
+          `(${formatHumanReadable(totalVal.toFixed(2), this.valueUnit)})`
+        ),
       ].join(' ')
     })
     const legendLine = legendItems.join('   ')

@@ -1,3 +1,5 @@
+import { RenderValueUnit } from './types.js'
+
 export function formatDateKey(date: Date, showBy: string): string {
   const d = new Date(date)
   const year = d.getFullYear()
@@ -29,17 +31,22 @@ export function getDateLabelWidth(showBy: string): number {
   return 10
 }
 
-export function formatHumanReadable(input: number | string): string {
+export function formatHumanReadable(
+  input: number | string,
+  unit: RenderValueUnit
+): string {
   const n = typeof input === 'string' ? parseFloat(input) : input
   if (Number.isNaN(n)) return 'N/A'
 
-  if (n === 0) return '0'
+  if (n === 0) {
+    return unit === 'dollar' ? '$0' : '0'
+  }
 
   const absN = Math.abs(n)
   const sign = n < 0 ? '-' : ''
 
   if (absN < 1000) {
-    return sign + absN
+    return unit === 'dollar' ? `${sign}$${absN}` : `${sign}${absN}`
   }
 
   const units = ['', 'K', 'M', 'B', 'T']
@@ -48,7 +55,8 @@ export function formatHumanReadable(input: number | string): string {
   const scaled = absN / divisor
 
   const formatted = scaled.toFixed(1).replace(/\.0$/, '')
-  return sign + formatted + units[magnitude]
+  const final = sign + formatted + units[magnitude]
+  return unit === 'dollar' ? `$${final}` : final
 }
 
 export function placeLabels(
