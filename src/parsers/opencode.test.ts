@@ -102,7 +102,7 @@ describe('parseOpenCode', () => {
     expect(result[0].project?.path).toBe('/Users/alice/opencode-repo')
   })
 
-  it('deduplicates forked history rows by fingerprint', async () => {
+  it('returns distinct rows as separate messages', async () => {
     const dbDir = join(tempHome, '.local', 'share', 'opencode')
     mkdirSync(dbDir, { recursive: true })
     const dbPath = join(dbDir, 'opencode.db')
@@ -137,8 +137,9 @@ describe('parseOpenCode', () => {
     })
 
     const result = await parseOpenCode()
-    expect(result).toHaveLength(1)
+    expect(result).toHaveLength(2)
     expect(result[0].tokens.input).toBe(1000)
+    expect(result[1].tokens.input).toBe(1000)
   })
 
   it('falls back to legacy JSON files when DB is missing', async () => {

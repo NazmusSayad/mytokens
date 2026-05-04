@@ -102,7 +102,6 @@ function processOpenCodeRows(
   rows: Array<Record<string, unknown>>
 ): UsageDataMessage[] {
   const messages: UsageDataMessage[] = []
-  const fingerprintIndices = new Map<string, number>()
 
   for (const row of rows) {
     const dataJson = String(row.data || '')
@@ -125,7 +124,6 @@ function processOpenCodeRows(
     const reasoning = Math.max(tokens.reasoning || 0, 0)
     const cacheRead = Math.max(tokens.cache.read || 0, 0)
     const cacheWrite = Math.max(tokens.cache.write || 0, 0)
-    const cost = Math.max(msg.cost || 0, 0)
 
     const agentOrMode = msg.mode || msg.agent
     const agent = agentOrMode
@@ -133,39 +131,6 @@ function processOpenCodeRows(
       : undefined
 
     const timestamp = msg.time.created || 0
-
-    const fingerprint = JSON.stringify({
-      created: msg.time.created,
-      completed: msg.time.completed,
-      modelID: msg.modelID,
-      providerID: msg.providerID,
-      input,
-      output,
-      reasoning,
-      cacheRead,
-      cacheWrite,
-      cost,
-      agent,
-    })
-
-    if (fingerprintIndices.has(fingerprint)) {
-      // Duplicate - merge workspace if possible
-      const existingIdx = fingerprintIndices.get(fingerprint)!
-      const existing = messages[existingIdx]
-      const rowWorkspace = extractString(row.workspace_root)
-      const embeddedWorkspace = msg.path?.root
-      const workspaceRoot = rowWorkspace || embeddedWorkspace
-      if (workspaceRoot && !existing.project) {
-        const key = normalizeWorkspaceKey(workspaceRoot)
-        if (key) {
-          existing.project = {
-            name: workspaceLabelFromKey(key),
-            path: key,
-          }
-        }
-      }
-      continue
-    }
 
     const rowWorkspace = extractString(row.workspace_root)
     const embeddedWorkspace = msg.path?.root
@@ -197,7 +162,6 @@ function processOpenCodeRows(
         : undefined,
     }
 
-    fingerprintIndices.set(fingerprint, messages.length)
     messages.push(message)
   }
 
