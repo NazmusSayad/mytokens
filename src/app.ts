@@ -22,6 +22,7 @@ import { parsePi } from './parsers/pi.js'
 import { parseQwen } from './parsers/qwen.js'
 import { parseKiloCode, parseRooCode } from './parsers/roocode.js'
 import { parseSynthetic } from './parsers/synthetic.js'
+import { RenderDataItem, renderScreen } from './render/render-screen.js'
 
 export type RunAppOptions = {
   opencodeDbPath?: string
@@ -64,4 +65,54 @@ export async function runApp(_options: RunAppOptions) {
     path.resolve('.trash/output.json'),
     JSON.stringify(data, null, 2)
   )
+
+  const renderItems: RenderDataItem[] = []
+  data.forEach((item) => {
+    if (item.tokens.input) {
+      renderItems.push({
+        id: 'input',
+        name: 'Input',
+        date: item.date,
+        value: item.tokens.input,
+      })
+    }
+
+    if (item.tokens.output) {
+      renderItems.push({
+        id: 'output',
+        name: 'Output',
+        date: item.date,
+        value: item.tokens.output,
+      })
+    }
+
+    if (item.tokens.reasoning) {
+      renderItems.push({
+        id: 'reasoning',
+        name: 'Reasoning',
+        date: item.date,
+        value: item.tokens.reasoning,
+      })
+    }
+
+    if (item.tokens.cacheInput) {
+      renderItems.push({
+        id: 'cacheInput',
+        name: 'Cache Input',
+        date: item.date,
+        value: item.tokens.cacheInput,
+      })
+    }
+
+    if (item.tokens.cacheOutput) {
+      renderItems.push({
+        id: 'cacheOutput',
+        name: 'Cache Output',
+        date: item.date,
+        value: item.tokens.cacheOutput,
+      })
+    }
+  })
+
+  await renderScreen(renderItems)
 }
