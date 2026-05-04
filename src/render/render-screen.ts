@@ -1,6 +1,6 @@
 import { UsageDataMessage } from '@/core/types.js'
 import chalk from 'chalk'
-import { colorGenerator } from './color-generator.js'
+import { ColorGenerator } from './color-generator.js'
 import { printLn } from './stdout.js'
 import {
   RenderDataItem,
@@ -18,6 +18,7 @@ export class RenderScreen {
   private initialized = false
   private data: UsageDataMessage[]
   private options: RenderScreenOptions
+  private colorGenerator = new ColorGenerator()
 
   // Should be overridden by subclasses
   protected title: string = ''
@@ -219,7 +220,7 @@ export class RenderScreen {
     )
     const idToColor = new Map<string, (s: string) => string>()
     for (const id of ids) {
-      const hex = await colorGenerator(id)
+      const hex = await this.colorGenerator.generate(id)
       idToColor.set(id, chalk.hex(hex))
     }
 

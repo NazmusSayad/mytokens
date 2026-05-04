@@ -2,7 +2,7 @@
 
 import { Command } from '@commander-js/extra-typings'
 import { runApp } from './app.js'
-import { parseScreenArg } from './helpers/args.js'
+import { parseScreenArg, resolveBy, resolveDateRange } from './helpers/args.js'
 import { RenderValueShowBy } from './render/types.js'
 
 const program = new Command('openusage')
@@ -13,14 +13,29 @@ const program = new Command('openusage')
   )
   .option(
     '--by <by>',
-    'Grouping by time. possible values: day, week, month, year. example: --by month',
-    'day'
+    'Grouping by time. possible values: day, week, month, year. example: --by month'
   )
+  .option('--day', 'shorthand for --by day')
+  .option('--week', 'shorthand for --by week')
+  .option('--month', 'shorthand for --by month')
+  .option('--year', 'shorthand for --by year')
   .option(
     '--from <from>',
     'Start date for the period. example: --from 2024-01-01'
   )
   .option('--to <to>', 'End date for the period. example: --to 2024-12-31')
+  .option('--today', 'show data for today only')
+  .option('--last-week', 'show data for the last 7 days')
+  .option('--last-month', 'show data for the last 30 days')
+  .option('--last <days>', 'show data for the last n days', (val) => {
+    const num = parseInt(val, 10)
+    if (isNaN(num) || num <= 0) {
+      throw new Error(
+        `Invalid --last value: ${val}. Must be a positive number.`
+      )
+    }
+    return num
+  })
   .option(
     '--apps <apps>',
     'Apps to include. example: --apps opencode,codex',
@@ -78,15 +93,43 @@ const program = new Command('openusage')
       process.exit(1)
     }
 
+    let dateStart: Date | null
+    let dateEnd: Date | null
+    let showBy: string
+
+    try {
+      const range = resolveDateRange({
+        from: options.from,
+        to: options.to,
+        today: options.today,
+        lastWeek: options.lastWeek,
+        lastMonth: options.lastMonth,
+        last: options.last,
+      })
+      dateStart = range.dateStart
+      dateEnd = range.dateEnd
+
+      showBy = resolveBy({
+        by: options.by,
+        day: options.day,
+        week: options.week,
+        month: options.month,
+        year: options.year,
+      })
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : String(err))
+      process.exit(1)
+    }
+
     void runApp({
       screen: parsedScreen,
-      showBy: options.by as RenderValueShowBy,
+      showBy: showBy as RenderValueShowBy,
 
       screenPadding: 1,
       screenWidth: process.stdout.columns ?? 80,
 
-      dateStart: options.from ? new Date(options.from) : null,
-      dateEnd: options.to ? new Date(options.to) : null,
+      dateStart,
+      dateEnd,
 
       enabledApps: options.apps ?? null,
       disabledApps: options.skipApps ?? null,
