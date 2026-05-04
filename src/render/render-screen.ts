@@ -91,6 +91,8 @@ export async function renderScreen(
     0,
     Math.floor((AVAILABLE_WIDTH - title.length) / 2)
   )
+
+  console.log()
   console.log(' '.repeat(titlePadding) + chalk.bold(title))
   console.log()
 
@@ -212,4 +214,5 @@ export async function renderScreen(
     Math.floor((AVAILABLE_WIDTH - plainLegend.length) / 2)
   )
   console.log(' '.repeat(legendPadding) + legendLine)
+  console.log()
 }

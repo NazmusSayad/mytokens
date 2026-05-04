@@ -7,7 +7,6 @@ import {
   writeFileAsJSON,
   writeFileForced,
 } from '@/helpers/fs.js'
-import chalk from 'chalk'
 import path from 'path'
 import { ulid } from 'ulid'
 
@@ -62,7 +61,6 @@ export async function cachedFetchJSON<T>(
 ): Promise<T> {
   const cachedData = await readFromCache<T>(url)
   if (cachedData) {
-    console.log(chalk.gray(`Using cached data for ${url}`))
     return cachedData
   }
 
@@ -70,6 +68,5 @@ export async function cachedFetchJSON<T>(
   const data = (await response.json()) as unknown as Record<string, unknown>
   await writeCache(url, data)
 
-  console.log(chalk.blue(`Fetched fresh data for ${url}`))
   return data as T
 }
