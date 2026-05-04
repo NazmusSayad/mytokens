@@ -22,10 +22,13 @@ export class RenderScreen {
   protected async init() {}
 
   // Must be implemented by subclasses to resolve a UsageDataMessage into a RenderDataItem
-  protected resolveItem(item: UsageDataMessage): RenderDataItem | undefined {
-    throw new Error('Not implemented, should be implemented by subclasses', {
-      cause: item,
-    })
+  protected resolveItem(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    item: UsageDataMessage,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    add: (resolved: RenderDataItem) => void
+  ) {
+    throw new Error('Not implemented, should be implemented by subclasses')
   }
 
   constructor(data: UsageDataMessage[], options: RenderScreenOptions) {
@@ -80,8 +83,9 @@ export class RenderScreen {
         continue
       }
 
-      const resolved = this.resolveItem(message)
-      if (resolved) resolvedData.push(resolved)
+      this.resolveItem(message, (resolved) => {
+        return resolvedData.push(resolved)
+      })
     }
 
     if (resolvedData.length === 0) {
