@@ -9,8 +9,8 @@ const program = new Command('openusage')
     '--db <path>',
     'Path to the opencode.db file. Overrides OPENCODE_DB_PATH environment variable'
   )
-  .action((options) => {
-    void runApp({ opencodeDbPath: options.db })
+  .action((_options) => {
+    void runApp({})
   })
 
 program
@@ -22,8 +22,8 @@ program
     '--db <path>',
     'Path to the opencode.db file. Overrides OPENCODE_DB_PATH environment variable'
   )
-  .action((options) => {
-    void runApp({ opencodeDbPath: options.db })
+  .action((_options) => {
+    void runApp({})
   })
 
 program
@@ -33,8 +33,8 @@ program
     '--db <path>',
     'Path to the opencode.db file. Overrides OPENCODE_DB_PATH environment variable'
   )
-  .action((options) => {
-    void runApp({ opencodeDbPath: options.db })
+  .action((_options) => {
+    void runApp({})
   })
 
 program
@@ -44,8 +44,8 @@ program
     '--db <path>',
     'Path to the opencode.db file. Overrides OPENCODE_DB_PATH environment variable'
   )
-  .action((options) => {
-    void runApp({ opencodeDbPath: options.db })
+  .action((_options) => {
+    void runApp({})
   })
 
 program
@@ -55,8 +55,8 @@ program
     '--db <path>',
     'Path to the opencode.db file. Overrides OPENCODE_DB_PATH environment variable'
   )
-  .action((options) => {
-    void runApp({ opencodeDbPath: options.db })
+  .action((_options) => {
+    void runApp({})
   })
 
 program.parse()
