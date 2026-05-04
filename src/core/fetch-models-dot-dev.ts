@@ -1,3 +1,5 @@
+import { cachedFetchJSON } from './cached-fetch.js'
+
 type ModelsDotDevCost = {
   input: number
   output: number
@@ -43,7 +45,5 @@ type ModelsDotDevProvider = {
 type ModelsDotDevResponse = Record<string, ModelsDotDevProvider>
 
 export async function fetchModelsDotDev(): Promise<ModelsDotDevResponse> {
-  const response = await fetch('https://models.dev/api.json')
-  const data = (await response.json()) as ModelsDotDevResponse
-  return data
+  return await cachedFetchJSON('https://models.dev/api.json')
 }

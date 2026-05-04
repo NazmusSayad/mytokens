@@ -1,3 +1,5 @@
+import { cachedFetchJSON } from './cached-fetch.js'
+
 type OpenrouterArchitecture = {
   modality: string
   input_modalities: string[]
@@ -59,7 +61,5 @@ type OpenrouterResponse = {
 }
 
 export async function fetchOpenrouter(): Promise<OpenrouterResponse> {
-  const response = await fetch('https://openrouter.ai/api/v1/models')
-  const data = (await response.json()) as OpenrouterResponse
-  return data
+  return await cachedFetchJSON('https://openrouter.ai/api/v1/models')
 }
