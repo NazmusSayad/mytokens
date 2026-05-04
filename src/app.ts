@@ -14,6 +14,11 @@ export type RunAppOptions = {
 export async function runApp(_options: RunAppOptions) {
   const priceDetector = await initializePriceDetector()
 
+  writeFileForced(
+    path.resolve('.trash/price.json'),
+    JSON.stringify(priceDetector, null, 2)
+  )
+
   const data = [
     ...(await parseCodex()),
     ...(await parseClaude()),
@@ -21,8 +26,6 @@ export async function runApp(_options: RunAppOptions) {
     ...(await parseCopilot()),
     ...(await parseOpenCode()),
   ]
-
-  console.log(priceDetector)
 
   writeFileForced(
     path.resolve('.trash/output.json'),
