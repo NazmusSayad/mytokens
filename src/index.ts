@@ -7,7 +7,7 @@ const program = new Command('openusage')
   .description('CLI tool to see detailed opencode usage')
   .action(() => {
     void runApp({
-      screen: 'models-by-tokens',
+      screen: 'costs',
       showBy: 'day',
     })
   })
