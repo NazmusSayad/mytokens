@@ -56,7 +56,7 @@ type OpenrouterModel = {
   links: OpenrouterLinks
 }
 
-type OpenrouterResponse = {
+export type OpenrouterResponse = {
   data: OpenrouterModel[]
 }
 

@@ -42,7 +42,7 @@ type ModelsDotDevProvider = {
   models: Record<string, ModelsDotDevModel>
 }
 
-type ModelsDotDevResponse = Record<string, ModelsDotDevProvider>
+export type ModelsDotDevResponse = Record<string, ModelsDotDevProvider>
 
 export async function fetchModelsDotDev(): Promise<ModelsDotDevResponse> {
   return await cachedFetchJSON('https://models.dev/api.json')
