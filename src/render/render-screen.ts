@@ -11,9 +11,11 @@ import {
 } from './utils.js'
 
 export class RenderScreen {
-  protected title: string = '' // Should be overridden by subclasses
+  private initialized = false
   protected data: UsageDataMessage[]
   protected options: RenderScreenOptions
+
+  protected title: string = '' // Should be overridden by subclasses
 
   constructor(data: UsageDataMessage[], options: RenderScreenOptions) {
     this.data = data
@@ -42,23 +44,44 @@ export class RenderScreen {
     return false
   }
 
-  protected async getRenderDataItems(): Promise<RenderDataItem[]> {
-    throw new Error('Not implemented, should be implemented by subclasses')
+  protected resolveItem(item: UsageDataMessage): RenderDataItem | undefined {
+    throw new Error('Not implemented, should be implemented by subclasses', {
+      cause: item,
+    })
   }
 
-  public async init() {
+  protected async init() {
     // Ignore, anyone can override this if needed
   }
 
+  public async setup() {
+    await this.init()
+    this.initialized = true
+  }
+
   public async render() {
+    if (!this.initialized) {
+      throw new Error(
+        'Screen not initialized. Please call setup() before render().'
+      )
+    }
+
     if (this.title === '') {
       throw new Error(
         'Title is not set. Please set the title property in the subclass.'
       )
     }
 
-    const data = await this.getRenderDataItems()
-    if (data.length === 0) {
+    const resolvedData: RenderDataItem[] = []
+    for (let i = 0; i < this.data.length; i++) {
+      const message = this.data[i]
+      if (this.isMessageIgnored(message)) continue
+
+      const resolved = this.resolveItem(message)
+      if (resolved) resolvedData.push(resolved)
+    }
+
+    if (resolvedData.length === 0) {
       console.warn('No data to display.')
       return
     }
@@ -68,7 +91,7 @@ export class RenderScreen {
     const grouped = new Map<string, Map<string, number>>()
     const idToName = new Map<string, string>()
 
-    for (const item of data) {
+    for (const item of resolvedData) {
       const key = formatDateKey(item.date, showBy)
       if (!grouped.has(key)) {
         grouped.set(key, new Map())

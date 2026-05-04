@@ -23,7 +23,7 @@ import { parseQwen } from './parsers/qwen.js'
 import { parseKiloCode, parseRooCode } from './parsers/roocode.js'
 import { parseSynthetic } from './parsers/synthetic.js'
 import { RenderScreen } from './render/render-screen.js'
-import { RenderTokenScreen } from './screens/tokens.js'
+import { RenderTokensScreen } from './screens/tokens.js'
 
 type ScreenType =
   | 'costs'
@@ -31,7 +31,7 @@ type ScreenType =
   | `${'apps' | 'modes' | 'models' | 'projects' | 'providers'}-by-${'costs' | 'tokens'}`
 
 const SCREENS_MAP: Record<ScreenType, typeof RenderScreen> = {
-  tokens: RenderTokenScreen,
+  tokens: RenderTokensScreen,
 }
 
 export type RunAppOptions = {
@@ -99,6 +99,6 @@ export async function runApp(options: RunAppOptions) {
     dateEnd: options.dateEnd ?? null,
   })
 
-  await screen.init()
+  await screen.setup()
   await screen.render()
 }
