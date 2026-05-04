@@ -60,13 +60,23 @@ export type OpenrouterResponse = {
   data: OpenrouterModel[]
 }
 
+const OPENROUTER_ENV_API_KEY_LIST = [
+  'OPENROUTER_API_KEY',
+  'OPENROUTER_TOKEN',
+  'OPENROUTER_KEY',
+]
+
 export async function fetchOpenrouter(): Promise<OpenrouterResponse> {
   const headers: Record<string, string> = {
     Accept: 'application/json',
     'Content-Type': 'application/json',
   }
-  if (process.env.OPENROUTER_API_KEY) {
-    headers['Authorization'] = `Bearer ${process.env.OPENROUTER_API_KEY}`
+
+  for (const envVar of OPENROUTER_ENV_API_KEY_LIST) {
+    if (process.env[envVar]) {
+      headers['Authorization'] = `Bearer ${process.env[envVar]}`
+      break
+    }
   }
 
   return await cachedFetchJSON('https://openrouter.ai/api/v1/models', {
