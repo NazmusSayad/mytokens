@@ -6,6 +6,7 @@ export type RenderDataItem = {
   name: string
   date: Date
   value: number
+  color?: string
 }
 
 export type RenderScreenOptions = {
