@@ -2,7 +2,8 @@
 
 import { Command } from '@commander-js/extra-typings'
 import chalk from 'chalk'
-import { runApp, SCREENS_MAP } from './app.js'
+import { runApp } from './app.js'
+import { APP_SCREENS_MAP } from './constants/screen.js'
 import { parseScreenArg, resolveBy, resolveDateRange } from './helpers/args.js'
 import { RenderValueShowBy } from './render/types.js'
 
@@ -10,7 +11,7 @@ const program = new Command('mytoken')
   .description('CLI tool to see detailed all the coding cli usage')
   .argument(
     '[screen]',
-    `Screen to display. Available screens: ${Object.keys(SCREENS_MAP).join(', ')}`
+    `Screen to display. Available screens: ${Object.keys(APP_SCREENS_MAP).join(', ')}`
   )
   .option(
     '--by <by>',
@@ -91,7 +92,9 @@ const program = new Command('mytoken')
     const parsedScreen = parseScreenArg(screen ?? 'tokens')
     if (!parsedScreen) {
       console.error(chalk.red(`Invalid screen argument: ${chalk.bold(screen)}`))
-      console.log(`Available screens: ${Object.keys(SCREENS_MAP).join(', ')}`)
+      console.log(
+        `Available screens: ${Object.keys(APP_SCREENS_MAP).join(', ')}`
+      )
       process.exit(1)
     }
 
