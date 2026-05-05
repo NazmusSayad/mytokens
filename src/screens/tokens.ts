@@ -14,6 +14,7 @@ export class RenderTokensScreen extends RenderScreen {
         id: 'input',
         name: 'Input',
         date: item.date,
+        color: '#7b44e9',
         value: item.tokens.input,
       })
     }
@@ -23,6 +24,7 @@ export class RenderTokensScreen extends RenderScreen {
         id: 'output',
         name: 'Output',
         date: item.date,
+        color: '#64a659',
         value: item.tokens.output,
       })
     }
@@ -32,6 +34,7 @@ export class RenderTokensScreen extends RenderScreen {
         id: 'output',
         name: 'Output',
         date: item.date,
+        color: '#64a659',
         value: item.tokens.reasoning,
       })
     }
@@ -41,6 +44,7 @@ export class RenderTokensScreen extends RenderScreen {
         id: 'cacheInput',
         name: 'Cache Input',
         date: item.date,
+        color: '#6b9af5',
         value: item.tokens.cacheInput,
       })
     }
@@ -50,6 +54,7 @@ export class RenderTokensScreen extends RenderScreen {
         id: 'cacheOutput',
         name: 'Cache Output',
         date: item.date,
+        color: '#b97c60',
         value: item.tokens.cacheOutput,
       })
     }

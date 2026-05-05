@@ -26,6 +26,7 @@ export class RenderCostsScreen extends RenderScreen {
         add({
           id: 'input',
           name: 'Input',
+          color: '#7b44e9',
           date: item.date,
           value: cost * item.tokens.input,
         })
@@ -39,6 +40,7 @@ export class RenderCostsScreen extends RenderScreen {
           id: 'output',
           name: 'Output',
           date: item.date,
+          color: '#64a659',
           value: cost * item.tokens.output,
         })
       }
@@ -51,6 +53,7 @@ export class RenderCostsScreen extends RenderScreen {
           id: 'output',
           name: 'Output',
           date: item.date,
+          color: '#64a659',
           value: cost * item.tokens.reasoning,
         })
       }
@@ -63,6 +66,7 @@ export class RenderCostsScreen extends RenderScreen {
           id: 'cacheInput',
           name: 'Cache Input',
           date: item.date,
+          color: '#6b9af5',
           value: cost * item.tokens.cacheInput,
         })
       }
@@ -75,6 +79,7 @@ export class RenderCostsScreen extends RenderScreen {
           id: 'cacheOutput',
           name: 'Cache Output',
           date: item.date,
+          color: '#b97c60',
           value: cost * item.tokens.cacheOutput,
         })
       }
