@@ -1,4 +1,5 @@
 import { APP_SCREENS_MAP, AppScreenType } from '@/constants/screen.js'
+import Fuse from 'fuse.js'
 
 const ScreenKeywordMap: Record<string, AppScreenType> = {
   token: 'tokens',
@@ -125,9 +126,16 @@ const ScreenKeywordMap: Record<string, AppScreenType> = {
   ),
 }
 
+const fuse = new Fuse(Object.keys(ScreenKeywordMap))
+
 export function parseScreenArg(input: string): AppScreenType | null {
   if (ScreenKeywordMap[input]) {
     return ScreenKeywordMap[input]
+  }
+
+  const result = fuse.search(input)
+  if (result.length > 0) {
+    return ScreenKeywordMap[result[0].item]
   }
 
   return null
