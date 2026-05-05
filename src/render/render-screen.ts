@@ -162,7 +162,7 @@ export class RenderScreen {
     const { showBy, screenWidth, screenPadding } = this.options
 
     const grouped = new Map<string, Map<string, number>>()
-    const idToName = new Map<string, string>()
+    const idToMeta = new Map<string, { name: string; color?: string }>()
 
     for (const item of resolvedData) {
       const key = formatDateKey(item.date, showBy)
@@ -171,8 +171,10 @@ export class RenderScreen {
       }
       const bucket = grouped.get(key)!
       bucket.set(item.id, (bucket.get(item.id) ?? 0) + item.value)
-      if (!idToName.has(item.id)) {
-        idToName.set(item.id, item.name)
+      if (!idToMeta.has(item.id)) {
+        idToMeta.set(item.id, { name: item.name, color: item.color })
+      } else if (item.color && !idToMeta.get(item.id)!.color) {
+        idToMeta.get(item.id)!.color = item.color
       }
     }
 
@@ -215,12 +217,13 @@ export class RenderScreen {
       }
     }
 
-    const ids = Array.from(idToName.keys()).sort(
+    const ids = Array.from(idToMeta.keys()).sort(
       (a, b) => (idToTotal.get(b) ?? 0) - (idToTotal.get(a) ?? 0)
     )
     const idToColor = new Map<string, (s: string) => string>()
     for (const id of ids) {
-      const hex = await this.colorGenerator.generate(id)
+      const explicitColor = idToMeta.get(id)?.color
+      const hex = explicitColor ?? (await this.colorGenerator.generate(id))
       idToColor.set(id, chalk.hex(hex))
     }
 
@@ -345,7 +348,7 @@ export class RenderScreen {
 
     const legendItems = ids.map((id) => {
       const colorFn = idToColor.get(id)!
-      const name = idToName.get(id)!
+      const name = idToMeta.get(id)!.name
       const totalVal = idToTotal.get(id) ?? 0
       return [
         colorFn('■'),
