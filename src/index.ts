@@ -1,15 +1,21 @@
 #!/usr/bin/env node
 
 import { Command } from '@commander-js/extra-typings'
+import chalk from 'chalk'
 import { runApp } from './app.js'
-import { parseScreenArg, resolveBy, resolveDateRange } from './helpers/args.js'
+import {
+  parseScreenArg,
+  resolveBy,
+  resolveDateRange,
+  ScreenChoices,
+} from './helpers/args.js'
 import { RenderValueShowBy } from './render/types.js'
 
 const program = new Command('openusage')
   .description('CLI tool to see detailed all the coding cli usage')
   .argument(
     '[screen]',
-    'Screen to display. Available screens: costs, tokens, apps-by-costs, apps-by-tokens, modes-by-costs, modes-by-tokens, models-by-costs, models-by-tokens, projects-by-costs, projects-by-tokens, providers-by-costs, providers-by-tokens.'
+    `Screen to display. Available screens: ${Object.keys(ScreenChoices).join(', ')}`
   )
   .option(
     '--by <by>',
@@ -89,7 +95,8 @@ const program = new Command('openusage')
   .action((screen, options) => {
     const parsedScreen = parseScreenArg(screen ?? 'tokens')
     if (!parsedScreen) {
-      console.error(`Invalid screen argument: ${screen}`)
+      console.error(chalk.red(`Invalid screen argument: ${chalk.bold(screen)}`))
+      console.log(`Available screens: ${Object.keys(ScreenChoices).join(', ')}`)
       process.exit(1)
     }
 
