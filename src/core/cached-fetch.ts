@@ -1,6 +1,6 @@
 import {
   CACHE_VALIDITY_DURATION,
-  OPENUSAGE_CACHE_REGISTRY_PATH,
+  MY_TOKEN_CACHE_REGISTRY_PATH,
 } from '@/config.js'
 import {
   readFileAsJSON,
@@ -20,7 +20,7 @@ async function readRegistry() {
           filePath: string
         }
       >
-    >(OPENUSAGE_CACHE_REGISTRY_PATH)) ?? {}
+    >(MY_TOKEN_CACHE_REGISTRY_PATH)) ?? {}
   )
 }
 
@@ -30,12 +30,12 @@ async function writeCache(url: string, data: Record<string, unknown>) {
   const previousEntry = registry[url]
   const cacheFilePath = previousEntry
     ? previousEntry.filePath
-    : path.join(path.dirname(OPENUSAGE_CACHE_REGISTRY_PATH), ulid())
+    : path.join(path.dirname(MY_TOKEN_CACHE_REGISTRY_PATH), ulid())
 
   registry[url] = { timestamp: Date.now(), filePath: cacheFilePath }
 
   await writeFileForced(cacheFilePath, JSON.stringify(data))
-  await writeFileAsJSON(OPENUSAGE_CACHE_REGISTRY_PATH, registry)
+  await writeFileAsJSON(MY_TOKEN_CACHE_REGISTRY_PATH, registry)
 }
 
 async function readFromCache<T>(url: string): Promise<T | null> {

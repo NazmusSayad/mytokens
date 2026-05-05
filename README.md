@@ -1,6 +1,6 @@
-# openusage
+# mytoken
 
-`openusage` is a small CLI that reads your local OpenCode SQLite history, matches models against the OpenRouter model catalog, and prints a readable usage + cost report.
+`mytoken` is a small CLI that reads your local OpenCode SQLite history, matches models against the OpenRouter model catalog, and prints a readable usage + cost report.
 
 ## What it does
 
@@ -14,14 +14,14 @@
 Use it directly from npm (no cloning/building needed):
 
 ```bash
-npx openusage
+npx mytoken
 ```
 
 Or install globally:
 
 ```bash
-npm i -g openusage
-openusage
+npm i -g mytoken
+mytoken
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ openusage
 Run with default database path:
 
 ```bash
-npx openusage
+npx mytoken
 ```
 
 You can also pass your database file as the first CLI argument, or set `OPENCODE_DB_PATH`.

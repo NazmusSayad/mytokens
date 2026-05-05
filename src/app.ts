@@ -39,7 +39,7 @@ export type AppScreenType =
   | 'tokens'
   | `${'apps' | 'modes' | 'models' | 'projects' | 'providers'}-by-${'costs' | 'tokens'}`
 
-const SCREENS_MAP: Record<AppScreenType, typeof RenderScreen> = {
+export const SCREENS_MAP: Record<AppScreenType, typeof RenderScreen> = {
   costs: RenderCostsScreen,
   tokens: RenderTokensScreen,
   'apps-by-costs': RenderAppsByCostsScreen,

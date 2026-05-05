@@ -1,6 +1,6 @@
 import { AppScreenType } from '@/app.js'
 
-export const ScreenChoices: Record<AppScreenType, string[]> = {
+const ScreenChoices: Record<AppScreenType, string[]> = {
   costs: ['.', 'cost', 'costs'],
   tokens: ['usage', 'usages', 'token', 'tokens'],
 
