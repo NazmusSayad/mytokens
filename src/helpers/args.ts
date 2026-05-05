@@ -1,12 +1,12 @@
 import { AppScreenType } from '@/app.js'
 
 export const ScreenChoices: Record<AppScreenType, string[]> = {
-  costs: ['cost', 'costs'],
+  costs: ['.', 'cost', 'costs'],
   tokens: ['usage', 'usages', 'token', 'tokens'],
 
   'apps-by-costs': [
-    'app/',
-    'apps/',
+    'app.',
+    'apps.',
     'app/cost',
     'apps/cost',
     'app/costs',
@@ -26,8 +26,8 @@ export const ScreenChoices: Record<AppScreenType, string[]> = {
   ],
 
   'modes-by-costs': [
-    'mode/',
-    'modes/',
+    'mode.',
+    'modes.',
     'mode/cost',
     'modes/cost',
     'mode/costs',
@@ -47,8 +47,8 @@ export const ScreenChoices: Record<AppScreenType, string[]> = {
   ],
 
   'models-by-costs': [
-    'model/',
-    'models/',
+    'model.',
+    'models.',
     'model/cost',
     'models/cost',
     'model/costs',
@@ -68,8 +68,8 @@ export const ScreenChoices: Record<AppScreenType, string[]> = {
   ],
 
   'projects-by-costs': [
-    'project/',
-    'projects/',
+    'project.',
+    'projects.',
     'project/cost',
     'projects/cost',
     'project/costs',
@@ -89,8 +89,8 @@ export const ScreenChoices: Record<AppScreenType, string[]> = {
   ],
 
   'providers-by-costs': [
-    'provider/',
-    'providers/',
+    'provider.',
+    'providers.',
     'provider/cost',
     'providers/cost',
     'provider/costs',
