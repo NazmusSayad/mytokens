@@ -1,4 +1,4 @@
-import { BEST_CLI_TOOLS } from '@/constants/providers.js'
+import { BEST_LLM_BRANDS } from '@/constants/providers.js'
 import {
   initializePriceDetector,
   PriceDetector,
@@ -29,7 +29,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           name: item.app,
           date: item.date,
           value: cost * item.tokens.input,
-          color: BEST_CLI_TOOLS[item.model.provider],
+          color: BEST_LLM_BRANDS[item.model.provider],
         })
       }
     }
@@ -42,7 +42,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           name: item.app,
           date: item.date,
           value: cost * item.tokens.output,
-          color: BEST_CLI_TOOLS[item.model.provider],
+          color: BEST_LLM_BRANDS[item.model.provider],
         })
       }
     }
@@ -55,7 +55,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           name: item.app,
           date: item.date,
           value: cost * item.tokens.reasoning,
-          color: BEST_CLI_TOOLS[item.model.provider],
+          color: BEST_LLM_BRANDS[item.model.provider],
         })
       }
     }
@@ -68,7 +68,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           name: item.app,
           date: item.date,
           value: cost * item.tokens.cacheInput,
-          color: BEST_CLI_TOOLS[item.model.provider],
+          color: BEST_LLM_BRANDS[item.model.provider],
         })
       }
     }
@@ -81,7 +81,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           name: item.app,
           date: item.date,
           value: cost * item.tokens.cacheOutput,
-          color: BEST_CLI_TOOLS[item.model.provider],
+          color: BEST_LLM_BRANDS[item.model.provider],
         })
       }
     }
