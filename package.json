@@ -1,6 +1,6 @@
 {
   "name": "mytokens",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "scripts": {
     "lint": "tsc --noEmit && eslint .",
@@ -9,16 +9,17 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "build": "tsdown --config ./tsdown.config.ts",
+    "prepublish": "tsc --noEmit && eslint . && vitest run && tsdown --config ./tsdown.config.ts",
     "build:watch": "concurrently --names \"R,T\" --prefix-colors \"blue.dim,magenta.dim\" \"tsdown --config ./tsdown.config.ts --watch\" \"tsc --noEmit --watch\"",
     "start": "rux ./src/index.ts",
     "dev": "run ./src/index.ts"
   },
   "bin": {
-    "mtkn": "./dist/index.js",
-    "mtkns": "./dist/index.js",
-    "mytoken": "./dist/index.js",
-    "mytokens": "./dist/index.js",
-    "openusage": "./dist/index.js"
+    "mtkn": "dist/index.js",
+    "mtkns": "dist/index.js",
+    "mytoken": "dist/index.js",
+    "mytokens": "dist/index.js",
+    "openusage": "dist/index.js"
   },
   "devDependencies": {
     "@commander-js/extra-typings": "^14.0.0",
