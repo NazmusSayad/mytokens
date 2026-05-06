@@ -13,7 +13,13 @@
     "start": "rux ./src/index.ts",
     "dev": "run ./src/index.ts"
   },
-  "bin": "./dist/index.js",
+  "bin": {
+    "mtkn": "./dist/index.js",
+    "mtkns": "./dist/index.js",
+    "mytoken": "./dist/index.js",
+    "mytokens": "./dist/index.js",
+    "openusage": "./dist/index.js"
+  },
   "devDependencies": {
     "@commander-js/extra-typings": "^14.0.0",
     "@eslint/compat": "^1.4.1",
