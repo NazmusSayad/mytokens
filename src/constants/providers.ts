@@ -6,9 +6,9 @@ export const BEST_CLI_TOOLS: Record<string, string> = {
   openai: '#72317b',
   chatgpt: '#72317b',
 
-  anthropic: '#c47d5c',
-  'claude-codex': '#c47d5c',
   claude: '#c47d5c',
+  anthropic: '#c47d5c',
+  'claude-code': '#c47d5c',
 
   gemini: '#64a65a',
 
