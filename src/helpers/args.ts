@@ -1,4 +1,5 @@
 import { APP_SCREENS_MAP, AppScreenType } from '@/constants/screen.js'
+import chalk from 'chalk'
 import Fuse from 'fuse.js'
 
 const ScreenKeywordMap: Record<string, AppScreenType> = {
@@ -135,7 +136,15 @@ export function parseScreenArg(input: string): AppScreenType | null {
 
   const result = fuse.search(input)
   if (result.length > 0) {
-    return ScreenKeywordMap[result[0].item]
+    const screen = ScreenKeywordMap[result[0].item]
+
+    console.warn(
+      chalk.yellow(
+        `🤖 Unrecognized screen ${chalk.red(input)}; rendering ${chalk.green(screen)} screen.`
+      )
+    )
+
+    return screen
   }
 
   return null
