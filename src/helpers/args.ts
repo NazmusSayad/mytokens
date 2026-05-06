@@ -186,12 +186,14 @@ export function resolveDateRange(options: {
   from?: string
   to?: string
   today?: boolean
+  yesterday?: boolean
   lastWeek?: boolean
   lastMonth?: boolean
   last?: number
 }): { dateStart: Date | null; dateEnd: Date | null } {
   const shorthandOptions = [
     options.today ? '--today' : null,
+    options.yesterday ? '--yesterday' : null,
     options.lastWeek ? '--last-week' : null,
     options.lastMonth ? '--last-month' : null,
     options.last !== undefined ? '--last' : null,
@@ -213,6 +215,13 @@ export function resolveDateRange(options: {
     return {
       dateStart: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
       dateEnd: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1),
+    }
+  }
+
+  if (options.yesterday) {
+    return {
+      dateStart: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1),
+      dateEnd: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
     }
   }
 

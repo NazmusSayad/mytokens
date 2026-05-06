@@ -27,6 +27,7 @@ const program = new Command('mytokens')
   )
   .option('--to <to>', 'End date for the period. example: --to 2024-12-31')
   .option('--today', 'show data for today only')
+  .option('--yesterday', 'show data for yesterday only')
   .option('--last-week', 'show data for the last 7 days')
   .option('--last-month', 'show data for the last 30 days')
   .option('--last <days>', 'show data for the last n days', (val) => {
