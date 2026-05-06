@@ -19,4 +19,8 @@ export const BEST_LLM_BRANDS: Record<string, string> = {
   deepseek: '#3d41df',
 
   nvidia: '#93b648',
+
+  x: '#5f98eb',
+  xai: '#5f98eb',
+  grok: '#5f98eb',
 }
