@@ -108,6 +108,7 @@ const program = new Command('mytokens')
         from: options.from,
         to: options.to,
         today: options.today,
+        yesterday: options.yesterday,
         lastWeek: options.lastWeek,
         lastMonth: options.lastMonth,
         last: options.last,
