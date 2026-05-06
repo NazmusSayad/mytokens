@@ -1,6 +1,7 @@
 import { UsageDataMessage } from '@/core/types.js'
 import chalk from 'chalk'
 import { ColorGenerator } from './color-generator.js'
+import { foregroundForBackground } from './contrast.js'
 import { printLn } from './stdout.js'
 import {
   RenderDataItem,
@@ -260,11 +261,13 @@ export class RenderScreen {
         const hex = idToHex.get(segments[0].id)!
         const val = segments[0].val
         const pct = Math.round((val / total) * 100) + '%'
-        if (barWidth >= 6) {
+        if (barWidth >= 10) {
           const leftPad = Math.floor((barWidth - pct.length) / 2)
           const rightPad = barWidth - pct.length - leftPad
           bar = chalk.bgHex(hex)(
-            ' '.repeat(leftPad) + pct + ' '.repeat(rightPad)
+            ' '.repeat(leftPad) +
+              foregroundForBackground(hex)(pct) +
+              ' '.repeat(rightPad)
           )
         } else {
           bar = chalk.bgHex(hex)(' '.repeat(barWidth))
@@ -299,11 +302,13 @@ export class RenderScreen {
           const val = segments[i].val
           const w = chars[i]
           const pct = Math.round((val / total) * 100) + '%'
-          if (w >= 6) {
+          if (w >= 10) {
             const leftPad = Math.floor((w - pct.length) / 2)
             const rightPad = w - pct.length - leftPad
             bar += chalk.bgHex(hex)(
-              ' '.repeat(leftPad) + pct + ' '.repeat(rightPad)
+              ' '.repeat(leftPad) +
+                foregroundForBackground(hex)(pct) +
+                ' '.repeat(rightPad)
             )
           } else {
             bar += chalk.bgHex(hex)(' '.repeat(w))
