@@ -1,3 +1,4 @@
+import { PROVIDER_COLORS } from '@/constants/providers.js'
 import {
   initializePriceDetector,
   PriceDetector,
@@ -28,6 +29,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           name: item.app,
           date: item.date,
           value: cost * item.tokens.input,
+          color: PROVIDER_COLORS[item.model.provider],
         })
       }
     }
@@ -40,6 +42,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           name: item.app,
           date: item.date,
           value: cost * item.tokens.output,
+          color: PROVIDER_COLORS[item.model.provider],
         })
       }
     }
@@ -52,6 +55,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           name: item.app,
           date: item.date,
           value: cost * item.tokens.reasoning,
+          color: PROVIDER_COLORS[item.model.provider],
         })
       }
     }
@@ -64,6 +68,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           name: item.app,
           date: item.date,
           value: cost * item.tokens.cacheInput,
+          color: PROVIDER_COLORS[item.model.provider],
         })
       }
     }
@@ -76,6 +81,7 @@ export class RenderAppsByCostsScreen extends RenderScreen {
           name: item.app,
           date: item.date,
           value: cost * item.tokens.cacheOutput,
+          color: PROVIDER_COLORS[item.model.provider],
         })
       }
     }

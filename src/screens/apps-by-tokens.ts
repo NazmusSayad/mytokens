@@ -1,3 +1,4 @@
+import { PROVIDER_COLORS } from '@/constants/providers.js'
 import { UsageDataMessage } from '@/core/types.js'
 import { RenderScreen } from '@/render/render-screen.js'
 import { RenderDataItem } from '@/render/types.js'
@@ -15,6 +16,7 @@ export class RenderAppsByTokensScreen extends RenderScreen {
         name: item.app,
         date: item.date,
         value: item.tokens.input,
+        color: PROVIDER_COLORS[item.model.provider],
       })
     }
 
@@ -24,6 +26,7 @@ export class RenderAppsByTokensScreen extends RenderScreen {
         name: item.app,
         date: item.date,
         value: item.tokens.output,
+        color: PROVIDER_COLORS[item.model.provider],
       })
     }
 
@@ -33,6 +36,7 @@ export class RenderAppsByTokensScreen extends RenderScreen {
         name: item.app,
         date: item.date,
         value: item.tokens.reasoning,
+        color: PROVIDER_COLORS[item.model.provider],
       })
     }
 
@@ -42,6 +46,7 @@ export class RenderAppsByTokensScreen extends RenderScreen {
         name: item.app,
         date: item.date,
         value: item.tokens.cacheInput,
+        color: PROVIDER_COLORS[item.model.provider],
       })
     }
 
@@ -51,6 +56,7 @@ export class RenderAppsByTokensScreen extends RenderScreen {
         name: item.app,
         date: item.date,
         value: item.tokens.cacheOutput,
+        color: PROVIDER_COLORS[item.model.provider],
       })
     }
   }
