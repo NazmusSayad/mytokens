@@ -2,6 +2,8 @@ export const BEST_CLI_TOOLS: Record<string, string> = {
   opencode: '#adb2be',
   kilo: '#f7f767', // It's a opencode fork, lmao
 
+  pi /*nk*/: '#d393be',
+
   codex: '#72317b',
   openai: '#72317b',
   chatgpt: '#72317b',
