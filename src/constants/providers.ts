@@ -1,13 +1,16 @@
-export const PROVIDER_COLORS: Record<string, string> = {
-  gemini: '#64a65a',
+export const BEST_CLI_TOOLS: Record<string, string> = {
+  opencode: '#adb2be',
+  kilo: '#f7f767', // It's a opencode fork, lmao
 
-  codex: '#687cef', // Color taken from original Codex Pet :)
-  openai: '#687cef',
-  chatgpt: '#687cef',
+  codex: '#72317b',
+  openai: '#72317b',
+  chatgpt: '#72317b',
 
   anthropic: '#c47d5c',
   'claude-codex': '#c47d5c',
   claude: '#c47d5c',
+
+  gemini: '#64a65a',
 
   minimax: '#cd4769',
 
