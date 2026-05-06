@@ -1,6 +1,6 @@
-# mytoken
+# mytokens
 
-`mytoken` is a small CLI that reads your local OpenCode SQLite history, matches models against the OpenRouter model catalog, and prints a readable usage + cost report.
+`mytokens` is a small CLI that reads your local OpenCode SQLite history, matches models against the OpenRouter model catalog, and prints a readable usage + cost report.
 
 ## What it does
 
@@ -14,14 +14,14 @@
 Use it directly from npm (no cloning/building needed):
 
 ```bash
-npx mytoken
+npx mytokens
 ```
 
 Or install globally:
 
 ```bash
-npm i -g mytoken
-mytoken
+npm i -g mytokens
+mytokens
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ mytoken
 Run with default database path:
 
 ```bash
-npx mytoken
+npx mytokens
 ```
 
 You can also pass your database file as the first CLI argument, or set `OPENCODE_DB_PATH`.

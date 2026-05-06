@@ -7,7 +7,7 @@ import { APP_SCREENS_MAP } from './constants/screen.js'
 import { parseScreenArg, resolveBy, resolveDateRange } from './helpers/args.js'
 import { RenderValueShowBy } from './render/types.js'
 
-const program = new Command('mytoken')
+const program = new Command('mytokens')
   .description('CLI tool to see detailed all the coding cli usage')
   .argument(
     '[screen]',

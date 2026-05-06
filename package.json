@@ -1,6 +1,6 @@
 {
-  "name": "mytoken",
-  "version": "1.0.0",
+  "name": "mytokens",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "lint": "tsc --noEmit && eslint .",
