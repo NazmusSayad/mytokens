@@ -220,11 +220,11 @@ export class RenderScreen {
     const ids = Array.from(idToMeta.keys()).sort(
       (a, b) => (idToTotal.get(b) ?? 0) - (idToTotal.get(a) ?? 0)
     )
-    const idToColor = new Map<string, (s: string) => string>()
+    const idToHex = new Map<string, string>()
     for (const id of ids) {
       const explicitColor = idToMeta.get(id)?.color
       const hex = explicitColor ?? (await this.colorGenerator.generate(id))
-      idToColor.set(id, chalk.hex(hex))
+      idToHex.set(id, hex)
     }
 
     const titlePadding = Math.max(
@@ -257,8 +257,18 @@ export class RenderScreen {
       if (segments.length === 0) {
         // nothing
       } else if (segments.length === 1) {
-        const colorFn = idToColor.get(segments[0].id)!
-        bar = colorFn('█'.repeat(barWidth))
+        const hex = idToHex.get(segments[0].id)!
+        const val = segments[0].val
+        const pct = Math.round((val / total) * 100) + '%'
+        if (barWidth >= 6) {
+          const leftPad = Math.floor((barWidth - pct.length) / 2)
+          const rightPad = barWidth - pct.length - leftPad
+          bar = chalk.bgHex(hex)(
+            ' '.repeat(leftPad) + pct + ' '.repeat(rightPad)
+          )
+        } else {
+          bar = chalk.bgHex(hex)(' '.repeat(barWidth))
+        }
       } else {
         const portions = segments.map((s) => (s.val / total) * barWidth)
 
@@ -285,8 +295,19 @@ export class RenderScreen {
         }
 
         for (let i = 0; i < segments.length; i++) {
-          const colorFn = idToColor.get(segments[i].id)!
-          bar += colorFn('█'.repeat(chars[i]))
+          const hex = idToHex.get(segments[i].id)!
+          const val = segments[i].val
+          const w = chars[i]
+          const pct = Math.round((val / total) * 100) + '%'
+          if (w >= 6) {
+            const leftPad = Math.floor((w - pct.length) / 2)
+            const rightPad = w - pct.length - leftPad
+            bar += chalk.bgHex(hex)(
+              ' '.repeat(leftPad) + pct + ' '.repeat(rightPad)
+            )
+          } else {
+            bar += chalk.bgHex(hex)(' '.repeat(w))
+          }
         }
       }
 
@@ -347,11 +368,11 @@ export class RenderScreen {
     printLn()
 
     const legendItems = ids.map((id) => {
-      const colorFn = idToColor.get(id)!
+      const hex = idToHex.get(id)!
       const name = idToMeta.get(id)!.name
       const totalVal = idToTotal.get(id) ?? 0
       return [
-        colorFn('■'),
+        chalk.hex(hex)('■'),
         name,
         chalk.dim(
           `(${formatHumanReadableNumber(totalVal.toFixed(2), this.valueUnit)})`
