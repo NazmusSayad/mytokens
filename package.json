@@ -1,6 +1,6 @@
 {
   "name": "mytokens",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "type": "module",
   "scripts": {
     "lint": "tsc --noEmit && eslint .",
@@ -13,14 +13,7 @@
     "start": "rux ./src/index.ts",
     "dev": "run ./src/index.ts"
   },
-  "bin": {
-    "mtkn": "dist/index.js",
-    "mtkns": "dist/index.js",
-    "mytkn": "dist/index.js",
-    "mytkns": "dist/index.js",
-    "mytoken": "dist/index.js",
-    "mytokens": "dist/index.js"
-  },
+  "bin": "dist/index.js",
   "devDependencies": {
     "@commander-js/extra-typings": "^14.0.0",
     "@eslint/compat": "^1.4.1",
