@@ -40,7 +40,7 @@ flowchart LR
 
 ## Context Behavior
 
-The converter uses context fields to change node types, add component fields, resolve icons, style existing nodes, and generate groups.
+The converter uses context fields to change node types, add component fields, resolve icons, and style existing nodes. Do not add `groups` by default; most diagrams should use nodes and edges only.
 
 - `nodes[<node-id>]` applies only when `<node-id>` matches a Mermaid node ID.
 - `name` creates or updates a hidden `Name` component field.
@@ -49,7 +49,7 @@ The converter uses context fields to change node types, add component fields, re
 - Node style fields `fill`, `stroke`, `strokeWidth`, `strokeStyle`, `borderRadius`, and `borderAnimationEnabled` are copied into node data.
 - Node `borderAnimationEnabled` also sets `strokeAnimation` to `dash`.
 - `edges["<source>-<target>"]` applies only when source and target match the converted Mermaid edge.
-- `groups` creates group nodes from existing context node IDs.
+- `groups` is optional and should be omitted unless the source project or user request gives an explicit boundary to represent, such as a named deployment zone, trust boundary, bounded context, network segment, team ownership area, or compliance/security boundary.
 
 ## Node Behavior
 
