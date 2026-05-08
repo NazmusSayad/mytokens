@@ -33,7 +33,7 @@ Before generation, propose a final plan that includes:
 - Files to create or update.
 - Repository evidence used for each artifact.
 - Assumptions that affect generated content.
-- Helper scripts to create under `.uigraph/scripts/`, if useful.
+- Helper scripts to create under `.uigraph/scripts/`, only if they directly generate approved artifacts. Include the script language.
 - LLM validation checks to perform after generation.
 
 Do not generate files in the same response as the final plan unless the user has already said `Generate Artifacts Now`.
@@ -52,13 +52,12 @@ If the user says anything else, ask them to confirm with the exact phrase.
 
 Generated helper scripts must be written only under `.uigraph/scripts/`.
 
-Scripts may help discover or derive artifacts from project evidence, such as:
+Scripts must directly generate approved UiGraph artifacts. Do not create scripts whose only purpose is exploration, discovery, inspection, inventory, or reporting.
 
-- Existing API specs or route definitions.
-- Serverless, deployment, or framework configuration.
-- Migration folders and checked-in database schema files.
-- ORM metadata or schema files.
-- Existing docs and diagrams.
+- Scripts must be written only in JavaScript, Python, or Bash (`.sh`).
+- Use JavaScript for JavaScript-based projects, Python for Python-based projects, and Bash (`.sh`) when neither JavaScript nor Python is clearly the project language.
+- If a script inspects project data, it must also write the approved artifact as its direct output.
+- Useful generation scripts include generating OpenAPI from known route metadata or generating database schema files from known schema sources.
 
 Do not create scripts in `scripts/`, `tools/`, or other project directories. Do not run live database dumps unless the user explicitly approves the database action and the project clearly contains the needed setup.
 

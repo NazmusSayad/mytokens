@@ -63,12 +63,16 @@ When generating `.uigraph.yaml`, do not invent or copy placeholder repository UR
 
 Write helper scripts only when they are useful for the detected project and included in the approved final plan.
 
-- API discovery or extraction scripts may inspect existing OpenAPI, GraphQL, gRPC, route definitions, or deployment config.
-- Database discovery scripts may inspect migrations, checked-in schema files, ORM metadata, or documented database configuration.
+- Helper scripts must directly generate approved UiGraph artifacts.
+- Helper scripts must be written only in JavaScript, Python, or Bash (`.sh`).
+- Use JavaScript for JavaScript-based projects, Python for Python-based projects, and Bash (`.sh`) when neither JavaScript nor Python is clearly the project language.
+- Do not create scripts whose only purpose is exploration, discovery, inspection, inventory, or reporting.
+- If a script inspects project data, it must also write the approved artifact as its direct output.
+- Useful generation scripts include generating OpenAPI from known route metadata or generating database schema files from known schema sources.
 - Prefer checked-in sources over live infrastructure introspection.
 - Do not run live database dump commands such as `pg_dump` unless the project clearly supports it and the user explicitly approves that action.
 - Scripts must be safe by default and must not overwrite unrelated files without confirmation.
-- Scripts may help discover or derive artifacts, but post-generation validation is an LLM/agent responsibility.
+- Post-generation validation is an LLM/agent responsibility.
 
 ## Post-Generation Validation
 

@@ -49,9 +49,17 @@ All `path` fields must point to files that exist relative to `.uigraph.yaml`:
 
 ## Database Schema File Checks
 
+- Database artifact type must match discovered project evidence or explicit user input. Do not generate both SQL and NoSQL by default.
 - SQL dialects (`postgres`, `mysql`, `sqlite`, `other` when SQL-like) must use `.sql` files under `.uigraph/db/`.
 - NoSQL dialects (`dynamodb`, `mongodb`) must use `.json` files under `.uigraph/db/`.
 - `databases[*].schemaPath` must point to a file extension that matches the declared dialect.
+
+## Helper Script Checks
+
+- Generated helper scripts must directly produce approved UiGraph artifacts.
+- Generated helper scripts must be written only in JavaScript, Python, or Bash (`.sh`).
+- Helper script language must match the project type: JavaScript for JavaScript projects, Python for Python projects, and Bash (`.sh`) when neither is clearly detected.
+- Do not generate helper scripts whose only purpose is exploration, discovery, inspection, inventory, or reporting.
 
 ## Generated Structure Checks
 
@@ -74,6 +82,7 @@ For every `components` entry under a focal point:
 
 - `testCases[*].title` is required.
 - `testCases[*].order` is required.
+- API test cases should link to API operations with matching `apiGroupName` and `operationId` when API evidence exists.
 - When `type` is `api`, `apiGroupName` and `operationId` should reference an existing API group and operation.
 - `operationId` must match an `operationId` defined in the synced OpenAPI spec.
 

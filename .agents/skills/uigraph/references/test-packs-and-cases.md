@@ -2,6 +2,12 @@
 
 Test packs are defined inline in `.uigraph.yaml` under `testPacks`.
 
+UiGraph test packs are mostly API, contract, and user-flow test definitions for UiGraph. They are not project test framework files.
+
+- Prefer API test cases linked to OpenAPI `operationId`s when API evidence exists.
+- Use manual test cases for flows that cannot be represented as API tests.
+- Do not generate Jest, Vitest, PHPUnit, Pytest, or similar project test files unless the user explicitly asks for project tests outside UiGraph artifacts.
+
 ## Test Pack Structure
 
 ```yaml
