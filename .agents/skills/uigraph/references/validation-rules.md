@@ -7,7 +7,9 @@ After generating artifacts, validate the generated structure before finishing. D
 ## Required Top-Level Fields
 
 - `version` must be `1`
+- `version` is required
 - `project.name` must not be empty
+- `project.name` is required
 - `service.name` must not be empty
 - `service.category` must not be empty
 - `service.description` must not be empty
@@ -39,6 +41,15 @@ All `path` fields must point to files that exist relative to `.uigraph.yaml`:
 - `databases[*].schemaPath`
 - `docs[*].path`
 - `maps[*].frames[*].imagePath`
+
+Generated artifact paths must stay under `.uigraph/`:
+
+- `apis[*].path` must be under `.uigraph/openapi/` when generated.
+- `architectureDiagrams[*].path` must be under `.uigraph/diagrams/` when generated.
+- `architectureDiagrams[*].contextPath` must be under `.uigraph/diagrams/` when generated.
+- `databases[*].schemaPath` must be under `.uigraph/db/`.
+- `docs[*].path` must be under `.uigraph/docs/` when generated.
+- `maps[*].frames[*].imagePath` must be under `.uigraph/maps/` when generated.
 
 ## Repository URL Checks
 

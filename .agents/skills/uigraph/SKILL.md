@@ -47,6 +47,8 @@ repo-root/
 
 Keep all UiGraph artifacts under `.uigraph/` and reference them with relative paths from `.uigraph.yaml`.
 
+Before generating `.uigraph.yaml`, read `references/uigraph-yaml-schema.md`; do not infer schema from examples. Generated `.uigraph.yaml` must include all required top-level fields and must use `.uigraph/` artifact paths.
+
 Generated project helper scripts must be written only under `.uigraph/scripts/`. Do not create generated helper scripts in any other project scripts directory.
 
 ## Repository URL Discovery

@@ -10,19 +10,19 @@ service:
   description: Handles products, cart, checkout, and orders
   repository:
     provider: github
-    url: https://github.com/company/ecommerce-backend
+    url: https://github.com/org/repo
   ownership:
     team: commerce
-    email: commerce@company.com
+    email: commerce@example.com
   labels:
     - core
     - backend
     - commerce
   integrations:
     slack:
-      url: https://company.slack.com/archives/C123456
+      url: https://example.slack.com/archives/C123456
     jira:
-      url: https://company.atlassian.net/projects/COM
+      url: https://example.atlassian.net/projects/COM
 
 apis:
   - name: storefront-api
@@ -44,10 +44,10 @@ databases:
     dialect: mysql
     dbType: MySQL
     schemaPath: .uigraph/db/ecommerce-schema.sql
-  - name: events
-    dialect: dynamodb
-    dbType: DynamoDB
-    schemaPath: .uigraph/db/events-schema.json
+  - name: reporting
+    dialect: mysql
+    dbType: MySQL
+    schemaPath: .uigraph/db/reporting-schema.sql
 
 testPacks:
   - name: Storefront Smoke

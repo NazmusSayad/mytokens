@@ -1,183 +1,145 @@
 # .uigraph.yaml Schema
 
-This document describes every field in `.uigraph.yaml`.
+Use this file as the source of truth before generating `.uigraph.yaml`. Do not infer the schema from examples.
 
-## Top-Level Structure
+## Hard Rules
+
+- `version: 1` is required.
+- `project.name` is required.
+- `service.name`, `service.category`, and `service.description` are required.
+- `service.repository.provider` and `service.repository.url` are required.
+- `service.repository.provider` must be `github`, `gitlab`, or `bitbucket`.
+- Generated API specs must be under `.uigraph/openapi/`.
+- Generated architecture diagrams and context files must be under `.uigraph/diagrams/`.
+- Generated database schemas must be under `.uigraph/db/`.
+- Generated docs must be under `.uigraph/docs/`.
+- Generated map images must be under `.uigraph/maps/`.
+- SQL database schemas use `.sql`; NoSQL database schemas use `.json`.
+- All referenced files must exist relative to `.uigraph.yaml`.
+
+## Canonical Structure
 
 ```yaml
 version: 1
 
 project:
-  name: string            # required
-  environment: string     # optional. e.g. production, staging, development
+  name: my-product              # required
+  environment: production       # optional
 
 service:
-  name: string            # required
-  category: string        # required
-  description: string     # required
+  name: My Service              # required
+  category: Backend             # required
+  description: Short summary    # required
   repository:
-    provider: string      # required. enum: github, gitlab, bitbucket
-    url: string           # required
-  ownership:
-    team: string          # optional
-    email: string         # optional
-  labels:                 # optional. list of strings
-    - string
-  integrations:           # optional
-    jira:
-      url: string
+    provider: github            # required: github, gitlab, bitbucket
+    url: https://github.com/org/repo  # required: current git remote or user-provided URL
+  ownership:                    # optional
+    team: platform
+    email: platform@example.com
+  labels:                       # optional
+    - backend
+  integrations:                 # optional
     slack:
-      url: string
+      url: https://example.slack.com/archives/C123456
+    jira:
+      url: https://example.atlassian.net/projects/ABC
 
-apis:                     # optional. list of APIRef
-architectureDiagrams:     # optional. list of ArchDiagramRef
-databases:                # optional. list of DatabaseRef
-testPacks:                # optional. list of TestPackRef
-docs:                     # optional. list of DocRef
-maps:                     # optional. list of MapRef
+apis:                           # optional
+  - name: public-api            # required
+    type: openapi               # required: openapi, graphql, grpc
+    path: .uigraph/openapi/public-api.yaml  # required
+
+architectureDiagrams:           # optional
+  - name: Request Flow          # required
+    path: .uigraph/diagrams/request-flow/request-flow.mmd  # required
+    contextPath: .uigraph/diagrams/request-flow/context.json  # optional
+
+databases:                      # optional
+  - name: app                   # required
+    dialect: postgres           # required: postgres, mysql, sqlite, dynamodb, mongodb, other
+    dbType: PostgreSQL          # optional
+    schemaPath: .uigraph/db/app.sql  # required
+
+testPacks:                      # optional
+  - name: Smoke Tests           # required
+    type: smoke                 # required: smoke, regression, manual
+    environment: staging        # optional
+    releaseLabel: v1.0.0        # optional
+    testCases:                  # optional; see references/test-packs-and-cases.md
+      - title: Health check returns 200  # required
+        type: api               # required: api, manual
+        order: 1                # required
+        priority: p1            # optional: p0, p1, p2, p3
+        apiGroupName: public-api
+        operationId: healthCheck
+        expectedStatusCode: 200
+
+docs:                           # optional
+  - name: Runbook               # required
+    path: .uigraph/docs/runbook.md  # required
+    fileType: markdown          # optional: pdf, html, markdown, doc, other
+    description: On-call runbook
+
+maps:                           # optional; see references/maps-frames-focalpoints.md
+  - name: Product Map           # required
+    description: Main user flows
+    frames:
+      - name: Home Page         # required
+        imagePath: .uigraph/maps/home-page.png
+        focalPoints:
+          - name: Submit Button # required
+            x: 120              # required
+            y: 240              # required
+            visibility: public  # optional: public, private
+            components:
+              - componentId: component_api-contract
+                serviceName: My Service
+                apiGroupName: public-api
+                operationId: healthCheck
 ```
 
-## APIRef
+## Component Link Rules
+
+When `componentLinkId` is absent, component links must include these fields:
+
+- `component_api-contract`: `serviceName`, `apiGroupName`, `operationId`
+- `component_test-case-suite`: `serviceName`, `testPackName`
+- `component_support-kb-troubleshooting`: `serviceName`, `docName`
+- `component_backend-flow-diagram`: `serviceName`, `architectureDiagramName`
+
+Names must match existing entries exactly: service name, API name, OpenAPI `operationId`, test pack name, doc name, architecture diagram name, map name, frame name, and focal point name.
+
+## Common Invalid Output
 
 ```yaml
-- name: string            # required. display name for the API group
-  type: string            # required. enum: openapi, graphql, grpc
-  path: string            # required. relative path to the spec file
+service:
+  name: mytokens
+  category: cli
+  description: CLI tool
+  repository:
+    provider: github
+    url: https://github.com/NazmusSayad/mytokens
+
+databases:
+  - name: tokens
+    dialect: sqlite
+    schemaPath: db/main.sql
+
+apis:
+  - name: models-dot-dev
+    type: openapi
+    path: openapi/models-dot-dev.yaml
 ```
 
-## ArchDiagramRef
+This is invalid because:
 
-```yaml
-- name: string            # required. display name
-  path: string            # required. relative path to .mmd file
-  contextPath: string     # optional. relative path to context.json
-```
+- It is missing required `version: 1`.
+- It is missing required `project.name`.
+- Generated artifact paths are outside `.uigraph/`.
 
-## DatabaseRef
+## Detailed References
 
-```yaml
-- name: string            # required. logical DB name (dbName)
-  dialect: string         # required. enum: postgres, mysql, sqlite, dynamodb, mongodb, other
-  dbType: string          # optional. e.g. Postgres, MySQL, DynamoDB
-  schemaPath: string      # required. relative path to schema file
-```
-
-## TestPackRef
-
-```yaml
-- name: string            # required
-  type: string            # required. enum: smoke, regression, manual
-  environment: string     # optional
-  releaseLabel: string    # optional
-  testCases:              # optional. list of TestCaseRef
-```
-
-## TestCaseRef
-
-```yaml
-- type: string            # required. enum: api, manual
-  title: string           # required
-  order: float64          # required
-
-  # Common optional
-  description: string
-  priority: string        # enum: p0, p1, p2, p3
-  tags:                   # list of strings
-    - string
-  linkedTicket: string
-  estimatedDurationMins: int
-  testOwner: string
-
-  # Map/Frame/Focal Point reference (resolved to linkedMapNodeId)
-  mapName: string
-  frameName: string
-  focalPointName: string
-
-  # API-specific (only when type: api)
-  apiGroupName: string
-  operationId: string
-  expectedStatusCode: int
-  requestTemplate: string
-  responseTimeMs: int
-  responseBody: string
-  assertions:             # list of AssertionRef
-    - field: string
-      type: string
-      value: string
-
-  # Manual-specific (only when type: manual)
-  stepsList:              # list of StepRef
-    - action: string
-      expectedResult: string
-  expectedOutcome: string
-  preconditions: string
-  testData: string
-  postconditions: string
-  requiresEvidence: bool
-  isCritical: bool
-```
-
-## DocRef
-
-```yaml
-- name: string            # required. display name for upsert matching
-  path: string            # required. relative path to file
-  fileType: string        # optional. enum: pdf, html, markdown, doc, other
-  description: string     # optional
-```
-
-## MapRef
-
-```yaml
-- name: string            # required
-  description: string     # optional
-  frames:                 # optional. list of FrameRef
-```
-
-## FrameRef
-
-```yaml
-- name: string            # required
-  description: string     # optional
-  imagePath: string       # optional. path to background image
-  focalPoints:            # optional. list of FocalPointRef
-```
-
-## FocalPointRef
-
-```yaml
-- name: string            # required
-  x: float64              # required. x-coordinate on frame canvas
-  y: float64              # required. y-coordinate on frame canvas
-  visibility: string      # optional. enum: public, private. defaults to public
-  components:             # optional. list of FocalPointMetaRef
-```
-
-## FocalPointMetaRef
-
-```yaml
-- componentId: string     # required.
-                          # enum:
-                          #   component_api-contract
-                          #   component_test-case-suite
-                          #   component_support-kb-troubleshooting
-                          #   component_backend-flow-diagram
-
-  # Linking strategy A: direct link ID
-  componentLinkId: string # optional
-
-  # Linking strategy B: name-based resolution
-  serviceName: string     # optional. service that owns the linked entity
-  apiGroupName: string    # optional. for component_api-contract
-  operationId: string     # optional. OpenAPI operationId
-  testPackName: string    # optional. for component_test-case-suite
-  docName: string         # optional. for component_support-kb-troubleshooting
-  architectureDiagramName: string  # optional. for component_backend-flow-diagram
-```
-
-## Important Linking Rules
-
-- For `component_api-contract` without `componentLinkId`: requires `serviceName`, `apiGroupName`, and `operationId`.
-- For `component_backend-flow-diagram` without `componentLinkId`: requires `serviceName` and `architectureDiagramName`.
-- For any component: either `componentLinkId` or `serviceName` is required.
-- `operationId` values must match an `operationId` inside the synced OpenAPI spec.
+- Test packs and test cases: `references/test-packs-and-cases.md`
+- Maps, frames, and focal points: `references/maps-frames-focalpoints.md`
+- Database schemas: `references/database-schemas.md`
+- Architecture diagrams: `references/architecture-diagrams.md`
