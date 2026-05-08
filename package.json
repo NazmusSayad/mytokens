@@ -13,7 +13,9 @@
     "start": "rux ./src/index.ts",
     "dev": "run ./src/index.ts"
   },
-  "bin": "dist/index.js",
+  "bin": {
+    "mytokens": "dist/index.js"
+  },
   "devDependencies": {
     "@commander-js/extra-typings": "^14.0.0",
     "@eslint/compat": "^1.4.1",
