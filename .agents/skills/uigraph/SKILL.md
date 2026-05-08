@@ -100,7 +100,8 @@ After generating artifacts, the LLM/agent must verify the generated structure be
 
 - The exact `.uigraph.yaml` schema and validation rules
 - How to link artifacts together (test cases → APIs, maps → test cases, etc.)
-- The `context.json` format for architecture diagrams
+- The `context.json` format and structured examples for architecture diagrams
+- Node-specific diagram context examples in `assets/templates/diagram-context/`
 - The DynamoDB/MongoDB JSON schema format
 - Map/Frame/FocalPoint/Component structure
 - Domain-to-artifact mapping patterns
@@ -111,7 +112,7 @@ After generating artifacts, the LLM/agent must verify the generated structure be
 | --------------------------------------- | ----------------------------------------------------------- |
 | `references/uigraph-yaml-schema.md`     | Complete field-by-field schema of `.uigraph.yaml`           |
 | `references/validation-rules.md`        | All hard constraints, enums, and file-existence checks      |
-| `references/architecture-diagrams.md`   | Mermaid + context.json specs and node mapping rules         |
+| `references/architecture-diagrams.md`   | Mermaid + context.json specs and node-specific example file map |
 | `references/database-schemas.md`        | SQL config and NoSQL JSON format                            |
 | `references/test-packs-and-cases.md`    | Test pack and test case structure                           |
 | `references/maps-frames-focalpoints.md` | Map, Frame, FocalPoint, and Component linking               |

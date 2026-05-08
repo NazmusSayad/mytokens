@@ -1,0 +1,37 @@
+{
+  "name": "Component and builder node examples",
+  "description": "component context converts to builder and sets componentId.",
+  "nodes": {
+    "worker": {
+      "type": "component",
+      "componentId": "flow_diagram_component_service",
+      "name": "Order Worker"
+    },
+    "authService": {
+      "type": "component",
+      "componentId": "flow_diagram_component_service",
+      "name": "Auth Service",
+      "data": {
+        "Runtime": {
+          "type": "Dropdown",
+          "value": "Node.js 20",
+          "options": ["Node.js 20", "Python 3.12"]
+        },
+        "API Version": { "type": "Text Input", "value": "v1" }
+      }
+    },
+    "builderService": {
+      "type": "builder",
+      "componentId": "flow_diagram_component_service",
+      "name": "Billing Service",
+      "data": {
+        "Service Type": {
+          "type": "Dropdown",
+          "value": "Internal Service",
+          "options": ["SaaS", "Internal Service", "Third-party API", "Webhook"]
+        },
+        "Timeout (ms)": { "type": "Number Input", "value": null }
+      }
+    }
+  }
+}

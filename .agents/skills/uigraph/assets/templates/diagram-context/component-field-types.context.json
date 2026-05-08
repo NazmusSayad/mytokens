@@ -1,0 +1,32 @@
+{
+  "name": "Component field type examples",
+  "description": "Use exact field type names. options is only needed for selectable field types.",
+  "nodes": {
+    "allFields": {
+      "type": "component",
+      "componentId": "flow_diagram_component_service",
+      "name": "Field Examples",
+      "data": {
+        "Text": { "type": "Text Input", "value": "Sample text" },
+        "Docs": { "type": "URL Input", "value": "https://example.com/docs" },
+        "Timeout": { "type": "Number Input", "value": 300 },
+        "Notes": { "type": "Text Editor", "value": "Line one.\nLine two." },
+        "Due Date": { "type": "Date Picker", "value": "2026-05-08" },
+        "Runtime": { "type": "Dropdown", "value": "Node.js", "options": ["Node.js", "Python"] },
+        "Scopes": { "type": "Multi Select", "value": ["read", "write"], "options": ["read", "write", "admin"] },
+        "Enabled": { "type": "Boolean Toggle", "value": true },
+        "Attachment Link": { "type": "Link or File Upload", "value": "https://example.com/file.pdf" },
+        "Markdown": { "type": "Rich Text Editor", "value": "## Summary\n\nImportant note." },
+        "Snippet": { "type": "Code Editor", "value": "const ok = true;" },
+        "Headers": { "type": "Key-Value List", "value": [{ "k": "Accept", "v": "application/json" }] },
+        "Tags": { "type": "Tag Input", "value": ["api", "checkout"] },
+        "Window": { "type": "Date Range Picker", "value": { "from": "2026-01-01", "to": "2026-12-31" } },
+        "Color": { "type": "Color Picker", "value": "#1976D2" },
+        "Traffic": { "type": "Slider", "value": 75 },
+        "Upload": { "type": "File Upload", "value": "" },
+        "Service": { "type": "Search Select", "value": "orders", "options": ["orders", "payments"] },
+        "Checks": { "type": "Checkbox Group", "value": ["smoke", "regression"], "options": ["smoke", "regression", "load"] }
+      }
+    }
+  }
+}

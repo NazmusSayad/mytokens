@@ -1,0 +1,31 @@
+{
+  "name": "Table node examples",
+  "description": "Table nodes use table.columns and table.rows for rendered table content.",
+  "nodes": {
+    "statusTable": {
+      "type": "table",
+      "name": "Order States",
+      "table": {
+        "columns": ["State", "Meaning"],
+        "rows": [
+          ["pending", "Waiting for payment"],
+          ["paid", "Payment captured"]
+        ]
+      }
+    },
+    "runbook": {
+      "type": "table",
+      "name": "Incident Runbook",
+      "table": {
+        "columns": ["Step", "Owner", "SLA"],
+        "rows": [
+          ["Acknowledge", "On-call", "5m"],
+          ["Mitigate", "Platform", "30m"]
+        ]
+      },
+      "data": {
+        "Escalation": { "type": "URL Input", "value": "https://example.com/runbook" }
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "Code node examples",
+  "description": "Code nodes use value for the Code component field.",
+  "nodes": {
+    "handler": {
+      "type": "code",
+      "name": "Order Handler",
+      "value": "async function handleOrder(order) {\n  return queue.send(order);\n}"
+    },
+    "query": {
+      "type": "code",
+      "name": "Recent Orders Query",
+      "value": "select id, status from orders where created_at > now() - interval '1 day';",
+      "data": {
+        "Language": {
+          "type": "Dropdown",
+          "value": "SQL",
+          "options": ["SQL", "TypeScript", "Python"]
+        },
+        "Readonly": { "type": "Boolean Toggle", "value": true }
+      }
+    },
+    "snippet": {
+      "type": "code",
+      "data": {
+        "Code": { "type": "Code Editor", "value": "" }
+      }
+    }
+  }
+}

@@ -69,6 +69,18 @@ All `path` fields must point to files that exist relative to `.uigraph.yaml`:
 - Generated helper scripts must exist only under `.uigraph/scripts/`.
 - Generated helper scripts must not overwrite unrelated files unless the user explicitly approved that behavior.
 
+## Diagram Context Checks
+
+- Architecture diagram `context.json` files must follow the behavior documented in `references/architecture-diagrams.md`.
+- Generated diagram context should be checked against the matching skill-owned example file in `assets/templates/diagram-context/`.
+- Mermaid node IDs must match keys in `context.nodes` when node context is used.
+- `groups[*].nodes` entries must reference existing `context.nodes` keys.
+- `edges` keys must follow `<source>-<target>` for Mermaid edges when edge context is used.
+- Context must avoid fields not supported by the converter schema, especially group `style` and node style `backgroundColor`.
+- Node `data[*].type` must use one of the supported component field type names documented in `references/architecture-diagrams.md`.
+- Node `shape` values must use one of the supported shape values documented in `references/architecture-diagrams.md`.
+- GIF `animatedIcon` values should use one of the documented animated icon names unless a direct `src` is provided.
+
 ## Component Linking Validation
 
 For every `components` entry under a focal point:

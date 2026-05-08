@@ -1,8 +1,9 @@
 # Architecture Diagrams
 
 Each architecture diagram consists of two files:
+
 1. A **Mermaid** file (`.mmd`) containing the diagram definition.
-2. An optional **Context** file (`context.json`) containing rich metadata for each node.
+2. An optional **Context** file (`context.json`) containing rich metadata for nodes, edges, and groups.
 
 ## File References in .uigraph.yaml
 
@@ -16,141 +17,115 @@ architectureDiagrams:
 ## Mermaid File
 
 Standard Mermaid syntax. Supported diagram types:
+
 - `stateDiagram-v2`
 - `flowchart`
 - `sequenceDiagram`
 
-### Critical Rule: Node Name Matching
+Node IDs in the Mermaid file must match keys in `context.json` when context is provided.
 
-Node names in the Mermaid file must exactly match the keys in `context.json` `nodes` object.
-
-Example:
 ```mermaid
-stateDiagram-v2
-    [*] --> Unauthenticated
-    Unauthenticated --> LoginPending : submit_credentials
-    LoginPending --> Authenticated : auth_success
+flowchart LR
+  api --> worker
 ```
-
-The keys `Unauthenticated`, `LoginPending`, `Authenticated` must exist as keys in `context.json` `nodes`.
-
-## Context File Schema
 
 ```json
 {
-  "name": "string",
-  "description": "string",
   "nodes": {
-    "<node-key>": {
-      "name": "string",
-      "type": "string",
-      "cloud": "string",
-      "service": "string",
-      "dbConfig": {
-        "service": "string",
-        "database": "string",
-        "tableName": "string"
-      },
-      "data": {
-        "<field-key>": {
-          "type": "string",
-          "value": "any"
-        }
-      },
-      "style": {
-        "fill": "string",
-        "stroke": "string",
-        "strokeWidth": "number",
-        "borderRadius": "number",
-        "strokeStyle": "string",
-        "borderAnimationEnabled": "boolean",
-        "backgroundColor": "string"
-      }
-    }
+    "api": { "type": "cloud", "name": "API Gateway" },
+    "worker": { "type": "component", "name": "Order Worker" }
   }
 }
 ```
 
-### Node Types
+## Context Behavior
 
-- `cloud` — represents a cloud service (AWS, GCP, Azure)
-- `data-source` — represents a database or external data source
-- `text` — plain text node
-- (other types may be supported by the gateway)
+The converter uses context fields to change node types, add component fields, resolve icons, style existing nodes, and generate groups.
 
-### Data Field Types
+- `nodes[<node-id>]` applies only when `<node-id>` matches a Mermaid node ID.
+- `name` creates or updates a hidden `Name` component field.
+- `data` entries create or update component fields by label.
+- `style.width` and `style.height` set node dimensions when present.
+- Node style fields `fill`, `stroke`, `strokeWidth`, `strokeStyle`, `borderRadius`, and `borderAnimationEnabled` are copied into node data.
+- Node `borderAnimationEnabled` also sets `strokeAnimation` to `dash`.
+- `edges["<source>-<target>"]` applies only when source and target match the converted Mermaid edge.
+- `groups` creates group nodes from existing context node IDs.
 
-Each key under `data` is a field definition:
+## Node Behavior
 
-```json
-{
-  "type": "<ui-field-type>",
-  "value": "<value-matching-type>"
-}
-```
+- `cloud` sets the node type to `cloud`, forces `150x150`, and resolves an icon from `cloud` plus exact `service` name when possible.
+- `text` uses `value` to create the `Text` component field.
+- `code` uses `value` to create the `Code` component field.
+- `table` uses `table.columns`, `table.rows`, and `name` for rendered table content.
+- `data-source` and `db-table` both convert to the database table node type and use `dbConfig`.
+- `databaseTableSQL` is the round-trip database table node type.
+- `component` converts to a `builder` node and sets `componentId`.
+- `builder` can preserve full component field metadata during round-trip.
+- `shape` sets `data.shape`; `or` and `summing-junction` are forced square with a minimum size of `200`.
+- `image` uses `src` as the image source.
+- `gif` uses `animatedIcon` for known animated assets or `src` for direct GIF URLs.
+- `comment` is useful for review notes and unresolved diagram annotations.
+- `sequenceParticipant` represents sequence-style participants with participant metadata.
+- `groups` supports only `name` and `nodes`; group bounds are calculated from referenced nodes.
 
-Known UI field types:
+## Node Context Examples
 
-| Type | Value Shape | Example |
-|------|-------------|---------|
-| `Text Input` | string | `"LoginPending"` |
-| `Number Input` | number | `300` |
-| `Boolean Toggle` | boolean | `true` |
-| `Dropdown` | string | `"user"` |
-| `Multi Select` | string array | `["read", "write"]` |
-| `Date Picker` | string (ISO date) | `"2025-12-31"` |
-| `Code Editor` | string (code) | `"def get_config(): ..."` |
-| `Rich Text Editor` | string (markdown) | `"## Title\n\nBody"` |
-| `Key-Value List` | array of objects | `[]` |
-| `Tag Input` | string array | `["auth", "login"]` |
-| `Date Range Picker` | null or object | `null` |
-| `Color Picker` | string (hex) | `"#1976D2"` |
-| `Slider` | number | `3` |
-| `Search Select` | string | `"local"` |
-| `Checkbox Group` | object with `value` and `options` | `{"value": ["read"], "options": ["read", "write"]}` |
-| `URL Input` | string (url) | `"https://example.com"` |
+Before generating context for a node type, review the matching skill-owned example file.
 
-### Cloud Configuration
+| Node or context type | Example file |
+|----------------------|--------------|
+| `cloud` | `assets/templates/diagram-context/cloud-nodes.context.json` |
+| `text` | `assets/templates/diagram-context/text-nodes.context.json` |
+| `code` | `assets/templates/diagram-context/code-nodes.context.json` |
+| `table` | `assets/templates/diagram-context/table-nodes.context.json` |
+| `data-source`, `db-table`, `databaseTableSQL` | `assets/templates/diagram-context/database-nodes.context.json` |
+| `component`, `builder` | `assets/templates/diagram-context/component-builder-nodes.context.json` |
+| `shape` | `assets/templates/diagram-context/shape-nodes.context.json` |
+| `image` | `assets/templates/diagram-context/image-nodes.context.json` |
+| `gif` | `assets/templates/diagram-context/gif-nodes.context.json` |
+| `comment` | `assets/templates/diagram-context/comment-nodes.context.json` |
+| `sequenceParticipant` | `assets/templates/diagram-context/sequence-participant-nodes.context.json` |
+| `groups` | `assets/templates/diagram-context/group-context.context.json` |
+| `data` field types | `assets/templates/diagram-context/component-field-types.context.json` |
 
-When `type` is `cloud`:
+## Shape Values
 
-```json
-{
-  "type": "cloud",
-  "cloud": "AWS",
-  "service": "Amazon Athena"
-}
-```
+- `rectangle`
+- `rounded-rect`
+- `ellipse`
+- `diamond`
+- `triangle`
+- `parallelogram`
+- `trapezoid`
+- `hexagon`
+- `document`
+- `cylinder`
+- `delay`
+- `off-page-connector`
+- `display`
+- `collate`
+- `sort`
+- `terminator`
+- `or`
+- `database`
+- `multiple-documents`
+- `subroutine`
+- `manual-input`
+- `summing-junction`
+- `internal-storage`
 
-### Data-Source Configuration
+## Animated Icon Names
 
-When `type` is `data-source`:
-
-```json
-{
-  "type": "data-source",
-  "dbConfig": {
-    "service": "UIGraph Adapter",
-    "database": "ecommerce",
-    "tableName": "users"
-  }
-}
-```
-
-### Style Properties
-
-```json
-{
-  "style": {
-    "fill": "#088ae7",
-    "stroke": "#0076D2",
-    "strokeWidth": 2,
-    "borderRadius": 2,
-    "strokeStyle": "dotted",
-    "borderAnimationEnabled": true,
-    "backgroundColor": "#f0f0f0"
-  }
-}
-```
-
-All style properties are optional.
+- `Authentication`
+- `Data Analysis`
+- `Document`
+- `Laptop`
+- `Loading`
+- `Message`
+- `Mobile Analytics`
+- `Notification`
+- `Security`
+- `Send Message`
+- `Server`
+- `Settings`
+- `Stats`

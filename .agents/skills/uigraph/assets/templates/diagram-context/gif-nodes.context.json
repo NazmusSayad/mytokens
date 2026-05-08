@@ -1,0 +1,24 @@
+{
+  "name": "GIF node examples",
+  "description": "GIF nodes use animatedIcon for known animated assets or src for direct GIF URLs.",
+  "nodes": {
+    "auth": {
+      "type": "gif",
+      "name": "Authentication",
+      "animatedIcon": "Authentication"
+    },
+    "loading": {
+      "type": "gif",
+      "name": "Loading Indicator",
+      "src": "https://cdn.example.com/loading.gif"
+    },
+    "stats": {
+      "type": "gif",
+      "name": "Stats",
+      "animatedIcon": "Stats",
+      "data": {
+        "Purpose": { "type": "Text Input", "value": "Dashboard analytics" }
+      }
+    }
+  }
+}

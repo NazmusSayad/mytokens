@@ -1,0 +1,37 @@
+{
+  "name": "Database node examples",
+  "description": "data-source and db-table convert to database table nodes and use dbConfig.",
+  "nodes": {
+    "orders": {
+      "type": "data-source",
+      "name": "Orders",
+      "dbConfig": {
+        "service": "UIGraph Adapter",
+        "database": "ecommerce",
+        "tableName": "orders"
+      }
+    },
+    "products": {
+      "type": "db-table",
+      "name": "Products",
+      "dbConfig": {
+        "service": "UIGraph Adapter",
+        "database": "ecommerce",
+        "tableName": "products"
+      },
+      "data": {
+        "Owner": { "type": "Text Input", "value": "Catalog Team" },
+        "RPO (minutes)": { "type": "Number Input", "value": 60 }
+      }
+    },
+    "payments": {
+      "type": "databaseTableSQL",
+      "name": "Payments",
+      "dbConfig": {
+        "service": "Billing Service",
+        "database": "billing",
+        "tableName": "payments"
+      }
+    }
+  }
+}

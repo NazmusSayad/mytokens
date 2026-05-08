@@ -1,0 +1,23 @@
+{
+  "name": "Comment node examples",
+  "description": "Comment nodes are useful for review notes and unresolved diagram annotations.",
+  "nodes": {
+    "reviewComment": {
+      "type": "comment",
+      "name": "Review Note",
+      "data": {
+        "Message": { "type": "Text Editor", "value": "Confirm retry policy before launch." }
+      },
+      "___internal": {
+        "isResolved": false
+      }
+    },
+    "resolvedComment": {
+      "type": "comment",
+      "name": "Resolved Risk",
+      "___internal": {
+        "isResolved": true
+      }
+    }
+  }
+}

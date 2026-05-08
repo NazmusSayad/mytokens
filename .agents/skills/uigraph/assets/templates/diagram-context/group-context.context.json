@@ -1,0 +1,19 @@
+{
+  "name": "Group context examples",
+  "description": "Groups support only name and nodes. Group bounds are calculated from referenced nodes.",
+  "nodes": {
+    "cdn": { "type": "cloud", "name": "CDN", "cloud": "AWS", "service": "Amazon CloudFront" },
+    "api": { "type": "cloud", "name": "API", "cloud": "AWS", "service": "Amazon API Gateway" },
+    "worker": { "type": "component", "name": "Worker", "componentId": "flow_diagram_component_service" },
+    "orders": { "type": "data-source", "name": "Orders" },
+    "cache": { "type": "cloud", "name": "Cache", "cloud": "AWS", "service": "Amazon ElastiCache" }
+  },
+  "groups": {
+    "core-backend": {
+      "name": "Core backend",
+      "nodes": ["api", "worker", "orders"]
+    },
+    "edge": { "name": "Edge", "nodes": ["cdn", "api"] },
+    "data": { "name": "Data Stores", "nodes": ["orders", "cache"] }
+  }
+}

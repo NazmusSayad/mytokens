@@ -1,0 +1,42 @@
+{
+  "name": "Cloud node examples",
+  "description": "Cloud nodes resolve icons from cloud plus exact service name when possible.",
+  "nodes": {
+    "api": {
+      "type": "cloud",
+      "cloud": "AWS",
+      "service": "Amazon API Gateway"
+    },
+    "openai": {
+      "type": "cloud",
+      "name": "Azure OpenAI",
+      "cloud": "Azure",
+      "service": "Azure OpenAI"
+    },
+    "lambda": {
+      "type": "cloud",
+      "name": "Order Function",
+      "cloud": "AWS",
+      "service": "AWS Lambda",
+      "data": {
+        "Runtime": {
+          "type": "Dropdown",
+          "value": "Node.js 20",
+          "options": ["Node.js 20", "Python 3.12", "Go 1.x"]
+        },
+        "Memory (MB)": { "type": "Number Input", "value": 512 },
+        "Owner": { "type": "Text Input", "value": "Platform Team" }
+      }
+    },
+    "event": {
+      "type": "cloud",
+      "name": "EventBridge Event",
+      "cloud": "AWS",
+      "___internal": {
+        "iconSrc": "/aws-icons/Resource-Icons_07312025/Res_Application-Integration/Res_Amazon-EventBridge-Event_48.svg",
+        "category": "Application-Integration",
+        "label": "DEV"
+      }
+    }
+  }
+}

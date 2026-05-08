@@ -1,0 +1,34 @@
+{
+  "name": "Shape node examples",
+  "description": "Shape nodes set data.shape. or and summing-junction are forced square with a minimum size of 200.",
+  "nodes": {
+    "process": {
+      "type": "shape",
+      "shape": "rectangle",
+      "name": "Validate Order"
+    },
+    "decision": {
+      "type": "shape",
+      "shape": "diamond",
+      "name": "Valid Order?",
+      "data": {
+        "Failure mode": { "type": "Text Input", "value": "Reject request" }
+      }
+    },
+    "receipt": {
+      "type": "shape",
+      "shape": "document",
+      "name": "Receipt Email"
+    },
+    "cacheShape": {
+      "type": "shape",
+      "shape": "database",
+      "name": "Read Cache"
+    },
+    "merge": {
+      "type": "shape",
+      "shape": "summing-junction",
+      "name": "Merge Results"
+    }
+  }
+}

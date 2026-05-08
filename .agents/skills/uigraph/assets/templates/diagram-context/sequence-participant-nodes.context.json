@@ -1,0 +1,26 @@
+{
+  "name": "Sequence participant examples",
+  "description": "Sequence participant nodes represent sequence-style participants with participant metadata.",
+  "nodes": {
+    "paymentService": {
+      "type": "sequenceParticipant",
+      "name": "Payment Service",
+      "data": {
+        "Owner": { "type": "Text Input", "value": "Payments Team" }
+      },
+      "___internal": {
+        "label": "Payment Service",
+        "rowCount": 8,
+        "color": "#f59e0b"
+      }
+    },
+    "checkoutUi": {
+      "type": "sequenceParticipant",
+      "name": "Checkout UI",
+      "data": {
+        "Label": { "type": "Text Input", "value": "Checkout UI" },
+        "Color": { "type": "Color Picker", "value": "#2563eb" }
+      }
+    }
+  }
+}

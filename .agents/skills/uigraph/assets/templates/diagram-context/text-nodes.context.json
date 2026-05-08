@@ -1,0 +1,25 @@
+{
+  "name": "Text node examples",
+  "description": "Text nodes use value for the Text component field.",
+  "nodes": {
+    "note": {
+      "type": "text",
+      "value": "Validate request and enqueue work."
+    },
+    "handoff": {
+      "type": "text",
+      "name": "Worker Handoff",
+      "value": "The API publishes validated orders to the queue.",
+      "data": {
+        "Region": { "type": "Text Input", "value": "US" },
+        "Critical": { "type": "Boolean Toggle", "value": true }
+      }
+    },
+    "draftNote": {
+      "type": "text",
+      "data": {
+        "Text": { "type": "Text Editor", "value": "" }
+      }
+    }
+  }
+}
