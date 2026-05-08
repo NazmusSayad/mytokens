@@ -255,6 +255,22 @@ export class RenderScreen {
         .map((id) => ({ id, val: bucket.get(id) ?? 0 }))
         .filter((s) => s.val > 0)
 
+      segments.sort((a, b) => {
+        if (b.val !== a.val) {
+          return b.val - a.val
+        }
+
+        const globalTotalA = idToTotal.get(a.id) ?? 0
+        const globalTotalB = idToTotal.get(b.id) ?? 0
+        if (globalTotalB !== globalTotalA) {
+          return globalTotalB - globalTotalA
+        }
+
+        const nameA = idToMeta.get(a.id)?.name ?? a.id
+        const nameB = idToMeta.get(b.id)?.name ?? b.id
+        return nameA.localeCompare(nameB)
+      })
+
       if (segments.length === 0) {
         // nothing
       } else if (segments.length === 1) {
