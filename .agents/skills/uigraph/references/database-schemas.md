@@ -14,11 +14,17 @@ databases:
     schemaPath: .uigraph/db/dynamo-schema.json
 ```
 
+Database schema files must be generated under `.uigraph/db/`.
+
+- For SQL dialects (`postgres`, `mysql`, `sqlite`, `other` when SQL-like), generate a raw `.sql` file.
+- For NoSQL dialects (`dynamodb`, `mongodb`), generate a structured `.json` file.
+- In `.uigraph.yaml`, `databases[*].schemaPath` must reference the generated `.sql` or `.json` file that matches the declared dialect.
+
 ## SQL Schemas
 
 For dialects: `postgres`, `mysql`, `sqlite`
 
-The schema file is a raw `.sql` file containing `CREATE TABLE` statements. The gateway parses the SQL via an adapter.
+The schema file is a raw `.sql` file under `.uigraph/db/` containing `CREATE TABLE` statements. The gateway parses the SQL via an adapter.
 
 Requirements:
 - Must be valid SQL for the declared dialect.
@@ -29,7 +35,7 @@ Requirements:
 
 For dialects: `dynamodb`, `mongodb`
 
-The schema file is a structured `.json` file.
+The schema file is a structured `.json` file under `.uigraph/db/`.
 
 ### DynamoDB JSON Schema
 

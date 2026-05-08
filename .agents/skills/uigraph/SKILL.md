@@ -49,6 +49,16 @@ Keep all UiGraph artifacts under `.uigraph/` and reference them with relative pa
 
 Generated project helper scripts must be written only under `.uigraph/scripts/`. Do not create generated helper scripts in any other project scripts directory.
 
+## Repository URL Discovery
+
+When generating `.uigraph.yaml`, do not invent or copy placeholder repository URLs. Inspect the current git repository remote first, preferably `origin`.
+
+- Use the discovered remote URL for `service.repository.url`.
+- Normalize SSH GitHub/GitLab/Bitbucket remotes to HTTPS when possible.
+- Set `service.repository.provider` from the remote host: `github`, `gitlab`, or `bitbucket`.
+- If no remote exists, the remote host is unsupported, or multiple plausible remotes conflict, ask the user for the repository URL before generating artifacts.
+- During validation, confirm `service.repository.url` matches the detected git remote or an explicit user-provided URL.
+
 ## Optional Helper Scripts
 
 Write helper scripts only when they are useful for the detected project and included in the approved final plan.
@@ -66,6 +76,8 @@ After generating artifacts, the LLM/agent must verify the generated structure be
 
 - Confirm `.uigraph.yaml` exists when it was part of the approved plan.
 - Confirm every `path`, `contextPath`, `schemaPath`, and frame `imagePath` referenced by `.uigraph.yaml` exists.
+- Confirm every `databases[*].schemaPath` file extension matches the dialect: `.sql` for SQL dialects (`postgres`, `mysql`, `sqlite`, `other` when SQL-like) and `.json` for NoSQL dialects (`dynamodb`, `mongodb`).
+- Confirm `service.repository.url` matches the detected git remote or an explicit user-provided URL.
 - Validate YAML and JSON syntax when applicable.
 - Check OpenAPI, GraphQL, gRPC, SQL, Mermaid, and docs files are structurally plausible when generated.
 - Check test case and map component references use matching API group names, operation IDs, doc names, test pack names, and architecture diagram names.

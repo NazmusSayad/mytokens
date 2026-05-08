@@ -40,6 +40,19 @@ All `path` fields must point to files that exist relative to `.uigraph.yaml`:
 - `docs[*].path`
 - `maps[*].frames[*].imagePath`
 
+## Repository URL Checks
+
+- `service.repository.url` must come from the current git remote or an explicit user-provided URL.
+- Do not copy placeholder repository URLs from templates.
+- Normalize SSH GitHub/GitLab/Bitbucket remotes to HTTPS when possible.
+- `service.repository.provider` must match the repository host.
+
+## Database Schema File Checks
+
+- SQL dialects (`postgres`, `mysql`, `sqlite`, `other` when SQL-like) must use `.sql` files under `.uigraph/db/`.
+- NoSQL dialects (`dynamodb`, `mongodb`) must use `.json` files under `.uigraph/db/`.
+- `databases[*].schemaPath` must point to a file extension that matches the declared dialect.
+
 ## Generated Structure Checks
 
 - `.uigraph.yaml` must be valid YAML when generated.
