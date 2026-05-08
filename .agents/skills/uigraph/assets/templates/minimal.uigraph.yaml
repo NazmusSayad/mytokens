@@ -1,0 +1,12 @@
+version: 1
+
+project:
+  name: my-product
+
+service:
+  name: My Service
+  category: Backend
+  description: Short service description
+  repository:
+    provider: github
+    url: https://github.com/org/repo

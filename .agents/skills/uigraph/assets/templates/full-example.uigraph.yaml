@@ -1,0 +1,178 @@
+version: 1
+
+project:
+  name: ecommerce-platform
+  environment: production
+
+service:
+  name: E-commerce Backend
+  category: Backend
+  description: Handles products, cart, checkout, and orders
+  repository:
+    provider: github
+    url: https://github.com/company/ecommerce-backend
+  ownership:
+    team: commerce
+    email: commerce@company.com
+  labels:
+    - core
+    - backend
+    - commerce
+  integrations:
+    slack:
+      url: https://company.slack.com/archives/C123456
+    jira:
+      url: https://company.atlassian.net/projects/COM
+
+apis:
+  - name: storefront-api
+    type: openapi
+    path: .uigraph/openapi/storefront.yaml
+  - name: admin-api
+    type: openapi
+    path: .uigraph/openapi/admin.yaml
+
+architectureDiagrams:
+  - name: Checkout Flow
+    path: .uigraph/diagrams/checkout-flow/checkout-flow.mmd
+    contextPath: .uigraph/diagrams/checkout-flow/context.json
+  - name: Order Lifecycle
+    path: .uigraph/diagrams/order-lifecycle/order-lifecycle.mmd
+
+databases:
+  - name: ecommerce
+    dialect: mysql
+    dbType: MySQL
+    schemaPath: .uigraph/db/ecommerce-schema.sql
+  - name: events
+    dialect: dynamodb
+    dbType: DynamoDB
+    schemaPath: .uigraph/db/events-schema.json
+
+testPacks:
+  - name: Storefront Smoke
+    type: smoke
+    environment: staging
+    testCases:
+      - title: List products returns 200
+        type: api
+        order: 1
+        apiGroupName: storefront-api
+        operationId: listProducts
+        expectedStatusCode: 200
+        priority: p0
+        tags:
+          - products
+          - smoke
+      - title: Add to cart returns 200
+        type: api
+        order: 2
+        apiGroupName: storefront-api
+        operationId: addCartItem
+        expectedStatusCode: 200
+        priority: p0
+      - title: Checkout returns 201
+        type: api
+        order: 3
+        apiGroupName: storefront-api
+        operationId: placeOrder
+        expectedStatusCode: 201
+        priority: p0
+      - title: Complete purchase flow
+        type: manual
+        order: 4
+        priority: p1
+        stepsList:
+          - action: Add a product to cart
+            expectedResult: Cart shows 1 item
+          - action: Proceed to checkout
+            expectedResult: Checkout form is displayed
+          - action: Submit payment
+            expectedResult: Order confirmation page appears
+        expectedOutcome: Order is placed and confirmation email is sent
+        preconditions: Product is in stock
+        requiresEvidence: true
+        isCritical: true
+        mapName: Storefront
+        frameName: Checkout
+        focalPointName: Place Order
+
+docs:
+  - name: API Guide
+    path: .uigraph/docs/api-guide.md
+    fileType: markdown
+    description: Public API documentation
+  - name: Runbook
+    path: .uigraph/docs/runbook.pdf
+    fileType: pdf
+    description: Operational runbook for on-call
+
+maps:
+  - name: Storefront
+    description: Customer-facing storefront flows
+    frames:
+      - name: Product Listing
+        description: Browse and filter products
+        focalPoints:
+          - name: Product Card
+            x: 150
+            y: 200
+            visibility: public
+            components:
+              - componentId: component_api-contract
+                serviceName: E-commerce Backend
+                apiGroupName: storefront-api
+                operationId: listProducts
+          - name: Filter Sidebar
+            x: 50
+            y: 100
+            visibility: public
+            components:
+              - componentId: component_api-contract
+                serviceName: E-commerce Backend
+                apiGroupName: storefront-api
+                operationId: listProducts
+      - name: Product Detail
+        description: Individual product page
+        focalPoints:
+          - name: Add to Cart
+            x: 300
+            y: 400
+            visibility: public
+            components:
+              - componentId: component_api-contract
+                serviceName: E-commerce Backend
+                apiGroupName: storefront-api
+                operationId: addCartItem
+          - name: Reviews Section
+            x: 100
+            y: 500
+            visibility: public
+            components:
+              - componentId: component_test-case-suite
+                serviceName: E-commerce Backend
+                testPackName: Storefront Smoke
+      - name: Checkout
+        description: Checkout and payment page
+        focalPoints:
+          - name: Place Order
+            x: 250
+            y: 350
+            visibility: public
+            components:
+              - componentId: component_api-contract
+                serviceName: E-commerce Backend
+                apiGroupName: storefront-api
+                operationId: placeOrder
+              - componentId: component_backend-flow-diagram
+                serviceName: E-commerce Backend
+                architectureDiagramName: Checkout Flow
+          - name: Payment Form
+            x: 250
+            y: 450
+            visibility: public
+            components:
+              - componentId: component_api-contract
+                serviceName: E-commerce Backend
+                apiGroupName: storefront-api
+                operationId: placeOrder

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "uigraph": {
+      "source": "uigraph-app/skills",
+      "sourceType": "github",
+      "skillPath": "skills/uigraph/SKILL.md",
+      "computedHash": "ff667db90dd3b03683da38612ee721fdf2afff96e35513630b845e7314d57629"
+    }
+  }
+}

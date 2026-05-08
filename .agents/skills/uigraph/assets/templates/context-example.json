@@ -1,0 +1,67 @@
+{
+  "name": "Checkout Flow Context",
+  "description": "Node metadata for the checkout state diagram",
+  "nodes": {
+    "Browse": {
+      "name": "Browse",
+      "type": "cloud",
+      "cloud": "AWS",
+      "service": "CloudFront",
+      "data": {
+        "label": { "type": "Text Input", "value": "Browse" },
+        "region": { "type": "Dropdown", "value": "us-east-1" }
+      },
+      "style": {
+        "fill": "#088ae7",
+        "stroke": "#0076D2",
+        "strokeWidth": 2
+      }
+    },
+    "Cart": {
+      "name": "Cart",
+      "type": "data-source",
+      "dbConfig": {
+        "service": "E-commerce Backend",
+        "database": "ecommerce",
+        "tableName": "cart_items"
+      },
+      "data": {
+        "label": { "type": "Text Input", "value": "Cart" },
+        "ttl_minutes": { "type": "Number Input", "value": 30 }
+      },
+      "style": {
+        "backgroundColor": "#f0f0f0"
+      }
+    },
+    "Checkout": {
+      "name": "Checkout",
+      "data": {
+        "label": { "type": "Text Input", "value": "Checkout" },
+        "requires_address": { "type": "Boolean Toggle", "value": true }
+      }
+    },
+    "Payment": {
+      "name": "Payment",
+      "type": "cloud",
+      "cloud": "Stripe",
+      "data": {
+        "label": { "type": "Text Input", "value": "Payment" },
+        "provider": { "type": "Search Select", "value": "stripe" }
+      }
+    },
+    "OrderConfirmation": {
+      "name": "Order Confirmation",
+      "data": {
+        "label": { "type": "Text Input", "value": "Order Confirmation" },
+        "send_email": { "type": "Boolean Toggle", "value": true }
+      }
+    },
+    "PaymentFailed": {
+      "name": "Payment Failed",
+      "data": {
+        "label": { "type": "Text Input", "value": "Payment Failed" },
+        "retry_count": { "type": "Slider", "value": 3 }
+      }
+    }
+  }
+}

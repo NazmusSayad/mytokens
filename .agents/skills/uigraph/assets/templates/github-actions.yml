@@ -1,0 +1,33 @@
+name: UiGraph Sync
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  uigraph-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Install UiGraph CLI
+        run: |
+          go install github.com/uigraph-app/uigraph-cli@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Dry run on PR
+        if: github.event_name == 'pull_request'
+        env:
+          UIGRAPH_TOKEN: ${{ secrets.UIGRAPH_TOKEN }}
+        run: uigraph sync --dry-run
+
+      - name: Sync to UiGraph on push
+        if: github.event_name == 'push'
+        env:
+          UIGRAPH_TOKEN: ${{ secrets.UIGRAPH_TOKEN }}
+        run: uigraph sync

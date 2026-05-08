@@ -1,0 +1,12 @@
+image: golang:1.23
+
+pipelines:
+  default:
+    - step:
+        name: UiGraph Sync
+        script:
+          - go install github.com/uigraph-app/uigraph-cli@latest
+          - export PATH="$PATH:$(go env GOPATH)/bin"
+          - uigraph sync
+        variables:
+          UIGRAPH_TOKEN: $UIGRAPH_TOKEN
