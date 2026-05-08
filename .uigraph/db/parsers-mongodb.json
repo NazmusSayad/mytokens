@@ -1,0 +1,155 @@
+{
+  "$schema": "../../node_modules/@uigraph/core/schemas/mongodb-schema.json",
+  "description": "NoSQL schema for parser documents (JSONL-based parsers)",
+  "collections": {
+    "claude_sessions": {
+      "description": "Claude desktop app usage data from ~/.claude/usage.jsonl and project sessions",
+      "documents": {
+        "app": { "type": "string", "enum": ["claude"] },
+        "mode": { "type": "string", "enum": ["chat", "edit", "agent"] },
+        "type": { "type": "string", "enum": ["assistant"] },
+        "date": { "type": "date" },
+        "model": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "provider": { "type": "string", "enum": ["anthropic"] }
+          },
+          "required": ["id", "provider"]
+        },
+        "tokens": {
+          "type": "object",
+          "properties": {
+            "input": { "type": "integer" },
+            "output": { "type": "integer" },
+            "cacheInput": { "type": "integer" },
+            "cacheOutput": { "type": "integer" },
+            "reasoning": { "type": "integer" }
+          }
+        },
+        "project": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "path": { "type": "string" }
+          }
+        }
+      }
+    },
+    "codex_sessions": {
+      "description": "Codex CLI usage data from ~/.codex/usage.jsonl and sessions",
+      "documents": {
+        "app": { "type": "string", "enum": ["codex"] },
+        "mode": { "type": "string", "enum": ["chat", "headless", "agent"] },
+        "type": { "type": "string", "enum": ["assistant"] },
+        "date": { "type": "date" },
+        "model": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "provider": { "type": "string" }
+          },
+          "required": ["id"]
+        },
+        "tokens": {
+          "type": "object",
+          "properties": {
+            "input": { "type": "integer" },
+            "output": { "type": "integer" },
+            "cacheInput": { "type": "integer" },
+            "cacheOutput": { "type": "integer" },
+            "reasoning": { "type": "integer" }
+          }
+        },
+        "project": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "path": { "type": "string" }
+          }
+        }
+      }
+    },
+    "copilot_sessions": {
+      "description": "GitHub Copilot usage data from ~/.copilot/usage.jsonl",
+      "documents": {
+        "app": { "type": "string", "enum": ["copilot"] },
+        "mode": { "type": "string", "enum": ["chat"] },
+        "type": { "type": "string", "enum": ["assistant"] },
+        "date": { "type": "date" },
+        "model": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "provider": { "type": "string" }
+          },
+          "required": ["id"]
+        },
+        "tokens": {
+          "type": "object",
+          "properties": {
+            "input": { "type": "integer" },
+            "output": { "type": "integer" },
+            "cacheInput": { "type": "integer" },
+            "cacheOutput": { "type": "integer" },
+            "reasoning": { "type": "integer" }
+          }
+        }
+      }
+    },
+    "opencode_sessions": {
+      "description": "OpenCode usage data",
+      "documents": {
+        "app": { "type": "string", "enum": ["opencode"] },
+        "mode": { "type": "string" },
+        "type": { "type": "string", "enum": ["assistant"] },
+        "date": { "type": "date" },
+        "model": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "provider": { "type": "string" }
+          },
+          "required": ["id"]
+        },
+        "tokens": {
+          "type": "object",
+          "properties": {
+            "input": { "type": "integer" },
+            "output": { "type": "integer" },
+            "cacheInput": { "type": "integer" },
+            "cacheOutput": { "type": "integer" },
+            "reasoning": { "type": "integer" }
+          }
+        }
+      }
+    },
+    "cursor_sessions": {
+      "description": "Cursor IDE usage data from CSV cache files",
+      "documents": {
+        "app": { "type": "string", "enum": ["cursor"] },
+        "mode": { "type": "string", "enum": ["chat"] },
+        "type": { "type": "string", "enum": ["assistant"] },
+        "date": { "type": "date" },
+        "model": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "provider": { "type": "string" }
+          },
+          "required": ["id"]
+        },
+        "tokens": {
+          "type": "object",
+          "properties": {
+            "input": { "type": "integer" },
+            "output": { "type": "integer" },
+            "cacheInput": { "type": "integer" },
+            "cacheOutput": { "type": "integer" },
+            "reasoning": { "type": "integer" }
+          }
+        }
+      }
+    }
+  }
+}

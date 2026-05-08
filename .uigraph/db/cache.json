@@ -1,0 +1,145 @@
+{
+  "$schema": "../../node_modules/@uigraph/core/schemas/mongodb-schema.json",
+  "description": "Cached API responses from Open Router and Models.dev",
+  "collections": {
+    "openrouter_models": {
+      "description": "Cached response from Open Router models API",
+      "documents": {
+        "_fetched_at": { "type": "date" },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "canonical_slug": { "type": "string", "nullable": true },
+              "hugging_face_id": { "type": "string", "nullable": true },
+              "name": { "type": "string" },
+              "created": { "type": "integer" },
+              "description": { "type": "string" },
+              "context_length": { "type": "integer" },
+              "architecture": {
+                "type": "object",
+                "properties": {
+                  "modality": { "type": "string" },
+                  "input_modalities": { "type": "array", "items": { "type": "string" } },
+                  "output_modalities": { "type": "array", "items": { "type": "string" } },
+                  "tokenizer": { "type": "string", "nullable": true },
+                  "instruct_type": { "type": "string", "nullable": true }
+                }
+              },
+              "pricing": {
+                "type": "object",
+                "properties": {
+                  "prompt": { "type": "string" },
+                  "completion": { "type": "string" },
+                  "image": { "type": "string", "nullable": true },
+                  "request": { "type": "string", "nullable": true },
+                  "input_cache_read": { "type": "string", "nullable": true },
+                  "input_cache_write": { "type": "string", "nullable": true },
+                  "web_search": { "type": "string", "nullable": true }
+                },
+                "required": ["prompt", "completion"]
+              },
+              "top_provider": {
+                "type": "object",
+                "properties": {
+                  "context_length": { "type": "integer", "nullable": true },
+                  "max_completion_tokens": { "type": "integer", "nullable": true },
+                  "is_moderated": { "type": "boolean" }
+                }
+              },
+              "supported_parameters": { "type": "array", "items": { "type": "string" } },
+              "default_parameters": {
+                "type": "object",
+                "properties": {
+                  "temperature": { "type": "number", "nullable": true },
+                  "top_p": { "type": "number", "nullable": true },
+                  "top_k": { "type": "number", "nullable": true },
+                  "frequency_penalty": { "type": "number", "nullable": true },
+                  "presence_penalty": { "type": "number", "nullable": true },
+                  "repetition_penalty": { "type": "number", "nullable": true }
+                }
+              },
+              "knowledge_cutoff": { "type": "string", "nullable": true },
+              "expiration_date": { "type": "string", "nullable": true },
+              "links": {
+                "type": "object",
+                "properties": {
+                  "details": { "type": "string" }
+                }
+              }
+            },
+            "required": ["id", "name", "created", "description", "context_length", "pricing", "top_provider", "supported_parameters"]
+          }
+        }
+      }
+    },
+    "models_dev_providers": {
+      "description": "Cached response from Models.dev API",
+      "documents": {
+        "_fetched_at": { "type": "date" },
+        "providers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "env": { "type": "array", "items": { "type": "string" } },
+              "npm": { "type": "string", "nullable": true },
+              "api": { "type": "string" },
+              "name": { "type": "string" },
+              "doc": { "type": "string", "nullable": true },
+              "models": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "name": { "type": "string" },
+                    "family": { "type": "string", "nullable": true },
+                    "attachment": { "type": "boolean" },
+                    "reasoning": { "type": "boolean" },
+                    "tool_call": { "type": "boolean" },
+                    "temperature": { "type": "boolean" },
+                    "knowledge": { "type": "string", "nullable": true },
+                    "release_date": { "type": "string", "nullable": true },
+                    "last_updated": { "type": "string", "nullable": true },
+                    "modalities": {
+                      "type": "object",
+                      "properties": {
+                        "input": { "type": "array", "items": { "type": "string" } },
+                        "output": { "type": "array", "items": { "type": "string" } }
+                      }
+                    },
+                    "open_weights": { "type": "boolean" },
+                    "cost": {
+                      "type": "object",
+                      "properties": {
+                        "input": { "type": "number" },
+                        "output": { "type": "number" },
+                        "cache_read": { "type": "number" },
+                        "cache_write": { "type": "number" }
+                      },
+                      "required": ["input", "output"]
+                    },
+                    "limit": {
+                      "type": "object",
+                      "properties": {
+                        "context": { "type": "integer" },
+                        "output": { "type": "integer" }
+                      },
+                      "required": ["context", "output"]
+                    }
+                  },
+                  "required": ["id", "name", "attachment", "reasoning", "tool_call", "temperature", "modalities", "open_weights", "cost", "limit"]
+                }
+              }
+            },
+            "required": ["id", "env", "api", "name", "models"]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,79 @@
+graph TD
+    %% Root command
+    CMD[mytokens CLI]
+
+    %% Positional argument
+    ARG[&lt;screen&gt;]
+    ARG --- SCREENS[tokens<br/>costs<br/>apps-by-tokens<br/>apps-by-costs<br/>modes-by-tokens<br/>modes-by-costs<br/>models-by-tokens<br/>models-by-costs<br/>projects-by-tokens<br/>projects-by-costs<br/>providers-by-tokens<br/>providers-by-costs]
+
+    %% Time grouping options
+    OPT_BY[--by &lt;day|week|month|year&gt;]
+    OPT_DAY[--day]
+    OPT_WEEK[--week]
+    OPT_MONTH[--month]
+    OPT_YEAR[--year]
+
+    %% Date range options
+    OPT_FROM[--from &lt;date&gt;]
+    OPT_TO[--to &lt;date&gt;]
+    OPT_TODAY[--today]
+    OPT_YESTERDAY[--yesterday]
+    OPT_LAST_WEEK[--last-week]
+    OPT_LAST_MONTH[--last-month]
+    OPT_LAST[--last &lt;days&gt;]
+
+    %% Filter options
+    OPT_APPS[--apps &lt;apps&gt;]
+    OPT_SKIP_APPS[--skip-apps &lt;apps&gt;]
+    OPT_MODES[--modes &lt;modes&gt;]
+    OPT_SKIP_MODES[--skip-modes &lt;modes&gt;]
+    OPT_MODELS[--models &lt;models&gt;]
+    OPT_SKIP_MODELS[--skip-models &lt;models&gt;]
+    OPT_PROJECTS[--projects &lt;projects&gt;]
+    OPT_SKIP_PROJECTS[--skip-projects &lt;projects&gt;]
+    OPT_PROVIDERS[--providers &lt;providers&gt;]
+    OPT_SKIP_PROVIDERS[--skip-providers &lt;providers&gt;]
+
+    %% Connections
+    CMD --> ARG
+    CMD --> OPT_BY
+    CMD --> OPT_DAY
+    CMD --> OPT_WEEK
+    CMD --> OPT_MONTH
+    CMD --> OPT_YEAR
+    CMD --> OPT_FROM
+    CMD --> OPT_TO
+    CMD --> OPT_TODAY
+    CMD --> OPT_YESTERDAY
+    CMD --> OPT_LAST_WEEK
+    CMD --> OPT_LAST_MONTH
+    CMD --> OPT_LAST
+    CMD --> OPT_APPS
+    CMD --> OPT_SKIP_APPS
+    CMD --> OPT_MODES
+    CMD --> OPT_SKIP_MODES
+    CMD --> OPT_MODELS
+    CMD --> OPT_SKIP_MODELS
+    CMD --> OPT_PROJECTS
+    CMD --> OPT_SKIP_PROJECTS
+    CMD --> OPT_PROVIDERS
+    CMD --> OPT_SKIP_PROVIDERS
+
+    %% Mutex groups
+    group_time [Time Grouping (mutually exclusive)]:::mutex
+    group_time --- OPT_BY
+    group_time --- OPT_DAY
+    group_time --- OPT_WEEK
+    group_time --- OPT_MONTH
+    group_time --- OPT_YEAR
+
+    group_range [Date Range (mutually exclusive)]:::mutex
+    group_range --- OPT_FROM
+    group_range --- OPT_TO
+    group_range --- OPT_TODAY
+    group_range --- OPT_YESTERDAY
+    group_range --- OPT_LAST_WEEK
+    group_range --- OPT_LAST_MONTH
+    group_range --- OPT_LAST
+
+    classDef mutex fill:#fee,stroke:#f66,stroke-dasharray:5 5

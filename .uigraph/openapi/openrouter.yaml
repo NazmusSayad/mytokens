@@ -1,0 +1,302 @@
+openapi: 3.1.0
+info:
+  title: Open Router Models API
+  description: |
+    API for retrieving available AI models from Open Router.
+    Open Router provides unified access to multiple AI providers.
+  version: 1.0.0
+  contact:
+    name: Open Router
+    url: https://openrouter.ai
+servers:
+  - url: https://openrouter.ai/api/v1
+    description: Production server
+
+paths:
+  /models:
+    get:
+      operationId: listModels
+      summary: List available models
+      description: Returns a list of all available AI models from Open Router
+      tags:
+        - Models
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: false
+          schema:
+            type: string
+            example: "Bearer YOUR_API_KEY"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelListResponse'
+              example:
+                data:
+                  - id: anthropic/claude-3.5-sonnet
+                    canonical_slug: anthropic-claude-3-5-sonnet
+                    hugging_face_id: null
+                    name: Anthropic Claude 3.5 Sonnet
+                    created: 1719302400
+                    description: Latest Claude model with improved reasoning capabilities
+                    context_length: 200000
+                    architecture:
+                      modality: text
+                      input_modalities:
+                        - text
+                        - image
+                      output_modalities:
+                        - text
+                      tokenizer: cl100k_base
+                      instruct_type: chat
+                    pricing:
+                      prompt: "3.00"
+                      completion: "15.00"
+                      image: "3.00"
+                      request: "0.00"
+                      input_cache_read: "0.30"
+                      input_cache_write: "3.00"
+                    top_provider:
+                      context_length: 200000
+                      max_completion_tokens: 8192
+                      is_moderated: true
+                    supported_parameters:
+                      - temperature
+                      - top_p
+                      - top_k
+                      - frequency_penalty
+                      - presence_penalty
+                    default_parameters:
+                      temperature: 1
+                      top_p: 0.95
+                      top_k: null
+                      frequency_penalty: 0
+                      presence_penalty: 0
+                      repetition_penalty: null
+                    knowledge_cutoff: "2024-04-01"
+                    expiration_date: null
+                    links:
+                      details: https://openrouter.ai/models/anthropic/claude-3.5-sonnet
+        '401':
+          description: Unauthorized - Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: API key from OPENROUTER_API_KEY, OPENROUTER_TOKEN, or OPENROUTER_KEY env vars
+
+  schemas:
+    ModelListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Model'
+      description: Response containing list of available models
+
+    Model:
+      type: object
+      required:
+        - id
+        - name
+        - created
+        - description
+        - context_length
+        - architecture
+        - pricing
+        - top_provider
+        - supported_parameters
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the model
+          example: "anthropic/claude-3.5-sonnet"
+        canonical_slug:
+          type: string
+          nullable: true
+          description: Canonical URL-friendly identifier
+          example: "anthropic-claude-3-5-sonnet"
+        hugging_face_id:
+          type: string
+          nullable: true
+          description: Hugging Face model ID if available
+        name:
+          type: string
+          description: Human-readable model name
+          example: "Anthropic Claude 3.5 Sonnet"
+        created:
+          type: integer
+          description: Unix timestamp of model creation
+          example: 1719302400
+        description:
+          type: string
+          description: Model description
+        context_length:
+          type: integer
+          description: Maximum context length in tokens
+          example: 200000
+        architecture:
+          $ref: '#/components/schemas/Architecture'
+        pricing:
+          $ref: '#/components/schemas/Pricing'
+        top_provider:
+          $ref: '#/components/schemas/TopProvider'
+        per_request_limits:
+          type: object
+          nullable: true
+        supported_parameters:
+          type: array
+          items:
+            type: string
+          description: List of supported parameters
+          example: ["temperature", "top_p", "top_k"]
+        default_parameters:
+          $ref: '#/components/schemas/DefaultParameters'
+        knowledge_cutoff:
+          type: string
+          nullable: true
+          description: Knowledge cutoff date
+        expiration_date:
+          type: string
+          nullable: true
+          description: Model expiration date if applicable
+        links:
+          $ref: '#/components/schemas/Links'
+
+    Architecture:
+      type: object
+      properties:
+        modality:
+          type: string
+          description: Primary modality (text, image, audio, etc.)
+          example: "text"
+        input_modalities:
+          type: array
+          items:
+            type: string
+          description: Supported input modalities
+          example: ["text", "image"]
+        output_modalities:
+          type: array
+          items:
+            type: string
+          description: Supported output modalities
+          example: ["text"]
+        tokenizer:
+          type: string
+          nullable: true
+          description: Tokenizer used by the model
+        instruct_type:
+          type: string
+          nullable: true
+          description: Instruction tuning type
+          example: "chat"
+
+    Pricing:
+      type: object
+      required:
+        - prompt
+        - completion
+      properties:
+        prompt:
+          type: string
+          description: Price per 1M input tokens (USD)
+          example: "3.00"
+        completion:
+          type: string
+          description: Price per 1M output tokens (USD)
+          example: "15.00"
+        image:
+          type: string
+          nullable: true
+          description: Price per 1M image tokens (USD)
+        request:
+          type: string
+          nullable: true
+          description: Price per request (USD)
+        input_cache_read:
+          type: string
+          nullable: true
+          description: Price per 1M cache read tokens (USD)
+        input_cache_write:
+          type: string
+          nullable: true
+          description: Price per 1M cache write tokens (USD)
+        web_search:
+          type: string
+          nullable: true
+          description: Price per web search (USD)
+
+    TopProvider:
+      type: object
+      properties:
+        context_length:
+          type: integer
+          nullable: true
+          description: Provider-specific context length limit
+        max_completion_tokens:
+          type: integer
+          nullable: true
+          description: Provider-specific max output tokens
+        is_moderated:
+          type: boolean
+          description: Whether the provider moderates outputs
+
+    DefaultParameters:
+      type: object
+      properties:
+        temperature:
+          type: number
+          nullable: true
+          description: Default temperature setting
+        top_p:
+          type: number
+          nullable: true
+          description: Default nucleus sampling parameter
+        top_k:
+          type: number
+          nullable: true
+          description: Default top-k sampling parameter
+        frequency_penalty:
+          type: number
+          nullable: true
+          description: Default frequency penalty
+        presence_penalty:
+          type: number
+          nullable: true
+          description: Default presence penalty
+        repetition_penalty:
+          type: number
+          nullable: true
+          description: Default repetition penalty
+
+    Links:
+      type: object
+      properties:
+        details:
+          type: string
+          description: URL to model details page
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+            code:
+              type: string
