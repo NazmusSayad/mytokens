@@ -1,4 +1,4 @@
-import { BEST_LLM_BRANDS } from '@/constants/providers.js'
+import { KNOWN_LLM_BRANDS } from '@/constants/providers.js'
 import { UsageDataMessage } from '@/core/types.js'
 import { RenderScreen } from '@/render/render-screen.js'
 import { RenderDataItem } from '@/render/types.js'
@@ -16,7 +16,7 @@ export class RenderProvidersByTokensScreen extends RenderScreen {
         name: item.model.provider,
         date: item.date,
         value: item.tokens.input,
-        color: BEST_LLM_BRANDS[item.model.provider],
+        color: KNOWN_LLM_BRANDS[item.model.provider],
       })
     }
 
@@ -26,7 +26,7 @@ export class RenderProvidersByTokensScreen extends RenderScreen {
         name: item.model.provider,
         date: item.date,
         value: item.tokens.output,
-        color: BEST_LLM_BRANDS[item.model.provider],
+        color: KNOWN_LLM_BRANDS[item.model.provider],
       })
     }
 
@@ -36,7 +36,7 @@ export class RenderProvidersByTokensScreen extends RenderScreen {
         name: item.model.provider,
         date: item.date,
         value: item.tokens.reasoning,
-        color: BEST_LLM_BRANDS[item.model.provider],
+        color: KNOWN_LLM_BRANDS[item.model.provider],
       })
     }
 
@@ -46,7 +46,7 @@ export class RenderProvidersByTokensScreen extends RenderScreen {
         name: item.model.provider,
         date: item.date,
         value: item.tokens.cacheInput,
-        color: BEST_LLM_BRANDS[item.model.provider],
+        color: KNOWN_LLM_BRANDS[item.model.provider],
       })
     }
 
@@ -56,7 +56,7 @@ export class RenderProvidersByTokensScreen extends RenderScreen {
         name: item.model.provider,
         date: item.date,
         value: item.tokens.cacheOutput,
-        color: BEST_LLM_BRANDS[item.model.provider],
+        color: KNOWN_LLM_BRANDS[item.model.provider],
       })
     }
   }

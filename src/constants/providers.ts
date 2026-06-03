@@ -1,4 +1,4 @@
-export const BEST_LLM_BRANDS: Record<string, string> = {
+export const KNOWN_LLM_BRANDS: Record<string, string> = {
   opencode: '#adb2be',
   kilo: '#f7f767', // It's a opencode fork, lmao
 
