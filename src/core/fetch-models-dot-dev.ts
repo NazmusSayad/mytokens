@@ -30,8 +30,8 @@ type ModelsDotDevModel = {
   last_updated?: string
   modalities: ModelsDotDevModalities
   open_weights: boolean
-  cost: ModelsDotDevCost
-  limit: ModelsDotDevLimit
+  cost?: ModelsDotDevCost
+  limit?: ModelsDotDevLimit
 }
 
 type ModelsDotDevProvider = {
