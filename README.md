@@ -2,6 +2,8 @@
 
 `mytokens` is a small CLI that reads your local OpenCode SQLite history, matches models against the OpenRouter model catalog, and prints a readable usage + cost report.
 
+<img width="3838" height="733" alt="image" src="https://github.com/user-attachments/assets/de6b99ec-748c-4631-91f2-17ca780eed57" />
+
 ## What it does
 
 - Reads usage rows from your OpenCode database (`part` + `message` tables).
