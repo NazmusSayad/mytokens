@@ -189,6 +189,10 @@ export function resolveDateRange(options: {
   yesterday?: boolean
   lastWeek?: boolean
   lastMonth?: boolean
+  lastYear?: boolean
+  thisWeek?: boolean
+  thisMonth?: boolean
+  thisYear?: boolean
   last?: number
 }): { dateStart: Date | null; dateEnd: Date | null } {
   const shorthandOptions = [
@@ -196,6 +200,10 @@ export function resolveDateRange(options: {
     options.yesterday ? '--yesterday' : null,
     options.lastWeek ? '--last-week' : null,
     options.lastMonth ? '--last-month' : null,
+    options.lastYear ? '--last-year' : null,
+    options.thisWeek ? '--this-week' : null,
+    options.thisMonth ? '--this-month' : null,
+    options.thisYear ? '--this-year' : null,
     options.last !== undefined ? '--last' : null,
   ].filter(Boolean) as string[]
 
@@ -235,6 +243,38 @@ export function resolveDateRange(options: {
   if (options.lastMonth) {
     return {
       dateStart: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
+      dateEnd: now,
+    }
+  }
+
+  if (options.lastYear) {
+    return {
+      dateStart: new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000),
+      dateEnd: now,
+    }
+  }
+
+  if (options.thisWeek) {
+    return {
+      dateStart: new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() - now.getDay()
+      ),
+      dateEnd: now,
+    }
+  }
+
+  if (options.thisMonth) {
+    return {
+      dateStart: new Date(now.getFullYear(), now.getMonth(), 1),
+      dateEnd: now,
+    }
+  }
+
+  if (options.thisYear) {
+    return {
+      dateStart: new Date(now.getFullYear(), 0, 1),
       dateEnd: now,
     }
   }

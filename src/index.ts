@@ -30,6 +30,10 @@ const program = new Command('mytokens')
   .option('--yesterday', 'show data for yesterday only')
   .option('--last-week', 'show data for the last 7 days')
   .option('--last-month', 'show data for the last 30 days')
+  .option('--last-year', 'show data for the last 365 days')
+  .option('--this-week', 'show data for the current week (from Sunday)')
+  .option('--this-month', 'show data for the current month')
+  .option('--this-year', 'show data for the current year')
   .option('--last <days>', 'show data for the last n days', (val) => {
     const num = parseInt(val, 10)
     if (isNaN(num) || num <= 0) {
@@ -111,6 +115,10 @@ const program = new Command('mytokens')
         yesterday: options.yesterday,
         lastWeek: options.lastWeek,
         lastMonth: options.lastMonth,
+        lastYear: options.lastYear,
+        thisWeek: options.thisWeek,
+        thisMonth: options.thisMonth,
+        thisYear: options.thisYear,
         last: options.last,
       })
       dateStart = range.dateStart
