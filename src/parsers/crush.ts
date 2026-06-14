@@ -2,6 +2,7 @@ import type { UsageDataMessage } from '@/core/types.js'
 import { readSQLiteDB, sqliteAll } from '@/helpers/db.js'
 import { resolveHome } from '@/helpers/parser.js'
 import { readFileSync } from 'node:fs'
+import type { DatabaseSync } from 'node:sqlite'
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
@@ -47,7 +48,7 @@ function discoverCrushDbs(): string[] {
 }
 
 async function parseCrushSqlite(
-  db: import('sqlite3').Database,
+  db: DatabaseSync,
   _dbPath: string
 ): Promise<UsageDataMessage[]> {
   const rootSessions = await sqliteAll(

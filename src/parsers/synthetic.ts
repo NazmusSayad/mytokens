@@ -1,6 +1,7 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import { readSQLiteDB, sqliteAll } from '@/helpers/db.js'
 import { resolveHome } from '@/helpers/parser.js'
+import type { DatabaseSync } from 'node:sqlite'
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
@@ -30,7 +31,7 @@ export async function parseSynthetic(): Promise<UsageDataMessage[]> {
 // ─── Internal ────────────────────────────────────────────────────────────────
 
 async function parseOctofriendSqlite(
-  db: import('sqlite3').Database
+  db: DatabaseSync
 ): Promise<UsageDataMessage[]> {
   // Check if token-tracking tables exist
   const tableRows = await sqliteAll(

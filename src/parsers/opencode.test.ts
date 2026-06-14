@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import * as sqlite3 from 'sqlite3'
+import { DatabaseSync } from 'node:sqlite'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { parseOpenCode } from './opencode.js'
 
@@ -31,30 +31,20 @@ function restoreHome() {
   }
 }
 
-function createOpenCodeDb(dbPath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const db = new sqlite3.Database(dbPath, (err) => {
-      if (err) return reject(err)
-      db.exec(
-        `CREATE TABLE message (
-          id TEXT PRIMARY KEY,
-          session_id TEXT NOT NULL,
-          data TEXT NOT NULL
-        );
-        CREATE TABLE session (
-          id TEXT PRIMARY KEY,
-          directory TEXT NOT NULL
-        );`,
-        (err) => {
-          if (err) return reject(err)
-          db.close((err) => {
-            if (err) return reject(err)
-            resolve()
-          })
-        }
-      )
-    })
-  })
+function createOpenCodeDb(dbPath: string): void {
+  const db = new DatabaseSync(dbPath)
+  db.exec(
+    `CREATE TABLE message (
+      id TEXT PRIMARY KEY,
+      session_id TEXT NOT NULL,
+      data TEXT NOT NULL
+    );
+    CREATE TABLE session (
+      id TEXT PRIMARY KEY,
+      directory TEXT NOT NULL
+    );`
+  )
+  db.close()
 }
 
 describe('parseOpenCode', () => {
@@ -77,18 +67,12 @@ describe('parseOpenCode', () => {
     const dbPath = join(dbDir, 'opencode.db')
     await createOpenCodeDb(dbPath)
 
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `INSERT INTO session (id, directory) VALUES ('ses_001', '/Users/alice/opencode-repo');
-         INSERT INTO message (id, session_id, data) VALUES ('msg_001', 'ses_001', '{"role":"assistant","modelID":"claude-sonnet-4","providerID":"anthropic","cost":0.05,"tokens":{"input":1000,"output":500,"reasoning":0,"cache":{"read":200,"write":50}},"time":{"created":1700000000000.0}}');`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(
+      `INSERT INTO session (id, directory) VALUES ('ses_001', '/Users/alice/opencode-repo');
+       INSERT INTO message (id, session_id, data) VALUES ('msg_001', 'ses_001', '{"role":"assistant","modelID":"claude-sonnet-4","providerID":"anthropic","cost":0.05,"tokens":{"input":1000,"output":500,"reasoning":0,"cache":{"read":200,"write":50}},"time":{"created":1700000000000.0}}');`
+    )
+    db.close()
 
     const result = await parseOpenCode()
     expect(result).toHaveLength(1)
@@ -123,18 +107,12 @@ describe('parseOpenCode', () => {
       mode: 'build',
     })
 
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `INSERT INTO message (id, session_id, data) VALUES ('root_row', 'root_session', '${dataJson}');
-         INSERT INTO message (id, session_id, data) VALUES ('fork_copy_row', 'fork_session', '${dataJson}');`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(
+      `INSERT INTO message (id, session_id, data) VALUES ('root_row', 'root_session', '${dataJson}');
+       INSERT INTO message (id, session_id, data) VALUES ('fork_copy_row', 'fork_session', '${dataJson}');`
+    )
+    db.close()
 
     const result = await parseOpenCode()
     expect(result).toHaveLength(2)

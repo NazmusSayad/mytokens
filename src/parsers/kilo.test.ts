@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import * as sqlite3 from 'sqlite3'
+import { DatabaseSync } from 'node:sqlite'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { parseKilo } from './kilo.js'
 
@@ -31,25 +31,15 @@ function restoreHome() {
   }
 }
 
-function createKiloDb(dbPath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const db = new sqlite3.Database(dbPath, (err) => {
-      if (err) return reject(err)
-      db.exec(
-        `CREATE TABLE message (
-          id TEXT PRIMARY KEY,
-          data TEXT NOT NULL
-        );`,
-        (err) => {
-          if (err) return reject(err)
-          db.close((err) => {
-            if (err) return reject(err)
-            resolve()
-          })
-        }
-      )
-    })
-  })
+function createKiloDb(dbPath: string): void {
+  const db = new DatabaseSync(dbPath)
+  db.exec(
+    `CREATE TABLE message (
+      id TEXT PRIMARY KEY,
+      data TEXT NOT NULL
+    );`
+  )
+  db.close()
 }
 
 describe('parseKilo', () => {
@@ -85,17 +75,9 @@ describe('parseKilo', () => {
       time: { created: 1700000000000 },
     })
 
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `INSERT INTO message (id, data) VALUES ('msg-1', '${dataJson}');`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(`INSERT INTO message (id, data) VALUES ('msg-1', '${dataJson}');`)
+    db.close()
 
     const result = await parseKilo()
     expect(result).toHaveLength(1)
@@ -120,17 +102,9 @@ describe('parseKilo', () => {
       tokens: { input: 100, output: 50, cache: { read: 0, write: 0 } },
     })
 
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `INSERT INTO message (id, data) VALUES ('msg-1', '${dataJson}');`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(`INSERT INTO message (id, data) VALUES ('msg-1', '${dataJson}');`)
+    db.close()
 
     const result = await parseKilo()
     expect(result).toHaveLength(0)

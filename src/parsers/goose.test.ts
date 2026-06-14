@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import * as sqlite3 from 'sqlite3'
+import { DatabaseSync } from 'node:sqlite'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { parseGoose } from './goose.js'
 
@@ -31,33 +31,23 @@ function restoreHome() {
   }
 }
 
-function createGooseDb(dbPath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const db = new sqlite3.Database(dbPath, (err) => {
-      if (err) return reject(err)
-      db.exec(
-        `CREATE TABLE sessions (
-          id TEXT PRIMARY KEY,
-          model_config_json TEXT,
-          provider_name TEXT,
-          created_at TEXT,
-          total_tokens INTEGER,
-          input_tokens INTEGER,
-          output_tokens INTEGER,
-          accumulated_total_tokens INTEGER,
-          accumulated_input_tokens INTEGER,
-          accumulated_output_tokens INTEGER
-        );`,
-        (err) => {
-          if (err) return reject(err)
-          db.close((err) => {
-            if (err) return reject(err)
-            resolve()
-          })
-        }
-      )
-    })
-  })
+function createGooseDb(dbPath: string): void {
+  const db = new DatabaseSync(dbPath)
+  db.exec(
+    `CREATE TABLE sessions (
+      id TEXT PRIMARY KEY,
+      model_config_json TEXT,
+      provider_name TEXT,
+      created_at TEXT,
+      total_tokens INTEGER,
+      input_tokens INTEGER,
+      output_tokens INTEGER,
+      accumulated_total_tokens INTEGER,
+      accumulated_input_tokens INTEGER,
+      accumulated_output_tokens INTEGER
+    );`
+  )
+  db.close()
 }
 
 describe('parseGoose', () => {
@@ -80,18 +70,12 @@ describe('parseGoose', () => {
     const dbPath = join(dbDir, 'sessions.db')
     await createGooseDb(dbPath)
 
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `INSERT INTO sessions (id, model_config_json, provider_name, created_at, accumulated_input_tokens, accumulated_output_tokens, accumulated_total_tokens)
-         VALUES ('ses-1', '{"model_name":"claude-sonnet-4"}', 'anthropic', '2024-12-01 10:00:00', 100, 50, 152);`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(
+      `INSERT INTO sessions (id, model_config_json, provider_name, created_at, accumulated_input_tokens, accumulated_output_tokens, accumulated_total_tokens)
+       VALUES ('ses-1', '{"model_name":"claude-sonnet-4"}', 'anthropic', '2024-12-01 10:00:00', 100, 50, 152);`
+    )
+    db.close()
 
     const result = await parseGoose()
     expect(result).toHaveLength(1)
@@ -109,18 +93,12 @@ describe('parseGoose', () => {
     const dbPath = join(dbDir, 'sessions.db')
     await createGooseDb(dbPath)
 
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `INSERT INTO sessions (id, model_config_json, created_at, input_tokens, output_tokens, total_tokens)
-         VALUES ('ses-1', '{"model_name":"gpt-4o"}', '2024-12-01 10:00:00', 10, 5, 15);`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(
+      `INSERT INTO sessions (id, model_config_json, created_at, input_tokens, output_tokens, total_tokens)
+       VALUES ('ses-1', '{"model_name":"gpt-4o"}', '2024-12-01 10:00:00', 10, 5, 15);`
+    )
+    db.close()
 
     const result = await parseGoose()
     expect(result).toHaveLength(1)
@@ -133,18 +111,12 @@ describe('parseGoose', () => {
     const dbPath = join(dbDir, 'sessions.db')
     await createGooseDb(dbPath)
 
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `INSERT INTO sessions (id, model_config_json, created_at, input_tokens, output_tokens, total_tokens)
-         VALUES ('ses-1', '{"model_name":"gpt-4o"}', '2024-12-01 10:00:00', 0, 0, 0);`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(
+      `INSERT INTO sessions (id, model_config_json, created_at, input_tokens, output_tokens, total_tokens)
+       VALUES ('ses-1', '{"model_name":"gpt-4o"}', '2024-12-01 10:00:00', 0, 0, 0);`
+    )
+    db.close()
 
     const result = await parseGoose()
     expect(result).toHaveLength(0)

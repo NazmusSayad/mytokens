@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import * as sqlite3 from 'sqlite3'
+import { DatabaseSync } from 'node:sqlite'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { parseCrush } from './crush.js'
 
@@ -57,36 +57,30 @@ describe('parseCrush', () => {
     )
 
     const dbPath = join(projectDbDir, 'crush.db')
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `CREATE TABLE sessions (
-          id TEXT PRIMARY KEY,
-          parent_session_id TEXT,
-          cost REAL,
-          created_at INTEGER,
-          updated_at INTEGER,
-          message_count INTEGER
-        );
-        CREATE TABLE messages (
-          id TEXT PRIMARY KEY,
-          session_id TEXT,
-          role TEXT,
-          created_at INTEGER
-        );
-        INSERT INTO sessions (id, parent_session_id, cost, created_at, updated_at, message_count)
-        VALUES ('root-1', NULL, 0.05, 1700000000, 1700003600, 3);
-        INSERT INTO messages (id, session_id, role, created_at)
-        VALUES ('m1', 'root-1', 'assistant', 1700000000);
-        INSERT INTO messages (id, session_id, role, created_at)
-        VALUES ('m2', 'root-1', 'assistant', 1700001000);`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(
+      `CREATE TABLE sessions (
+        id TEXT PRIMARY KEY,
+        parent_session_id TEXT,
+        cost REAL,
+        created_at INTEGER,
+        updated_at INTEGER,
+        message_count INTEGER
+      );
+      CREATE TABLE messages (
+        id TEXT PRIMARY KEY,
+        session_id TEXT,
+        role TEXT,
+        created_at INTEGER
+      );
+      INSERT INTO sessions (id, parent_session_id, cost, created_at, updated_at, message_count)
+      VALUES ('root-1', NULL, 0.05, 1700000000, 1700003600, 3);
+      INSERT INTO messages (id, session_id, role, created_at)
+      VALUES ('m1', 'root-1', 'assistant', 1700000000);
+      INSERT INTO messages (id, session_id, role, created_at)
+      VALUES ('m2', 'root-1', 'assistant', 1700001000);`
+    )
+    db.close()
 
     const result = await parseCrush()
     expect(result.length).toBeGreaterThanOrEqual(1)
@@ -107,26 +101,20 @@ describe('parseCrush', () => {
     )
 
     const dbPath = join(projectDbDir, 'crush.db')
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `CREATE TABLE sessions (
-          id TEXT PRIMARY KEY,
-          parent_session_id TEXT,
-          cost REAL,
-          created_at INTEGER,
-          updated_at INTEGER,
-          message_count INTEGER
-        );
-        INSERT INTO sessions (id, parent_session_id, cost, created_at, updated_at, message_count)
-        VALUES ('root-1', NULL, 0, 1700000000, 1700003600, 0);`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(
+      `CREATE TABLE sessions (
+        id TEXT PRIMARY KEY,
+        parent_session_id TEXT,
+        cost REAL,
+        created_at INTEGER,
+        updated_at INTEGER,
+        message_count INTEGER
+      );
+      INSERT INTO sessions (id, parent_session_id, cost, created_at, updated_at, message_count)
+      VALUES ('root-1', NULL, 0, 1700000000, 1700003600, 0);`
+    )
+    db.close()
 
     const result = await parseCrush()
     expect(result).toHaveLength(0)

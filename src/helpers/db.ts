@@ -1,29 +1,21 @@
-import sqlite3, { Database } from 'sqlite3'
+import { DatabaseSync, type SQLInputValue } from 'node:sqlite'
 import { existsAsync } from './fs.js'
 
-export async function readSQLiteDB(db: string): Promise<Database | null> {
+export async function readSQLiteDB(db: string): Promise<DatabaseSync | null> {
   if (!(await existsAsync(db))) return null
 
-  return new Promise((resolve) => {
-    const database = new sqlite3.Database(db, sqlite3.OPEN_READONLY, (err) => {
-      if (err) {
-        resolve(null)
-      } else {
-        resolve(database)
-      }
-    })
-  })
+  try {
+    return new DatabaseSync(db, { readOnly: true })
+  } catch {
+    return null
+  }
 }
 
-export function sqliteAll(
-  db: Database,
+export async function sqliteAll(
+  db: DatabaseSync,
   sql: string,
-  params: unknown[] = []
-): Promise<Record<string, unknown>[]> {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) reject(err)
-      else resolve(rows as Record<string, unknown>[])
-    })
-  })
+  params: SQLInputValue[] = []
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<Record<string, any>[]> {
+  return db.prepare(sql).all(...params)
 }

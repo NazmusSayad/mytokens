@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import * as sqlite3 from 'sqlite3'
+import { DatabaseSync } from 'node:sqlite'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { parseHermes } from './hermes.js'
 
@@ -31,35 +31,25 @@ function restoreHome() {
   }
 }
 
-function createHermesDb(dbPath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const db = new sqlite3.Database(dbPath, (err) => {
-      if (err) return reject(err)
-      db.exec(
-        `CREATE TABLE sessions (
-          id TEXT PRIMARY KEY,
-          model TEXT,
-          billing_provider TEXT,
-          started_at INTEGER,
-          message_count INTEGER,
-          input_tokens INTEGER,
-          output_tokens INTEGER,
-          cache_read_tokens INTEGER,
-          cache_write_tokens INTEGER,
-          reasoning_tokens INTEGER,
-          estimated_cost_usd REAL,
-          actual_cost_usd REAL
-        );`,
-        (err) => {
-          if (err) return reject(err)
-          db.close((err) => {
-            if (err) return reject(err)
-            resolve()
-          })
-        }
-      )
-    })
-  })
+function createHermesDb(dbPath: string): void {
+  const db = new DatabaseSync(dbPath)
+  db.exec(
+    `CREATE TABLE sessions (
+      id TEXT PRIMARY KEY,
+      model TEXT,
+      billing_provider TEXT,
+      started_at INTEGER,
+      message_count INTEGER,
+      input_tokens INTEGER,
+      output_tokens INTEGER,
+      cache_read_tokens INTEGER,
+      cache_write_tokens INTEGER,
+      reasoning_tokens INTEGER,
+      estimated_cost_usd REAL,
+      actual_cost_usd REAL
+    );`
+  )
+  db.close()
 }
 
 describe('parseHermes', () => {
@@ -82,18 +72,12 @@ describe('parseHermes', () => {
     const dbPath = join(dbDir, 'state.db')
     await createHermesDb(dbPath)
 
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `INSERT INTO sessions (id, model, billing_provider, started_at, input_tokens, output_tokens, cache_read_tokens, cache_write_tokens, reasoning_tokens)
-         VALUES ('ses-1', 'claude-sonnet-4', 'anthropic', 1700000000, 100, 50, 20, 5, 2);`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(
+      `INSERT INTO sessions (id, model, billing_provider, started_at, input_tokens, output_tokens, cache_read_tokens, cache_write_tokens, reasoning_tokens)
+       VALUES ('ses-1', 'claude-sonnet-4', 'anthropic', 1700000000, 100, 50, 20, 5, 2);`
+    )
+    db.close()
 
     const result = await parseHermes()
     expect(result).toHaveLength(1)
@@ -113,18 +97,12 @@ describe('parseHermes', () => {
     const dbPath = join(dbDir, 'state.db')
     await createHermesDb(dbPath)
 
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `INSERT INTO sessions (id, model, billing_provider, started_at, input_tokens, output_tokens)
-         VALUES ('ses-1', 'gpt-4o', 'openai', 1700000000, 0, 0);`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(
+      `INSERT INTO sessions (id, model, billing_provider, started_at, input_tokens, output_tokens)
+       VALUES ('ses-1', 'gpt-4o', 'openai', 1700000000, 0, 0);`
+    )
+    db.close()
 
     const result = await parseHermes()
     expect(result).toHaveLength(0)
@@ -136,18 +114,12 @@ describe('parseHermes', () => {
     const dbPath = join(dbDir, 'state.db')
     await createHermesDb(dbPath)
 
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `INSERT INTO sessions (id, model, started_at, input_tokens, output_tokens)
-         VALUES ('ses-1', 'gpt-4o', 1700000000, 10, 5);`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(
+      `INSERT INTO sessions (id, model, started_at, input_tokens, output_tokens)
+       VALUES ('ses-1', 'gpt-4o', 1700000000, 10, 5);`
+    )
+    db.close()
 
     const result = await parseHermes()
     expect(result).toHaveLength(1)

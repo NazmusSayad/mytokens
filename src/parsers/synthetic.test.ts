@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import * as sqlite3 from 'sqlite3'
+import { DatabaseSync } from 'node:sqlite'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { parseSynthetic } from './synthetic.js'
 
@@ -49,31 +49,25 @@ describe('parseSynthetic', () => {
     const dbDir = join(tempHome, '.local', 'share', 'octofriend')
     mkdirSync(dbDir, { recursive: true })
     const dbPath = join(dbDir, 'octofriend.db')
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `CREATE TABLE messages (
-          id TEXT PRIMARY KEY,
-          model TEXT,
-          input_tokens INTEGER,
-          output_tokens INTEGER,
-          cache_read_tokens INTEGER,
-          cache_write_tokens INTEGER,
-          reasoning_tokens INTEGER,
-          cost REAL,
-          timestamp INTEGER,
-          session_id TEXT,
-          provider TEXT
-        );
-        INSERT INTO messages (id, model, input_tokens, output_tokens, cache_read_tokens, cache_write_tokens, reasoning_tokens, timestamp, provider)
-        VALUES ('msg-1', 'gpt-4o', 100, 50, 20, 5, 2, 1700000000, 'openai');`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(
+      `CREATE TABLE messages (
+        id TEXT PRIMARY KEY,
+        model TEXT,
+        input_tokens INTEGER,
+        output_tokens INTEGER,
+        cache_read_tokens INTEGER,
+        cache_write_tokens INTEGER,
+        reasoning_tokens INTEGER,
+        cost REAL,
+        timestamp INTEGER,
+        session_id TEXT,
+        provider TEXT
+      );
+      INSERT INTO messages (id, model, input_tokens, output_tokens, cache_read_tokens, cache_write_tokens, reasoning_tokens, timestamp, provider)
+      VALUES ('msg-1', 'gpt-4o', 100, 50, 20, 5, 2, 1700000000, 'openai');`
+    )
+    db.close()
 
     const result = await parseSynthetic()
     expect(result).toHaveLength(1)
@@ -91,26 +85,20 @@ describe('parseSynthetic', () => {
     const dbDir = join(tempHome, '.local', 'share', 'octofriend')
     mkdirSync(dbDir, { recursive: true })
     const dbPath = join(dbDir, 'octofriend.db')
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `CREATE TABLE token_usage (
-          id TEXT PRIMARY KEY,
-          model TEXT,
-          input_tokens INTEGER,
-          output_tokens INTEGER,
-          timestamp INTEGER,
-          session_id TEXT
-        );
-        INSERT INTO token_usage (id, model, input_tokens, output_tokens, timestamp)
-        VALUES ('tu-1', 'gpt-4o', 10, 5, 1700000000);`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(
+      `CREATE TABLE token_usage (
+        id TEXT PRIMARY KEY,
+        model TEXT,
+        input_tokens INTEGER,
+        output_tokens INTEGER,
+        timestamp INTEGER,
+        session_id TEXT
+      );
+      INSERT INTO token_usage (id, model, input_tokens, output_tokens, timestamp)
+      VALUES ('tu-1', 'gpt-4o', 10, 5, 1700000000);`
+    )
+    db.close()
 
     const result = await parseSynthetic()
     expect(result).toHaveLength(1)
@@ -123,31 +111,25 @@ describe('parseSynthetic', () => {
     const dbDir = join(tempHome, '.local', 'share', 'octofriend')
     mkdirSync(dbDir, { recursive: true })
     const dbPath = join(dbDir, 'octofriend.db')
-    const db = new sqlite3.Database(dbPath)
-    await new Promise<void>((resolve, reject) => {
-      db.exec(
-        `CREATE TABLE messages (
-          id TEXT PRIMARY KEY,
-          model TEXT,
-          input_tokens INTEGER,
-          output_tokens INTEGER,
-          cache_read_tokens INTEGER,
-          cache_write_tokens INTEGER,
-          reasoning_tokens INTEGER,
-          cost REAL,
-          timestamp INTEGER,
-          session_id TEXT,
-          provider TEXT
-        );
-        INSERT INTO messages (id, model, input_tokens, output_tokens, cache_read_tokens, cache_write_tokens, reasoning_tokens, timestamp, provider)
-        VALUES ('msg-1', 'HF:meta-llama/Llama-2-7b', 10, 5, 0, 0, 0, 1700000000, 'hf');`,
-        (err) => {
-          db.close()
-          if (err) reject(err)
-          else resolve()
-        }
-      )
-    })
+    const db = new DatabaseSync(dbPath)
+    db.exec(
+      `CREATE TABLE messages (
+        id TEXT PRIMARY KEY,
+        model TEXT,
+        input_tokens INTEGER,
+        output_tokens INTEGER,
+        cache_read_tokens INTEGER,
+        cache_write_tokens INTEGER,
+        reasoning_tokens INTEGER,
+        cost REAL,
+        timestamp INTEGER,
+        session_id TEXT,
+        provider TEXT
+      );
+      INSERT INTO messages (id, model, input_tokens, output_tokens, cache_read_tokens, cache_write_tokens, reasoning_tokens, timestamp, provider)
+      VALUES ('msg-1', 'HF:meta-llama/Llama-2-7b', 10, 5, 0, 0, 0, 1700000000, 'hf');`
+    )
+    db.close()
 
     const result = await parseSynthetic()
     expect(result).toHaveLength(1)
