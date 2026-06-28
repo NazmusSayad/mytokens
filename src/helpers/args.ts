@@ -3,14 +3,14 @@ import chalk from 'chalk'
 import Fuse from 'fuse.js'
 
 const ScreenKeywordMap: Record<string, AppScreenType> = {
-  token: 'tokens',
-  usage: 'tokens',
-  usages: 'tokens',
+  token: 'type-by-tokens',
+  usage: 'type-by-tokens',
+  usages: 'type-by-tokens',
 
-  '.': 'costs',
-  cost: 'costs',
-  price: 'costs',
-  prices: 'costs',
+  '.': 'type-by-costs',
+  cost: 'type-by-costs',
+  price: 'type-by-costs',
+  prices: 'type-by-costs',
 
   app: 'apps-by-tokens',
   apps: 'apps-by-tokens',

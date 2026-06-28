@@ -3,7 +3,7 @@
 import { Command } from '@commander-js/extra-typings'
 import chalk from 'chalk'
 import { runApp } from './app.js'
-import { APP_SCREENS_MAP } from './constants/screen.js'
+import { APP_SCREENS_MAP, AppScreenType } from './constants/screen.js'
 import { parseScreenArg, resolveBy, resolveDateRange } from './helpers/args.js'
 import { RenderValueShowBy } from './render/types.js'
 
@@ -94,7 +94,10 @@ const program = new Command('mytokens')
     (val) => val.split(',')
   )
   .action((screen, options) => {
-    const parsedScreen = parseScreenArg(screen ?? 'tokens')
+    const parsedScreen = parseScreenArg(
+      screen ?? ('models-by-tokens' satisfies AppScreenType)
+    )
+
     if (!parsedScreen) {
       console.error(chalk.red(`Invalid screen argument: ${chalk.bold(screen)}`))
       console.log(

@@ -13,13 +13,11 @@ import { RenderProvidersByTokensScreen } from '../screens/providers-by-tokens.js
 import { RenderTokensScreen } from '../screens/tokens.js'
 
 export type AppScreenType =
-  | 'costs'
-  | 'tokens'
-  | `${'apps' | 'modes' | 'models' | 'projects' | 'providers'}-by-${'costs' | 'tokens'}`
+  `${'type' | 'apps' | 'modes' | 'models' | 'projects' | 'providers'}-by-${'costs' | 'tokens'}`
 
 export const APP_SCREENS_MAP: Record<AppScreenType, typeof RenderScreen> = {
-  costs: RenderCostsScreen,
-  tokens: RenderTokensScreen,
+  'type-by-costs': RenderCostsScreen,
+  'type-by-tokens': RenderTokensScreen,
   'apps-by-costs': RenderAppsByCostsScreen,
   'apps-by-tokens': RenderAppsByTokensScreen,
   'modes-by-costs': RenderModesByCostsScreen,
