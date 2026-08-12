@@ -1,8 +1,9 @@
 import { resolveDateRange } from '@/helpers/args.js'
 import { Command, OptionValues } from '@commander-js/extra-typings'
 import chalk from 'chalk'
+import path from 'path'
 import { exportReportToSvg, showReportImage } from './index.js'
-import { ExportFilterOptions } from './types.js'
+import { ExportFilterOptions, ExportFormat } from './types.js'
 
 type DateRangeOptions = {
   from?: string
@@ -18,6 +19,8 @@ type DateRangeOptions = {
   last?: number
 }
 
+const FORMATS: ExportFormat[] = ['svg', 'png']
+
 export function attachExportCommands<
   Args extends unknown[],
   Opts extends OptionValues,
@@ -26,24 +29,47 @@ export function attachExportCommands<
   program
     .command('export')
     .description(
-      'Export the aggregated usage overview (all apps, models and providers) as a single SVG image.'
+      'Export the aggregated usage overview (all apps, models and providers) as a single image.'
     )
-    .option('--output <path>', 'Output SVG file path', 'mytokens.svg')
+    .option(
+      '--output <path>',
+      'Output file path. Defaults to mytokens.svg (or the chosen format).'
+    )
+    .option(
+      '--format <format>',
+      `Output format: ${FORMATS.join(', ')}. Inferred from --output extension when omitted.`,
+      (val) => {
+        const format = val.toLowerCase() as ExportFormat
+        if (!FORMATS.includes(format)) {
+          throw new Error(
+            `Invalid --format value: ${val}. Supported formats: ${FORMATS.join(', ')}`
+          )
+        }
+        return format
+      }
+    )
     .on('--help', () => {
       console.log('\nExamples:')
       console.log('  $ mytokens export')
       console.log('  $ mytokens export --last 30 --output overview.svg')
       console.log('  $ mytokens export --from 2026-01-01 --to 2026-03-01')
+      console.log('  $ mytokens export --format png')
+      console.log('  $ mytokens export --format png --output overview.png')
     })
     .action(async (options) => {
       try {
         const renderOptions = buildRenderOptions(program.opts())
-        const outputPath = await exportReportToSvg(
+        const { outputPath, format } = resolveOutput(
           options.output,
-          renderOptions
+          options.format
+        )
+        const savedPath = await exportReportToSvg(
+          outputPath,
+          renderOptions,
+          format
         )
         console.log(
-          chalk.green(`Saved usage overview to ${chalk.bold(outputPath)}`)
+          chalk.green(`Saved usage overview to ${chalk.bold(savedPath)}`)
         )
       } catch (err) {
         console.error(
@@ -86,6 +112,36 @@ export function attachExportCommands<
         process.exit(1)
       }
     })
+}
+
+function resolveOutput(
+  outputPath: string | undefined,
+  format?: ExportFormat
+): { outputPath: string; format: ExportFormat } {
+  const extension = outputPath ? path.extname(outputPath).toLowerCase() : ''
+
+  if (outputPath) {
+    if (extension && format && extension !== `.${format}`) {
+      throw new Error(
+        `--format ${format} does not match output extension "${extension}".`
+      )
+    }
+    if (extension && !FORMATS.includes(extension.slice(1) as ExportFormat)) {
+      throw new Error(
+        `Unsupported output extension "${extension}". Supported formats: ${FORMATS.join(', ')}`
+      )
+    }
+    return {
+      outputPath,
+      format: format ?? (extension.slice(1) as ExportFormat) ?? 'svg',
+    }
+  }
+
+  if (format) {
+    return { outputPath: `mytokens.${format}`, format }
+  }
+
+  return { outputPath: 'mytokens.svg', format: 'svg' }
 }
 
 function buildRenderOptions(options: DateRangeOptions): ExportFilterOptions {

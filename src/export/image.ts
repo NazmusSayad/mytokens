@@ -31,9 +31,11 @@ function readPngDimensions(png: Buffer): { width: number; height: number } {
   }
 }
 
-function renderPng(
+export function renderPng(
   svg: string,
-  { fitMaxDimension }: { fitMaxDimension: boolean }
+  { fitMaxDimension }: { fitMaxDimension: boolean } = {
+    fitMaxDimension: false,
+  }
 ): Buffer {
   if (!fitMaxDimension) {
     return new Resvg(svg, { background: '#ffffff' }).render().asPng()

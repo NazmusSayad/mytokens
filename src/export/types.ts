@@ -1,5 +1,7 @@
 import { RenderValueUnit } from '@/render/types.js'
 
+export type ExportFormat = 'svg' | 'png'
+
 export type ExportFilterOptions = {
   dateStart: Date | null
   dateEnd: Date | null

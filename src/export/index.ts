@@ -22,10 +22,14 @@ import { parseQwen } from '@/parsers/qwen.js'
 import { parseKiloCode, parseRooCode } from '@/parsers/roocode.js'
 import { parseSynthetic } from '@/parsers/synthetic.js'
 import { isMessageIgnored } from './chart.js'
-import { renderImageInTerminal, TerminalImageOptions } from './image.js'
+import {
+  renderImageInTerminal,
+  renderPng,
+  TerminalImageOptions,
+} from './image.js'
 import { renderOverviewToSvg } from './overview-svg.js'
 import { computeOverview } from './overview.js'
-import { ExportFilterOptions } from './types.js'
+import { ExportFilterOptions, ExportFormat } from './types.js'
 
 export async function loadUsageData(): Promise<UsageDataMessage[]> {
   return (
@@ -77,9 +81,14 @@ export async function buildOverviewSvg(
 
 export async function exportReportToSvg(
   outputPath: string,
-  options: ExportFilterOptions
+  options: ExportFilterOptions,
+  format: ExportFormat = 'svg'
 ): Promise<string> {
   const svg = await buildOverviewSvg(options)
+  if (format === 'png') {
+    await writeFileForced(outputPath, renderPng(svg))
+    return outputPath
+  }
   await writeFileForced(outputPath, svg)
   return outputPath
 }

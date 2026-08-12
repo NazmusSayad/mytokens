@@ -27,13 +27,16 @@ export async function readFileAsJSON<T>(filePath: string): Promise<T | null> {
   }
 }
 
-export async function writeFileForced(filePath: string, content: string) {
+export async function writeFileForced(
+  filePath: string,
+  content: string | Uint8Array
+) {
   const dirName = path.dirname(filePath)
   if (!(await existsAsync(dirName))) {
     await fs.mkdir(dirName, { recursive: true })
   }
 
-  return fs.writeFile(filePath, content, { encoding: 'utf-8' })
+  return fs.writeFile(filePath, content)
 }
 
 export function writeFileAsJSON(
