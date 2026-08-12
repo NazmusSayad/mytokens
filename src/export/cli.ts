@@ -29,28 +29,6 @@ export function attachExportCommands<
       'Export the aggregated usage overview (all apps, models and providers) as a single SVG image.'
     )
     .option('--output <path>', 'Output SVG file path', 'mytokens.svg')
-    .option(
-      '--from <from>',
-      'Start date for the period. example: --from 2024-01-01'
-    )
-    .option('--to <to>', 'End date for the period. example: --to 2024-12-31')
-    .option('--today', 'show data for today only')
-    .option('--yesterday', 'show data for yesterday only')
-    .option('--last-week', 'show data for the last 7 days')
-    .option('--last-month', 'show data for the last 30 days')
-    .option('--last-year', 'show data for the last 365 days')
-    .option('--this-week', 'show data for the current week (from Sunday)')
-    .option('--this-month', 'show data for the current month')
-    .option('--this-year', 'show data for the current year')
-    .option('--last <days>', 'show data for the last n days', (val) => {
-      const num = Number.parseInt(val, 10)
-      if (Number.isNaN(num) || num <= 0) {
-        throw new Error(
-          `Invalid --last value: ${val}. Must be a positive number.`
-        )
-      }
-      return num
-    })
     .on('--help', () => {
       console.log('\nExamples:')
       console.log('  $ mytokens export')
@@ -59,7 +37,7 @@ export function attachExportCommands<
     })
     .action(async (options) => {
       try {
-        const renderOptions = buildRenderOptions(options)
+        const renderOptions = buildRenderOptions(program.opts())
         const outputPath = await exportReportToSvg(
           options.output,
           renderOptions
@@ -80,28 +58,6 @@ export function attachExportCommands<
     .description(
       'Render the aggregated usage overview (all apps, models and providers) as an image in the terminal.'
     )
-    .option(
-      '--from <from>',
-      'Start date for the period. example: --from 2024-01-01'
-    )
-    .option('--to <to>', 'End date for the period. example: --to 2024-12-31')
-    .option('--today', 'show data for today only')
-    .option('--yesterday', 'show data for yesterday only')
-    .option('--last-week', 'show data for the last 7 days')
-    .option('--last-month', 'show data for the last 30 days')
-    .option('--last-year', 'show data for the last 365 days')
-    .option('--this-week', 'show data for the current week (from Sunday)')
-    .option('--this-month', 'show data for the current month')
-    .option('--this-year', 'show data for the current year')
-    .option('--last <days>', 'show data for the last n days', (val) => {
-      const num = Number.parseInt(val, 10)
-      if (Number.isNaN(num) || num <= 0) {
-        throw new Error(
-          `Invalid --last value: ${val}. Must be a positive number.`
-        )
-      }
-      return num
-    })
     .on('--help', () => {
       console.log('\nExamples:')
       console.log('  $ mytokens image')
@@ -119,7 +75,7 @@ export function attachExportCommands<
           return
         }
 
-        const renderOptions = buildRenderOptions(options)
+        const renderOptions = buildRenderOptions(program.opts())
         await showReportImage(renderOptions, {
           width: process.stdout.columns ?? 120,
         })
