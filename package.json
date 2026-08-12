@@ -7,6 +7,8 @@
     "dev": "tsx --watch ./src/index.ts",
     "export": "tsx ./src/index.ts export",
     "export:watch": "tsx --watch ./src/index.ts export",
+    "image": "tsx ./src/index.ts image",
+    "image:watch": "tsx --watch ./src/index.ts image",
     "build": "tsdown --config ./tsdown.config.ts",
     "build:watch": "tsdown --config ./tsdown.config.ts --watch",
     "typecheck": "tsc --noEmit",
