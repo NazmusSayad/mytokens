@@ -1,6 +1,7 @@
 import {
   addUsageFilterOptions,
   buildUsageFilterOptions,
+  UsageFilterOptionValues,
 } from '@/helpers/usage-options.js'
 import {
   Command,
@@ -15,12 +16,24 @@ import { ExportFormat, ExportThemeId } from './types.js'
 
 const FORMATS: ExportFormat[] = ['svg', 'png']
 
+type ExportCommandOptions = UsageFilterOptionValues & {
+  output?: string
+  format?: ExportFormat
+  scale?: number
+  theme?: ExportThemeId
+}
+
+type ImageCommandOptions = UsageFilterOptionValues & {
+  copy?: boolean
+  theme?: ExportThemeId
+}
+
 function addThemeOption<
   Args extends unknown[],
   Opts extends OptionValues,
   GlobalOpts extends OptionValues,
 >(command: Command<Args, Opts, GlobalOpts>) {
-  return command.option(
+  command.option(
     '--theme <theme>',
     `Color theme: ${Object.keys(EXPORT_THEMES).join(', ')}. Default: ${DEFAULT_EXPORT_THEME}.`,
     (val) => {
@@ -40,32 +53,30 @@ export function attachExportCommands<
   Opts extends OptionValues,
   GlobalOpts extends OptionValues,
 >(program: Command<Args, Opts, GlobalOpts>) {
-  const exportCommand = addThemeOption(
-    addUsageFilterOptions(
-      program
-        .command('export')
-        .description(
-          'Export the aggregated usage overview (all apps, models and providers) as a single image.'
-        )
-        .option(
-          '--output <path>',
-          'Output file path. Defaults to mytokens.svg (or the chosen format).'
-        )
-        .option(
-          '--format <format>',
-          `Output format: ${FORMATS.join(', ')}. Inferred from --output extension when omitted.`,
-          (val) => {
-            const format = val.toLowerCase() as ExportFormat
-            if (!FORMATS.includes(format)) {
-              throw new InvalidArgumentError(
-                `Supported formats: ${FORMATS.join(', ')}`
-              )
-            }
-            return format
-          }
-        )
+  const exportCommand = program
+    .command('export')
+    .description(
+      'Export the aggregated usage overview (all apps, models and providers) as a single image.'
     )
-  )
+    .option(
+      '--output <path>',
+      'Output file path. Defaults to mytokens.svg (or the chosen format).'
+    )
+    .option(
+      '--format <format>',
+      `Output format: ${FORMATS.join(', ')}. Inferred from --output extension when omitted.`,
+      (val) => {
+        const format = val.toLowerCase() as ExportFormat
+        if (!FORMATS.includes(format)) {
+          throw new InvalidArgumentError(
+            `Supported formats: ${FORMATS.join(', ')}`
+          )
+        }
+        return format
+      }
+    )
+  addUsageFilterOptions(exportCommand)
+  addThemeOption(exportCommand)
 
   exportCommand
     .option(
@@ -88,7 +99,7 @@ export function attachExportCommands<
       console.log('  $ mytokens export --format png --output overview.png')
       console.log('  $ mytokens export --theme dark --format png --scale 2')
     })
-    .action(async (options) => {
+    .action(async (options: ExportCommandOptions) => {
       try {
         const renderOptions = buildUsageFilterOptions(options)
         const { outputPath, format } = resolveOutput(
@@ -111,15 +122,13 @@ export function attachExportCommands<
       }
     })
 
-  const imageCommand = addThemeOption(
-    addUsageFilterOptions(
-      program
-        .command('image')
-        .description(
-          'Render the aggregated usage overview (all apps, models and providers) as an image in the terminal.'
-        )
+  const imageCommand = program
+    .command('image')
+    .description(
+      'Render the aggregated usage overview (all apps, models and providers) as an image in the terminal.'
     )
-  )
+  addUsageFilterOptions(imageCommand)
+  addThemeOption(imageCommand)
 
   imageCommand
     .option('--copy', 'Copy the rendered PNG image to the macOS clipboard.')
@@ -131,7 +140,7 @@ export function attachExportCommands<
       console.log('  $ mytokens image --theme one-dark')
       console.log('  $ mytokens image --copy')
     })
-    .action(async (imageOptions) => {
+    .action(async (imageOptions: ImageCommandOptions) => {
       try {
         if (!process.stdout.isTTY) {
           console.warn(

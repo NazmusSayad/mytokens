@@ -10,25 +10,36 @@ import { pickScreen } from './helpers/picker.js'
 import {
   addUsageFilterOptions,
   buildUsageFilterOptions,
+  UsageFilterOptionValues,
 } from './helpers/usage-options.js'
 import { RenderValueShowBy } from './render/types.js'
 
-const program = addUsageFilterOptions(
-  new Command('mytokens')
-    .description('CLI tool to see detailed all the coding cli usage')
-    .argument(
-      '[screen]',
-      `Screen to display. Available screens: ${Object.keys(APP_SCREENS_MAP).join(', ')}`
-    )
-    .option(
-      '--by <by>',
-      'Grouping by time. possible values: day, week, month, year. example: --by month'
-    )
-    .option('--day', 'shorthand for --by day')
-    .option('--week', 'shorthand for --by week')
-    .option('--month', 'shorthand for --by month')
-    .option('--year', 'shorthand for --by year')
-).action(async (screen, options) => {
+type DashboardCommandOptions = UsageFilterOptionValues & {
+  by?: string
+  day?: boolean
+  week?: boolean
+  month?: boolean
+  year?: boolean
+}
+
+const program = new Command('mytokens')
+  .description('CLI tool to see detailed all the coding cli usage')
+  .argument(
+    '[screen]',
+    `Screen to display. Available screens: ${Object.keys(APP_SCREENS_MAP).join(', ')}`
+  )
+  .option(
+    '--by <by>',
+    'Grouping by time. possible values: day, week, month, year. example: --by month'
+  )
+  .option('--day', 'shorthand for --by day')
+  .option('--week', 'shorthand for --by week')
+  .option('--month', 'shorthand for --by month')
+  .option('--year', 'shorthand for --by year')
+
+addUsageFilterOptions(program)
+
+program.action(async (screen, options: DashboardCommandOptions) => {
   let parsedScreen: AppScreenType | null = null
 
   if (screen) {
