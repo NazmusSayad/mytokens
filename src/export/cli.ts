@@ -131,7 +131,7 @@ export function attachExportCommands<
 
         const renderOptions = buildRenderOptions(program.opts())
         await showReportImage(renderOptions, {
-          width: process.stdout.columns ?? 120,
+          width: '100%',
         })
       } catch (err) {
         console.error(
@@ -168,7 +168,8 @@ export function attachExportCommands<
         ]
           .map((hex) => chalk.bgHex(hex)('  '))
           .join('')
-        console.log(`  ${label.padEnd(nameWidth + 10)}${swatches}`)
+        console.log(`  ${label.padEnd(nameWidth + 8)}${swatches}`)
+        console.log()
       }
     })
 }

@@ -22,13 +22,13 @@ import { parseQwen } from '@/parsers/qwen.js'
 import { parseKiloCode, parseRooCode } from '@/parsers/roocode.js'
 import { parseSynthetic } from '@/parsers/synthetic.js'
 import { isMessageIgnored } from './chart.js'
-import {
-  renderImageInTerminal,
-  renderPng,
-  TerminalImageOptions,
-} from './image.js'
+import { renderPng } from './image.js'
 import { renderOverviewToSvg } from './overview-svg.js'
 import { computeOverview } from './overview.js'
+import {
+  renderImageInTerminal,
+  TerminalImageOptions,
+} from './terminal-image.js'
 import { DEFAULT_EXPORT_THEME } from './themes.js'
 import { ExportFilterOptions, ExportFormat, ExportThemeId } from './types.js'
 
