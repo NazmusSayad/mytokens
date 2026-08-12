@@ -8,7 +8,7 @@
     "export": "tsx ./src/index.ts export",
     "export:watch": "tsx --watch ./src/index.ts export",
     "build": "tsdown --config ./tsdown.config.ts",
-    "build:watch": "concurrently --names \"R,T\" --prefix-colors \"blue.dim,magenta.dim\" \"tsdown --config ./tsdown.config.ts --watch\" \"tsc --noEmit --watch\"",
+    "build:watch": "tsdown --config ./tsdown.config.ts --watch",
     "typecheck": "tsc --noEmit",
     "typecheck:watch": "tsc --noEmit --watch",
     "lint": "eslint .",
