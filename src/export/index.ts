@@ -22,6 +22,7 @@ import { parseQwen } from '@/parsers/qwen.js'
 import { parseKiloCode, parseRooCode } from '@/parsers/roocode.js'
 import { parseSynthetic } from '@/parsers/synthetic.js'
 import { isMessageIgnored } from './chart.js'
+import { copyPngToClipboard } from './clipboard.js'
 import { renderPng } from './image.js'
 import { renderOverviewToSvg } from './overview-svg.js'
 import { computeOverview } from './overview.js'
@@ -106,9 +107,13 @@ export async function exportReportToSvg(
 
 export async function showReportImage(
   options: ExportFilterOptions,
-  imageOptions: TerminalImageOptions = {}
+  imageOptions: TerminalImageOptions & { copy?: boolean } = {}
 ): Promise<string> {
   const svg = await buildOverviewSvg(options)
-  await renderImageInTerminal(svg, imageOptions)
+  const { copy = false, ...terminalImageOptions } = imageOptions
+  const png = await renderImageInTerminal(svg, terminalImageOptions)
+  if (copy) {
+    await copyPngToClipboard(png)
+  }
   return svg
 }

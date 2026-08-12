@@ -40,6 +40,7 @@ export async function renderImageInTerminal(
     output = await terminalImage.buffer(finalPng, options)
   }
   process.stdout.write(output + '\n')
+  return finalPng
 }
 
 async function readTerminalCellWidth(): Promise<number | undefined> {
@@ -54,6 +55,7 @@ async function readTerminalCellWidth(): Promise<number | undefined> {
       clearTimeout(timeout)
       process.stdin.off('data', onData)
       process.stdin.setRawMode(false)
+      process.stdin.pause()
       resolve(width)
     }
 

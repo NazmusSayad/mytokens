@@ -112,13 +112,15 @@ export function attachExportCommands<
     .description(
       'Render the aggregated usage overview (all apps, models and providers) as an image in the terminal.'
     )
+    .option('--copy', 'Copy the rendered PNG image to the macOS clipboard.')
     .on('--help', () => {
       console.log('\nExamples:')
       console.log('  $ mytokens image')
       console.log('  $ mytokens image --this-month')
       console.log('  $ mytokens image --last 5')
+      console.log('  $ mytokens image --copy')
     })
-    .action(async () => {
+    .action(async (imageOptions) => {
       try {
         if (!process.stdout.isTTY) {
           console.warn(
@@ -132,6 +134,7 @@ export function attachExportCommands<
         const renderOptions = buildRenderOptions(program.opts())
         await showReportImage(renderOptions, {
           width: '100%',
+          copy: imageOptions.copy,
         })
       } catch (err) {
         console.error(
