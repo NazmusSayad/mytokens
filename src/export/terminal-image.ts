@@ -2,6 +2,7 @@ import terminalImage from 'terminal-image'
 import { readPngDimensions, renderPng } from './image.js'
 
 const MAX_KITTY_DIMENSION = 10000
+const TERMINAL_IMAGE_SCALE = 3
 
 export type TerminalImageOptions = {
   width?: number | string
@@ -12,7 +13,7 @@ export async function renderImageInTerminal(
   svg: string,
   options: TerminalImageOptions = {}
 ) {
-  const png = renderPng(svg, { fitMaxDimension: false })
+  const png = renderPng(svg, { scale: TERMINAL_IMAGE_SCALE })
   const { width, height } = readPngDimensions(png)
 
   let finalPng = png
