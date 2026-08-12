@@ -2,7 +2,17 @@ import { RenderValueUnit } from '@/render/types.js'
 
 export type ExportFormat = 'svg' | 'png'
 
-export type ExportThemeId = 'light' | 'dark' | 'one-dark'
+export type ExportThemeId =
+  | 'light'
+  | 'dark'
+  | 'one-dark'
+  | 'dracula'
+  | 'nord'
+  | 'monokai'
+  | 'gruvbox'
+  | 'solarized'
+  | 'github'
+  | 'github-dark'
 
 export type ExportTheme = {
   background: string

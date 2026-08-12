@@ -140,6 +140,37 @@ export function attachExportCommands<
         process.exit(1)
       }
     })
+
+  program
+    .command('themes')
+    .description('List all available export themes.')
+    .action(() => {
+      console.log(chalk.bold('Available export themes:'))
+      console.log()
+
+      const ids = Object.keys(EXPORT_THEMES) as ExportThemeId[]
+      const nameWidth = Math.max(
+        ...ids.map((id) => id.length),
+        'github-dark'.length
+      )
+      for (const id of ids) {
+        const theme = EXPORT_THEMES[id]
+        const label = `${id}${DEFAULT_EXPORT_THEME === id ? ' (default)' : ''}`
+        const swatches = [
+          theme.background,
+          theme.cardFill,
+          theme.border,
+          theme.ink,
+          theme.muted,
+          theme.faint,
+          theme.accent,
+          theme.accentAlt,
+        ]
+          .map((hex) => chalk.bgHex(hex)('  '))
+          .join('')
+        console.log(`  ${label.padEnd(nameWidth + 10)}${swatches}`)
+      }
+    })
 }
 
 function resolveOutput(
