@@ -129,133 +129,115 @@ function renderActivitySection(
   daily: OverviewDailyPoint[],
   theme: ExportTheme
 ): Section {
-  const chartHeight = 210
-  const panelWidth = (CONTENT_WIDTH - 20) / 2
-
-  const tokensSvg = renderAreaPanel(
-    'Tokens Over Time',
-    daily,
-    (point) => point.total,
-    'none',
-    theme.accent,
-    panelWidth,
-    chartHeight,
-    theme
-  )
-  const costSvg = renderAreaPanel(
-    'Cost Over Time',
-    daily,
-    (point) => point.cost,
-    'dollar',
-    theme.accentAlt,
-    panelWidth,
-    chartHeight,
-    theme
-  )
-
   return {
     svg: `<g transform="translate(${CONTENT_X} 0)">
-${tokensSvg}
-</g>
-<g transform="translate(${CONTENT_X + panelWidth + 20} 0)">
-${costSvg}
+${renderActivityChart(daily, theme)}
 </g>`,
-    height: chartHeight + SECTION_GAP,
+    height: 274 + SECTION_GAP,
   }
 }
 
-function renderAreaPanel(
-  title: string,
-  daily: OverviewDailyPoint[],
-  getValue: (point: OverviewDailyPoint) => number,
-  unit: RenderValueUnit,
-  color: string,
-  width: number,
-  height: number,
-  theme: ExportTheme
-): string {
-  const chart = renderAreaChart(
-    daily,
-    getValue,
-    unit,
-    color,
-    width - 60,
-    height - 26,
-    60,
-    theme
-  )
-  return `<text x="0" y="15" font-size="16" font-weight="700" fill="${theme.ink}" font-family="${FONT}">${escapeXml(title)}</text>
-<g transform="translate(0 26)">
-${chart}
-</g>`
-}
-
-function renderAreaChart(
+function renderActivityChart(
   points: OverviewDailyPoint[],
-  getValue: (point: OverviewDailyPoint) => number,
-  unit: RenderValueUnit,
-  color: string,
-  width: number,
-  height: number,
-  left: number,
   theme: ExportTheme
 ): string {
-  const plotTop = 8
-  const plotBottom = height - 20
+  const width = CONTENT_WIDTH
+  const height = 274
+  const plotTop = 54
+  const plotBottom = height - 28
   const plotHeight = plotBottom - plotTop
-  const plotLeft = left
-  const plotWidth = width - left
+  const plotLeft = 46
+  const plotRight = 50
+  const plotWidth = width - plotLeft - plotRight
   const gridLines = 4
   const parts: string[] = []
 
   if (points.length === 0) {
-    return `<text x="${plotLeft}" y="${plotTop + 10}" font-size="12" fill="${theme.faint}" font-family="${FONT}">No data</text>`
+    return `<text x="0" y="15" font-size="16" font-weight="700" fill="${theme.ink}" font-family="${FONT}">Usage Over Time</text>
+<text x="${plotLeft}" y="${plotTop + 24}" font-size="12" fill="${theme.faint}" font-family="${FONT}">No data</text>`
   }
 
-  const maxValue = points.reduce(
-    (max, point) => Math.max(max, getValue(point)),
+  const tokensMax = points.reduce(
+    (max, point) => Math.max(max, point.total),
     0
   )
-  const yMax = maxValue > 0 ? maxValue * 1.08 : 1
+  const costMax = points.reduce(
+    (max, point) => Math.max(max, point.cost),
+    0
+  )
+  let tokensYMax = 1
+  if (tokensMax > 0) {
+    tokensYMax = tokensMax * 1.08
+  }
+  let costYMax = 1
+  if (costMax > 0) {
+    costYMax = costMax * 1.08
+  }
+
+  parts.push(
+    `<text x="0" y="15" font-size="16" font-weight="700" fill="${theme.ink}" font-family="${FONT}">Usage Over Time</text>`,
+    `<circle cx="150" cy="10" r="4" fill="${theme.accent}"/>`,
+    `<text x="160" y="14" font-size="11" fill="${theme.muted}" font-family="${FONT}">Tokens</text>`,
+    `<circle cx="224" cy="10" r="4" fill="${theme.accentAlt}"/>`,
+    `<text x="234" y="14" font-size="11" fill="${theme.muted}" font-family="${FONT}">Cost</text>`,
+    `<text x="${plotLeft}" y="42" font-size="10" fill="${theme.faint}" font-family="${FONT}">TOKENS</text>`,
+    `<text x="${plotLeft + plotWidth}" y="42" font-size="10" fill="${theme.faint}" text-anchor="end" font-family="${FONT}">COST</text>`
+  )
 
   for (let g = 0; g <= gridLines; g++) {
     const fraction = g / gridLines
     const y = plotBottom - fraction * plotHeight
-    const label = formatHumanReadableNumber(Math.round(yMax * fraction), unit)
+    const tokensLabel = formatHumanReadableNumber(
+      Math.round(tokensYMax * fraction),
+      'none'
+    )
+    const costLabel = formatHumanReadableNumber(costYMax * fraction, 'dollar')
     parts.push(
       `<line x1="${plotLeft}" y1="${y}" x2="${plotLeft + plotWidth}" y2="${y}" stroke="${theme.border}" stroke-width="1"/>
-<text x="${plotLeft - 6}" y="${y + 4}" font-size="10" fill="${theme.faint}" text-anchor="end" font-family="${FONT}">${escapeXml(label)}</text>`
+<text x="${plotLeft - 6}" y="${y + 4}" font-size="10" fill="${theme.faint}" text-anchor="end" font-family="${FONT}">${escapeXml(tokensLabel)}</text>
+<text x="${plotLeft + plotWidth + 6}" y="${y + 4}" font-size="10" fill="${theme.faint}" font-family="${FONT}">${escapeXml(costLabel)}</text>`
     )
   }
 
-  const linePoints = points.map((point, index) => {
+  const tokenLinePoints = points.map((point, index) => {
     const x =
       points.length > 1
         ? plotLeft + (index / (points.length - 1)) * plotWidth
         : plotLeft + plotWidth / 2
-    const y = plotBottom - Math.max(0, getValue(point) / yMax) * plotHeight
+    const y = plotBottom - Math.max(0, point.total / tokensYMax) * plotHeight
+    return `${x.toFixed(1)},${y.toFixed(1)}`
+  })
+  const costLinePoints = points.map((point, index) => {
+    const x =
+      points.length > 1
+        ? plotLeft + (index / (points.length - 1)) * plotWidth
+        : plotLeft + plotWidth / 2
+    const y = plotBottom - Math.max(0, point.cost / costYMax) * plotHeight
     return `${x.toFixed(1)},${y.toFixed(1)}`
   })
 
-  const firstX = Number(linePoints[0].split(',')[0])
-  const lastX = Number(linePoints[linePoints.length - 1].split(',')[0])
+  const firstX = Number(tokenLinePoints[0].split(',')[0])
+  const lastX = Number(tokenLinePoints[tokenLinePoints.length - 1].split(',')[0])
 
   if (points.length === 1) {
-    const [dotX, dotY] = linePoints[0].split(',')
+    const [tokenX, tokenY] = tokenLinePoints[0].split(',')
+    const [, costY] = costLinePoints[0].split(',')
     parts.push(
-      `<line x1="${dotX}" y1="${dotY}" x2="${dotX}" y2="${plotBottom}" stroke="${color}" stroke-width="2"/>`,
-      `<circle cx="${dotX}" cy="${dotY}" r="3.5" fill="${color}"/>`
+      `<line x1="${tokenX}" y1="${tokenY}" x2="${tokenX}" y2="${plotBottom}" stroke="${theme.accent}" stroke-width="2"/>`,
+      `<circle cx="${tokenX}" cy="${tokenY}" r="3.5" fill="${theme.accent}"/>`,
+      `<circle cx="${tokenX}" cy="${costY}" r="3.5" fill="${theme.accentAlt}"/>`
     )
   } else {
     parts.push(
-      `<polygon points="${linePoints.join(' ')} ${lastX},${plotBottom} ${firstX},${plotBottom}" fill="${color}30"/>`,
-      `<polyline points="${linePoints.join(' ')}" fill="none" stroke="${color}" stroke-width="2"/>`
+      `<polygon points="${tokenLinePoints.join(' ')} ${lastX},${plotBottom} ${firstX},${plotBottom}" fill="${theme.accent}24"/>`,
+      `<polyline points="${tokenLinePoints.join(' ')}" fill="none" stroke="${theme.accent}" stroke-width="2.5"/>`,
+      `<polyline points="${costLinePoints.join(' ')}" fill="none" stroke="${theme.accentAlt}" stroke-width="2.5" stroke-dasharray="6 4"/>`
     )
   }
 
   for (const index of pickLabelIndexes(points.length, 4)) {
     const point = points[index]
-    const x = Number(linePoints[index].split(',')[0])
+    const x = Number(tokenLinePoints[index].split(',')[0])
     parts.push(
       `<text x="${x}" y="${plotBottom + 16}" font-size="10" fill="${theme.faint}" text-anchor="middle" font-family="${FONT}">${escapeXml(point.label)}</text>`
     )
