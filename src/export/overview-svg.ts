@@ -157,14 +157,8 @@ function renderActivityChart(
 <text x="${plotLeft}" y="${plotTop + 24}" font-size="12" fill="${theme.faint}" font-family="${FONT}">No data</text>`
   }
 
-  const tokensMax = points.reduce(
-    (max, point) => Math.max(max, point.total),
-    0
-  )
-  const costMax = points.reduce(
-    (max, point) => Math.max(max, point.cost),
-    0
-  )
+  const tokensMax = points.reduce((max, point) => Math.max(max, point.total), 0)
+  const costMax = points.reduce((max, point) => Math.max(max, point.cost), 0)
   let tokensYMax = 1
   if (tokensMax > 0) {
     tokensYMax = tokensMax * 1.08
@@ -215,7 +209,9 @@ function renderActivityChart(
   })
 
   const firstX = Number(tokenLinePoints[0].split(',')[0])
-  const lastX = Number(tokenLinePoints[tokenLinePoints.length - 1].split(',')[0])
+  const lastX = Number(
+    tokenLinePoints[tokenLinePoints.length - 1].split(',')[0]
+  )
 
   if (points.length === 1) {
     const [tokenX, tokenY] = tokenLinePoints[0].split(',')
@@ -519,7 +515,7 @@ function renderProjectsSection(
   theme: ExportTheme
 ): Section {
   const titleHeight = 30
-  const rowHeight = 30
+  const rowHeight = 26
   const barHeight = 16
   const rows = projects.slice(0, 8)
   const maxValue = rows.reduce((max, item) => Math.max(max, item.value), 0)

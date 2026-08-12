@@ -1,8 +1,8 @@
 import { initializePriceDetector } from '@/core/price-detector.js'
 import { UsageDataMessage } from '@/core/types.js'
 import { ColorGenerator } from '@/render/color-generator.js'
-import { formatDateKey } from '@/render/utils.js'
 import { RenderValueShowBy } from '@/render/types.js'
+import { formatDateKey } from '@/render/utils.js'
 
 export type OverviewRankItem = {
   id: string
