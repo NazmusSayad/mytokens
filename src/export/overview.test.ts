@@ -147,6 +147,8 @@ describe('renderOverviewToSvg', () => {
     const overview = {
       dateStart: null,
       dateEnd: null,
+      dataStart: new Date('2026-08-10T10:00:00'),
+      dataEnd: new Date('2026-08-11T09:00:00'),
       totalTokens: 2150,
       totalCost: 0.00782,
       totalMessages: 3,
@@ -223,6 +225,8 @@ describe('renderOverviewToSvg', () => {
     const base = {
       dateStart: null,
       dateEnd: null,
+      dataStart: null,
+      dataEnd: null,
       totalTokens: 0,
       totalCost: 0,
       totalMessages: 0,

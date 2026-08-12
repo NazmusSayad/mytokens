@@ -41,7 +41,7 @@ export function renderOverviewToSvg(
     y += section.height
   }
 
-  const totalHeight = y
+  const totalHeight = y + PADDING
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_WIDTH}" height="${totalHeight}" viewBox="0 0 ${SVG_WIDTH} ${totalHeight}">
   <rect width="100%" height="100%" fill="${theme.background}"/>
 ${body.join('\n')}
@@ -53,23 +53,26 @@ ${body.join('\n')}
 function renderHeader(model: OverviewSummary, theme: ExportTheme): Section {
   return {
     svg: `<text x="${CONTENT_X}" y="34" font-size="26" font-weight="700" fill="${theme.ink}" font-family="${FONT}">AI Coding Usage Overview</text>
-<text x="${CONTENT_X}" y="56" font-size="13" fill="${theme.muted}" font-family="${FONT}">${escapeXml(formatRange(model.dateStart, model.dateEnd))}</text>
-<line x1="${CONTENT_X}" y1="72" x2="${CONTENT_X + CONTENT_WIDTH}" y2="72" stroke="${theme.border}" stroke-width="1"/>`,
-    height: 72,
+<text x="${CONTENT_X + CONTENT_WIDTH}" y="34" font-size="13" fill="${theme.muted}" text-anchor="end" font-family="${FONT}">${escapeXml(formatRange(model.dataStart, model.dataEnd))}</text>
+<line x1="${CONTENT_X}" y1="56" x2="${CONTENT_X + CONTENT_WIDTH}" y2="56" stroke="${theme.border}" stroke-width="1"/>`,
+    height: 80,
   }
 }
 
-function formatRange(dateStart: Date | null, dateEnd: Date | null): string {
-  if (dateStart && dateEnd) {
-    return `${formatDate(dateStart)} – ${formatDate(dateEnd)}`
+function formatRange(dataStart: Date | null, dataEnd: Date | null): string {
+  if (dataStart && dataEnd) {
+    if (formatDate(dataStart) === formatDate(dataEnd)) {
+      return formatDate(dataStart)
+    }
+    return `${formatDate(dataStart)} – ${formatDate(dataEnd)}`
   }
-  if (dateStart) {
-    return `From ${formatDate(dateStart)}`
+  if (dataStart) {
+    return `From ${formatDate(dataStart)}`
   }
-  if (dateEnd) {
-    return `Until ${formatDate(dateEnd)}`
+  if (dataEnd) {
+    return `Until ${formatDate(dataEnd)}`
   }
-  return 'All time'
+  return ''
 }
 
 function formatDate(date: Date): string {
@@ -126,13 +129,13 @@ function renderActivitySection(
   daily: OverviewDailyPoint[],
   theme: ExportTheme
 ): Section {
-  const titleHeight = 30
   const chartHeight = 210
   const panelWidth = (CONTENT_WIDTH - 20) / 2
 
   const tokensSvg = renderAreaPanel(
     'Tokens Over Time',
     daily,
+    (point) => point.total,
     'none',
     theme.accent,
     panelWidth,
@@ -142,6 +145,7 @@ function renderActivitySection(
   const costSvg = renderAreaPanel(
     'Cost Over Time',
     daily,
+    (point) => point.cost,
     'dollar',
     theme.accentAlt,
     panelWidth,
@@ -150,20 +154,20 @@ function renderActivitySection(
   )
 
   return {
-    svg: `<text x="${CONTENT_X}" y="26" font-size="16" font-weight="700" fill="${theme.ink}" font-family="${FONT}">Activity</text>
-<g transform="translate(${CONTENT_X} ${titleHeight})">
+    svg: `<g transform="translate(${CONTENT_X} 0)">
 ${tokensSvg}
 </g>
-<g transform="translate(${CONTENT_X + panelWidth + 20} ${titleHeight})">
+<g transform="translate(${CONTENT_X + panelWidth + 20} 0)">
 ${costSvg}
 </g>`,
-    height: titleHeight + chartHeight + SECTION_GAP,
+    height: chartHeight + SECTION_GAP,
   }
 }
 
 function renderAreaPanel(
   title: string,
   daily: OverviewDailyPoint[],
+  getValue: (point: OverviewDailyPoint) => number,
   unit: RenderValueUnit,
   color: string,
   width: number,
@@ -172,6 +176,7 @@ function renderAreaPanel(
 ): string {
   const chart = renderAreaChart(
     daily,
+    getValue,
     unit,
     color,
     width - 60,
@@ -179,7 +184,7 @@ function renderAreaPanel(
     60,
     theme
   )
-  return `<text x="0" y="14" font-size="13" font-weight="600" fill="${theme.ink}" font-family="${FONT}">${escapeXml(title)}</text>
+  return `<text x="0" y="15" font-size="16" font-weight="700" fill="${theme.ink}" font-family="${FONT}">${escapeXml(title)}</text>
 <g transform="translate(0 26)">
 ${chart}
 </g>`
@@ -187,6 +192,7 @@ ${chart}
 
 function renderAreaChart(
   points: OverviewDailyPoint[],
+  getValue: (point: OverviewDailyPoint) => number,
   unit: RenderValueUnit,
   color: string,
   width: number,
@@ -206,7 +212,10 @@ function renderAreaChart(
     return `<text x="${plotLeft}" y="${plotTop + 10}" font-size="12" fill="${theme.faint}" font-family="${FONT}">No data</text>`
   }
 
-  const maxValue = points.reduce((max, point) => Math.max(max, point.total), 0)
+  const maxValue = points.reduce(
+    (max, point) => Math.max(max, getValue(point)),
+    0
+  )
   const yMax = maxValue > 0 ? maxValue * 1.08 : 1
 
   for (let g = 0; g <= gridLines; g++) {
@@ -224,17 +233,25 @@ function renderAreaChart(
       points.length > 1
         ? plotLeft + (index / (points.length - 1)) * plotWidth
         : plotLeft + plotWidth / 2
-    const y = plotBottom - Math.max(0, point.total / yMax) * plotHeight
+    const y = plotBottom - Math.max(0, getValue(point) / yMax) * plotHeight
     return `${x.toFixed(1)},${y.toFixed(1)}`
   })
 
   const firstX = Number(linePoints[0].split(',')[0])
   const lastX = Number(linePoints[linePoints.length - 1].split(',')[0])
 
-  parts.push(
-    `<polygon points="${linePoints.join(' ')} ${lastX},${plotBottom} ${firstX},${plotBottom}" fill="${color}30"/>`,
-    `<polyline points="${linePoints.join(' ')}" fill="none" stroke="${color}" stroke-width="2"/>`
-  )
+  if (points.length === 1) {
+    const [dotX, dotY] = linePoints[0].split(',')
+    parts.push(
+      `<line x1="${dotX}" y1="${dotY}" x2="${dotX}" y2="${plotBottom}" stroke="${color}" stroke-width="2"/>`,
+      `<circle cx="${dotX}" cy="${dotY}" r="3.5" fill="${color}"/>`
+    )
+  } else {
+    parts.push(
+      `<polygon points="${linePoints.join(' ')} ${lastX},${plotBottom} ${firstX},${plotBottom}" fill="${color}30"/>`,
+      `<polyline points="${linePoints.join(' ')}" fill="none" stroke="${color}" stroke-width="2"/>`
+    )
+  }
 
   for (const index of pickLabelIndexes(points.length, 4)) {
     const point = points[index]
@@ -279,7 +296,7 @@ function renderCompositionSection(
     cursor += width
   }
 
-  const legend = renderLegendRow(composition, 0, total, theme)
+  const legend = renderLegendRow(composition, 13, total, theme)
   const legendRows = legend.width > CONTENT_WIDTH ? 2 : 1
   const legendSvg =
     legendRows === 1
@@ -309,9 +326,7 @@ function renderLegendRow(
   const parts: string[] = []
   const gap = 18
   for (const slice of slices) {
-    const percent =
-      total > 0 ? Math.max(1, Math.round((slice.value / total) * 100)) : 0
-    const text = `${slice.name}  ${formatHumanReadableNumber(slice.value, 'none')} (${percent}%)`
+    const text = `${slice.name}  ${formatHumanReadableNumber(slice.value, 'none')} (${formatPercent(slice.value, total)})`
     const textWidth = Math.max(1, text.length * 6.6)
     parts.push(
       `<rect x="${x}" y="${y - 9}" width="10" height="10" rx="2" fill="${slice.color}"/>
@@ -339,7 +354,6 @@ function renderRankingsSection(
   model: OverviewSummary,
   theme: ExportTheme
 ): Section {
-  const titleHeight = 30
   const cellGap = 20
   const cellWidth = (CONTENT_WIDTH - cellGap) / 2
   const cellHeight = 224
@@ -364,14 +378,13 @@ function renderRankingsSection(
   }
 
   return {
-    svg: `<text x="${CONTENT_X}" y="26" font-size="16" font-weight="700" fill="${theme.ink}" font-family="${FONT}">Breakdown</text>
-<g transform="translate(${CONTENT_X} ${titleHeight})">
+    svg: `<g transform="translate(${CONTENT_X} 0)">
 ${renderRow(firstRow)}
 </g>
-<g transform="translate(${CONTENT_X} ${titleHeight + cellHeight + rowGap})">
+<g transform="translate(${CONTENT_X} ${cellHeight + rowGap})">
 ${renderRow(secondRow)}
 </g>`,
-    height: titleHeight + cellHeight * 2 + rowGap + SECTION_GAP,
+    height: cellHeight * 2 + rowGap + SECTION_GAP,
   }
 }
 
@@ -388,7 +401,7 @@ function renderRankingCell(
   const outer = 76
   const inner = 42
   const parts: string[] = [
-    `<text x="0" y="16" font-size="13" font-weight="600" fill="${theme.ink}" font-family="${FONT}">${escapeXml(cell.title)}</text>`,
+    `<text x="0" y="16" font-size="16" font-weight="700" fill="${theme.ink}" font-family="${FONT}">${escapeXml(cell.title)}</text>`,
   ]
 
   if (cell.items.length > 0) {
@@ -421,9 +434,14 @@ function renderDonut(
     return ''
   }
 
+  const visible = items.filter((item) => item.value > 0)
+  if (visible.length === 1) {
+    return `<path d="${donutRing(cx, cy, outer, inner)}" fill="${visible[0].color}" fill-rule="evenodd"/>`
+  }
+
   let startAngle = 0
   const parts: string[] = []
-  for (const item of items) {
+  for (const item of visible) {
     const sweep = (item.value / total) * 360
     parts.push(
       `<path d="${donutArc(cx, cy, outer, inner, startAngle, startAngle + sweep)}" fill="${item.color}"/>`
@@ -431,6 +449,15 @@ function renderDonut(
     startAngle += sweep
   }
   return parts.join('\n')
+}
+
+function donutRing(
+  cx: number,
+  cy: number,
+  outer: number,
+  inner: number
+): string {
+  return `M ${cx - outer} ${cy} A ${outer} ${outer} 0 1 1 ${cx + outer} ${cy} A ${outer} ${outer} 0 1 1 ${cx - outer} ${cy} Z M ${cx - inner} ${cy} A ${inner} ${inner} 0 1 1 ${cx + inner} ${cy} A ${inner} ${inner} 0 1 1 ${cx - inner} ${cy} Z`
 }
 
 function donutArc(
@@ -485,9 +512,8 @@ function renderDonutLegend(
 
   items.forEach((item, index) => {
     const rowY = y + index * rowHeight
-    const percent = total > 0 ? Math.round((item.value / total) * 100) : 0
     const name = truncate(item.name, maxNameChars)
-    const value = `${formatHumanReadableNumber(item.value, 'none')} (${percent}%)`
+    const value = `${formatHumanReadableNumber(item.value, 'none')} (${formatPercent(item.value, total)})`
     parts.push(
       `<rect x="${x}" y="${rowY - 9}" width="10" height="10" rx="2" fill="${item.color}"/>
 <text x="${x + 16}" y="${rowY}" font-size="11" fill="${theme.muted}" font-family="${FONT}">${escapeXml(name)}</text>
@@ -538,6 +564,17 @@ ${parts.join('\n')}
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 type Section = { svg: string; height: number }
+
+function formatPercent(value: number, total: number): string {
+  if (total <= 0) {
+    return '0%'
+  }
+  const percent = (value / total) * 100
+  if (percent > 0 && percent < 1) {
+    return '<1%'
+  }
+  return `${Math.round(percent)}%`
+}
 
 function truncate(input: string, maxChars: number): string {
   if (input.length <= maxChars) {

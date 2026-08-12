@@ -30,6 +30,8 @@ export type OverviewTokenSlice = {
 export type OverviewSummary = {
   dateStart: Date | null
   dateEnd: Date | null
+  dataStart: Date | null
+  dataEnd: Date | null
   totalTokens: number
   totalCost: number
   totalMessages: number
@@ -72,8 +74,17 @@ export async function computeOverview(
   const modelNames = new Map<string, string>()
   const projectNames = new Map<string, string>()
   let totalCost = 0
+  let dataStart: Date | null = null
+  let dataEnd: Date | null = null
 
   for (const message of messages) {
+    if (!dataStart || message.date.getTime() < dataStart.getTime()) {
+      dataStart = message.date
+    }
+    if (!dataEnd || message.date.getTime() > dataEnd.getTime()) {
+      dataEnd = message.date
+    }
+
     const tokens = message.tokens
     const input = tokens.input
     const output = tokens.output
@@ -158,6 +169,8 @@ export async function computeOverview(
   return {
     dateStart: range.dateStart,
     dateEnd: range.dateEnd,
+    dataStart,
+    dataEnd,
     totalTokens:
       tokenTotals.input +
       tokenTotals.output +

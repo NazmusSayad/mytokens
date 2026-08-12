@@ -1,5 +1,9 @@
 import { ExportFilterOptions } from '@/export/types.js'
-import { Command, OptionValues } from '@commander-js/extra-typings'
+import {
+  Command,
+  InvalidArgumentError,
+  OptionValues,
+} from '@commander-js/extra-typings'
 import { resolveDateRange } from './args.js'
 
 export type UsageFilterOptionValues = {
@@ -45,9 +49,7 @@ export function addUsageFilterOptions<
     .option('--last <days>', 'Show data for the last n days.', (val) => {
       const days = Number.parseInt(val, 10)
       if (Number.isNaN(days) || days <= 0) {
-        throw new Error(
-          `Invalid --last value: ${val}. Must be a positive number.`
-        )
+        throw new InvalidArgumentError('Must be a positive number.')
       }
       return days
     })

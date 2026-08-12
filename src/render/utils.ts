@@ -49,7 +49,11 @@ export function formatHumanReadableNumber(
   const sign = n < 0 ? '-' : ''
 
   if (absN < 1000) {
-    return unit === 'dollar' ? `${sign}$${absN}` : `${sign}${absN}`
+    if (unit === 'dollar') {
+      const decimals = absN < 0.01 ? 4 : 2
+      return `${sign}$${Number(absN.toFixed(decimals))}`
+    }
+    return `${sign}${Number(absN.toFixed(0))}`
   }
 
   const units = ['', 'K', 'M', 'B', 'T']

@@ -2,7 +2,11 @@ import {
   addUsageFilterOptions,
   buildUsageFilterOptions,
 } from '@/helpers/usage-options.js'
-import { Command, OptionValues } from '@commander-js/extra-typings'
+import {
+  Command,
+  InvalidArgumentError,
+  OptionValues,
+} from '@commander-js/extra-typings'
 import chalk from 'chalk'
 import path from 'path'
 import { exportReportToSvg, showReportImage } from './index.js'
@@ -22,8 +26,8 @@ function addThemeOption<
     (val) => {
       const theme = val.toLowerCase() as ExportThemeId
       if (!EXPORT_THEMES[theme]) {
-        throw new Error(
-          `Invalid --theme value: ${val}. Supported themes: ${Object.keys(EXPORT_THEMES).join(', ')}`
+        throw new InvalidArgumentError(
+          `Supported themes: ${Object.keys(EXPORT_THEMES).join(', ')}`
         )
       }
       return theme
@@ -53,8 +57,8 @@ export function attachExportCommands<
           (val) => {
             const format = val.toLowerCase() as ExportFormat
             if (!FORMATS.includes(format)) {
-              throw new Error(
-                `Invalid --format value: ${val}. Supported formats: ${FORMATS.join(', ')}`
+              throw new InvalidArgumentError(
+                `Supported formats: ${FORMATS.join(', ')}`
               )
             }
             return format
@@ -70,9 +74,7 @@ export function attachExportCommands<
       (val) => {
         const scale = Number.parseFloat(val)
         if (Number.isNaN(scale) || scale <= 0) {
-          throw new Error(
-            `Invalid --scale value: ${val}. Must be a positive number.`
-          )
+          throw new InvalidArgumentError('Must be a positive number.')
         }
         return scale
       }
@@ -204,10 +206,13 @@ function resolveOutput(
         `Unsupported output extension "${extension}". Supported formats: ${FORMATS.join(', ')}`
       )
     }
-    return {
-      outputPath,
-      format: format ?? (extension.slice(1) as ExportFormat) ?? 'svg',
+    if (format) {
+      return { outputPath, format }
     }
+    if (extension) {
+      return { outputPath, format: extension.slice(1) as ExportFormat }
+    }
+    return { outputPath, format: 'svg' }
   }
 
   if (format) {
