@@ -1,67 +1,69 @@
-import { resolveDateRange } from '@/helpers/args.js'
+import {
+  addUsageFilterOptions,
+  buildUsageFilterOptions,
+} from '@/helpers/usage-options.js'
 import { Command, OptionValues } from '@commander-js/extra-typings'
 import chalk from 'chalk'
 import path from 'path'
 import { exportReportToSvg, showReportImage } from './index.js'
 import { DEFAULT_EXPORT_THEME, EXPORT_THEMES } from './themes.js'
-import { ExportFilterOptions, ExportFormat, ExportThemeId } from './types.js'
-
-type DateRangeOptions = {
-  from?: string
-  to?: string
-  today?: boolean
-  yesterday?: boolean
-  lastWeek?: boolean
-  lastMonth?: boolean
-  lastYear?: boolean
-  thisWeek?: boolean
-  thisMonth?: boolean
-  thisYear?: boolean
-  last?: number
-}
+import { ExportFormat, ExportThemeId } from './types.js'
 
 const FORMATS: ExportFormat[] = ['svg', 'png']
+
+function addThemeOption<
+  Args extends unknown[],
+  Opts extends OptionValues,
+  GlobalOpts extends OptionValues,
+>(command: Command<Args, Opts, GlobalOpts>) {
+  return command.option(
+    '--theme <theme>',
+    `Color theme: ${Object.keys(EXPORT_THEMES).join(', ')}. Default: ${DEFAULT_EXPORT_THEME}.`,
+    (val) => {
+      const theme = val.toLowerCase() as ExportThemeId
+      if (!EXPORT_THEMES[theme]) {
+        throw new Error(
+          `Invalid --theme value: ${val}. Supported themes: ${Object.keys(EXPORT_THEMES).join(', ')}`
+        )
+      }
+      return theme
+    }
+  )
+}
 
 export function attachExportCommands<
   Args extends unknown[],
   Opts extends OptionValues,
   GlobalOpts extends OptionValues,
 >(program: Command<Args, Opts, GlobalOpts>) {
-  program
-    .command('export')
-    .description(
-      'Export the aggregated usage overview (all apps, models and providers) as a single image.'
+  const exportCommand = addThemeOption(
+    addUsageFilterOptions(
+      program
+        .command('export')
+        .description(
+          'Export the aggregated usage overview (all apps, models and providers) as a single image.'
+        )
+        .option(
+          '--output <path>',
+          'Output file path. Defaults to mytokens.svg (or the chosen format).'
+        )
+        .option(
+          '--format <format>',
+          `Output format: ${FORMATS.join(', ')}. Inferred from --output extension when omitted.`,
+          (val) => {
+            const format = val.toLowerCase() as ExportFormat
+            if (!FORMATS.includes(format)) {
+              throw new Error(
+                `Invalid --format value: ${val}. Supported formats: ${FORMATS.join(', ')}`
+              )
+            }
+            return format
+          }
+        )
     )
-    .option(
-      '--output <path>',
-      'Output file path. Defaults to mytokens.svg (or the chosen format).'
-    )
-    .option(
-      '--format <format>',
-      `Output format: ${FORMATS.join(', ')}. Inferred from --output extension when omitted.`,
-      (val) => {
-        const format = val.toLowerCase() as ExportFormat
-        if (!FORMATS.includes(format)) {
-          throw new Error(
-            `Invalid --format value: ${val}. Supported formats: ${FORMATS.join(', ')}`
-          )
-        }
-        return format
-      }
-    )
-    .option(
-      '--theme <theme>',
-      `Color theme: ${Object.keys(EXPORT_THEMES).join(', ')}. Default: ${DEFAULT_EXPORT_THEME}.`,
-      (val) => {
-        const theme = val.toLowerCase() as ExportThemeId
-        if (!EXPORT_THEMES[theme]) {
-          throw new Error(
-            `Invalid --theme value: ${val}. Supported themes: ${Object.keys(EXPORT_THEMES).join(', ')}`
-          )
-        }
-        return theme
-      }
-    )
+  )
+
+  exportCommand
     .option(
       '--scale <scale>',
       'Output scale multiplier (PNG only). Default: 1.',
@@ -86,7 +88,7 @@ export function attachExportCommands<
     })
     .action(async (options) => {
       try {
-        const renderOptions = buildRenderOptions(program.opts())
+        const renderOptions = buildUsageFilterOptions(options)
         const { outputPath, format } = resolveOutput(
           options.output,
           options.format
@@ -107,24 +109,17 @@ export function attachExportCommands<
       }
     })
 
-  program
-    .command('image')
-    .description(
-      'Render the aggregated usage overview (all apps, models and providers) as an image in the terminal.'
+  const imageCommand = addThemeOption(
+    addUsageFilterOptions(
+      program
+        .command('image')
+        .description(
+          'Render the aggregated usage overview (all apps, models and providers) as an image in the terminal.'
+        )
     )
-    .option(
-      '--theme <theme>',
-      `Color theme: ${Object.keys(EXPORT_THEMES).join(', ')}. Default: ${DEFAULT_EXPORT_THEME}.`,
-      (val) => {
-        const theme = val.toLowerCase() as ExportThemeId
-        if (!EXPORT_THEMES[theme]) {
-          throw new Error(
-            `Invalid --theme value: ${val}. Supported themes: ${Object.keys(EXPORT_THEMES).join(', ')}`
-          )
-        }
-        return theme
-      }
-    )
+  )
+
+  imageCommand
     .option('--copy', 'Copy the rendered PNG image to the macOS clipboard.')
     .on('--help', () => {
       console.log('\nExamples:')
@@ -145,7 +140,7 @@ export function attachExportCommands<
           return
         }
 
-        const renderOptions = buildRenderOptions(program.opts())
+        const renderOptions = buildUsageFilterOptions(imageOptions)
         await showReportImage(renderOptions, {
           width: '100%',
           copy: imageOptions.copy,
@@ -220,35 +215,4 @@ function resolveOutput(
   }
 
   return { outputPath: 'mytokens.svg', format: 'svg' }
-}
-
-function buildRenderOptions(options: DateRangeOptions): ExportFilterOptions {
-  const range = resolveDateRange({
-    from: options.from,
-    to: options.to,
-    today: options.today,
-    yesterday: options.yesterday,
-    lastWeek: options.lastWeek,
-    lastMonth: options.lastMonth,
-    lastYear: options.lastYear,
-    thisWeek: options.thisWeek,
-    thisMonth: options.thisMonth,
-    thisYear: options.thisYear,
-    last: options.last,
-  })
-
-  return {
-    dateStart: range.dateStart,
-    dateEnd: range.dateEnd,
-    enabledApps: null,
-    disabledApps: null,
-    enabledModes: null,
-    disabledModes: null,
-    enabledModels: null,
-    disabledModels: null,
-    enabledProjects: null,
-    disabledProjects: null,
-    enabledProviders: null,
-    disabledProviders: null,
-  }
 }
