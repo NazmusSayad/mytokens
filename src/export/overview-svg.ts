@@ -405,7 +405,7 @@ function renderRankingCell(
     )
   }
 
-  parts.push(renderDonutLegend(cell.items, 188, 36, width - 188 - 8, theme))
+  parts.push(renderDonutLegend(cell.items, 188, 38, width - 188 - 8, theme))
 
   return parts.join('\n')
 }

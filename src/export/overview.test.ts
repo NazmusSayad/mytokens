@@ -197,6 +197,7 @@ describe('computeOverview', () => {
     const overview = await computeOverview(messages, {
       dateStart: null,
       dateEnd: null,
+      projects: 8,
     })
 
     expect(overview.models).toHaveLength(1)

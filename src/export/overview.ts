@@ -169,11 +169,11 @@ export async function computeOverview(
     .map(([, point]) => point)
 
   const [models, apps, providers, projects, modes] = await Promise.all([
-    toRankItems(modelTotals, modelNames, 6),
-    toRankItems(appTotals, new Map(), 6),
-    toRankItems(providerTotals, new Map(), 6),
+    toRankItems(modelTotals, modelNames, 7),
+    toRankItems(appTotals, new Map(), 7),
+    toRankItems(providerTotals, new Map(), 7),
     toRankItems(projectTotals, projectNames, range.projects ?? 10),
-    toRankItems(modeTotals, new Map(), 6),
+    toRankItems(modeTotals, new Map(), 7),
   ])
 
   return {
