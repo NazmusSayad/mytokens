@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "run ./src/index.ts",
     "start": "rux ./src/index.ts",
+    "export": "rux ./src/index.ts export",
+    "export:watch": "run ./src/index.ts export",
     "build": "tsdown --config ./tsdown.config.ts",
     "build:watch": "concurrently --names \"R,T\" --prefix-colors \"blue.dim,magenta.dim\" \"tsdown --config ./tsdown.config.ts --watch\" \"tsc --noEmit --watch\"",
     "typecheck": "tsc --noEmit",
