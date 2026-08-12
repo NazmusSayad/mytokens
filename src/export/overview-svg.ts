@@ -133,7 +133,7 @@ function renderActivitySection(
     svg: `<g transform="translate(${CONTENT_X} 0)">
 ${renderActivityChart(daily, theme)}
 </g>`,
-    height: 274 + SECTION_GAP,
+    height: 264 + SECTION_GAP,
   }
 }
 
@@ -142,8 +142,8 @@ function renderActivityChart(
   theme: ExportTheme
 ): string {
   const width = CONTENT_WIDTH
-  const height = 274
-  const plotTop = 54
+  const height = 264
+  const plotTop = 44
   const plotBottom = height - 28
   const plotHeight = plotBottom - plotTop
   const plotLeft = 46
@@ -179,9 +179,7 @@ function renderActivityChart(
     `<circle cx="150" cy="10" r="4" fill="${theme.accent}"/>`,
     `<text x="160" y="14" font-size="11" fill="${theme.muted}" font-family="${FONT}">Tokens</text>`,
     `<circle cx="224" cy="10" r="4" fill="${theme.accentAlt}"/>`,
-    `<text x="234" y="14" font-size="11" fill="${theme.muted}" font-family="${FONT}">Cost</text>`,
-    `<text x="${plotLeft}" y="42" font-size="10" fill="${theme.faint}" font-family="${FONT}">TOKENS</text>`,
-    `<text x="${plotLeft + plotWidth}" y="42" font-size="10" fill="${theme.faint}" text-anchor="end" font-family="${FONT}">COST</text>`
+    `<text x="234" y="14" font-size="11" fill="${theme.muted}" font-family="${FONT}">Cost</text>`
   )
 
   for (let g = 0; g <= gridLines; g++) {
