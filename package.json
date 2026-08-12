@@ -1,6 +1,6 @@
 {
   "name": "mytokens",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "type": "module",
   "scripts": {
     "start": "tsx ./src/index.ts",
@@ -19,6 +19,9 @@
     "test:watch": "vitest watch"
   },
   "bin": "dist/index.js",
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2"
+  },
   "devDependencies": {
     "@commander-js/extra-typings": "^14.0.0",
     "@eslint/compat": "^1.4.1",
@@ -51,10 +54,7 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.67.0",
     "ulid": "^3.0.2",
-    "vitest": "^4.1.10"
-  },
-  "dependencies": {
-    "@resvg/resvg-js": "^2.6.2",
+    "vitest": "^4.1.10",
     "terminal-image": "^5.0.1"
   }
 }
