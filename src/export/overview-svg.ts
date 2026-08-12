@@ -347,11 +347,11 @@ function renderRankingsSection(
   const rowGap = 18
 
   const firstRow: Cell[] = [
-    { title: 'Top Models', items: model.models, unit: 'none' },
-    { title: 'Top Apps', items: model.apps, unit: 'none' },
+    { title: 'Models', items: model.models, unit: 'none' },
+    { title: 'Apps', items: model.apps, unit: 'none' },
   ]
   const secondRow: Cell[] = [
-    { title: 'Top Providers', items: model.providers, unit: 'none' },
+    { title: 'Providers', items: model.providers, unit: 'none' },
     { title: 'Modes', items: model.modes, unit: 'none' },
   ]
 
@@ -541,7 +541,7 @@ function renderProjectsSection(
   })
 
   return {
-    svg: `<text x="${CONTENT_X}" y="14" font-size="16" font-weight="700" fill="${theme.ink}" font-family="${FONT}">Top Projects</text>
+    svg: `<text x="${CONTENT_X}" y="14" font-size="16" font-weight="700" fill="${theme.ink}" font-family="${FONT}">Projects</text>
 <g transform="translate(0 ${titleHeight})">
 ${parts.join('\n')}
 </g>`,
