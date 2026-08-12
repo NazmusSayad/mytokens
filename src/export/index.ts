@@ -21,11 +21,11 @@ import { parsePi } from '@/parsers/pi.js'
 import { parseQwen } from '@/parsers/qwen.js'
 import { parseKiloCode, parseRooCode } from '@/parsers/roocode.js'
 import { parseSynthetic } from '@/parsers/synthetic.js'
-import { RenderScreenOptions } from '@/render/types.js'
 import { isMessageIgnored } from './chart.js'
 import { renderImageInTerminal, TerminalImageOptions } from './image.js'
 import { renderOverviewToSvg } from './overview-svg.js'
 import { computeOverview } from './overview.js'
+import { ExportFilterOptions } from './types.js'
 
 export async function loadUsageData(): Promise<UsageDataMessage[]> {
   return (
@@ -58,13 +58,13 @@ export async function loadUsageData(): Promise<UsageDataMessage[]> {
 
 function filterMessages(
   data: UsageDataMessage[],
-  options: RenderScreenOptions
+  options: ExportFilterOptions
 ): UsageDataMessage[] {
   return data.filter((message) => !isMessageIgnored(message, options))
 }
 
 export async function buildOverviewSvg(
-  options: RenderScreenOptions
+  options: ExportFilterOptions
 ): Promise<string> {
   const data = await loadUsageData()
   const messages = filterMessages(data, options)
@@ -77,7 +77,7 @@ export async function buildOverviewSvg(
 
 export async function exportReportToSvg(
   outputPath: string,
-  options: RenderScreenOptions
+  options: ExportFilterOptions
 ): Promise<string> {
   const svg = await buildOverviewSvg(options)
   await writeFileForced(outputPath, svg)
@@ -85,7 +85,7 @@ export async function exportReportToSvg(
 }
 
 export async function showReportImage(
-  options: RenderScreenOptions,
+  options: ExportFilterOptions,
   imageOptions: TerminalImageOptions = {}
 ): Promise<string> {
   const svg = await buildOverviewSvg(options)

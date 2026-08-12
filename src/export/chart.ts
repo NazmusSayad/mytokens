@@ -12,11 +12,12 @@ import {
   ChartModel,
   ChartRow,
   ChartSegment,
+  ExportFilterOptions,
 } from './types.js'
 
 export function isMessageIgnored(
   message: UsageDataMessage,
-  options: RenderScreenOptions
+  options: ExportFilterOptions
 ): boolean {
   const { dateStart, dateEnd, enabledApps, disabledApps } = options
 

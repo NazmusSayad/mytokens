@@ -1,6 +1,10 @@
 import { RenderDataItem, RenderScreenOptions } from '@/render/types.js'
 import { describe, expect, it } from 'vitest'
-import { computeAxisLabels, computeChartModel, computeSegmentWidths } from './chart.js'
+import {
+  computeAxisLabels,
+  computeChartModel,
+  computeSegmentWidths,
+} from './chart.js'
 import { renderChartToSvg, renderDashboardToSvg } from './svg.js'
 import { ChartModel } from './types.js'
 
@@ -116,7 +120,12 @@ describe('computeChartModel', () => {
       { id: 'a', name: 'Model A', date: new Date('2026-08-11'), value: 30 },
     ]
 
-    const model = await computeChartModel(items, makeOptions(), 'Models', 'none')
+    const model = await computeChartModel(
+      items,
+      makeOptions(),
+      'Models',
+      'none'
+    )
 
     expect(model.rows).toHaveLength(2)
     expect(model.rows[0]).toMatchObject({

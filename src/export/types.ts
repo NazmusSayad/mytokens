@@ -1,5 +1,20 @@
 import { RenderValueUnit } from '@/render/types.js'
 
+export type ExportFilterOptions = {
+  dateStart: Date | null
+  dateEnd: Date | null
+  enabledApps: string[] | null
+  disabledApps: string[] | null
+  enabledProviders: string[] | null
+  disabledProviders: string[] | null
+  enabledModels: string[] | null
+  disabledModels: string[] | null
+  enabledModes: string[] | null
+  disabledModes: string[] | null
+  enabledProjects: string[] | null
+  disabledProjects: string[] | null
+}
+
 export type ChartSegment = { id: string; value: number }
 export type ChartRow = { key: string; total: number; segments: ChartSegment[] }
 export type ChartAxisLabel = { text: string; pos: number }

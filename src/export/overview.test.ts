@@ -1,7 +1,7 @@
 import { UsageDataMessage } from '@/core/types.js'
 import { describe, expect, it, vi } from 'vitest'
-import { computeOverview } from './overview.js'
 import { renderOverviewToSvg } from './overview-svg.js'
+import { computeOverview } from './overview.js'
 
 vi.mock('@/core/price-detector.js', () => ({
   initializePriceDetector: vi.fn().mockResolvedValue({
@@ -19,7 +19,13 @@ function makeMessage(partial: Partial<UsageDataMessage>): UsageDataMessage {
     type: 'assistant',
     date: new Date('2026-08-10T10:00:00'),
     model: { id: 'gpt-5', provider: 'openai' },
-    tokens: { input: 0, output: 0, reasoning: 0, cacheInput: 0, cacheOutput: 0 },
+    tokens: {
+      input: 0,
+      output: 0,
+      reasoning: 0,
+      cacheInput: 0,
+      cacheOutput: 0,
+    },
     project: { name: 'mytokens', path: '/Users/sayad/Desktop/mytokens' },
     ...partial,
   }
@@ -33,21 +39,39 @@ describe('computeOverview', () => {
         mode: 'build',
         date: new Date('2026-08-10T10:00:00'),
         model: { id: 'gpt-5', provider: 'openai' },
-        tokens: { input: 1000, output: 500, reasoning: 0, cacheInput: 0, cacheOutput: 0 },
+        tokens: {
+          input: 1000,
+          output: 500,
+          reasoning: 0,
+          cacheInput: 0,
+          cacheOutput: 0,
+        },
       }),
       makeMessage({
         app: 'codex',
         mode: 'agent',
         date: new Date('2026-08-10T12:00:00'),
         model: { id: 'claude-4', provider: 'anthropic' },
-        tokens: { input: 200, output: 100, reasoning: 0, cacheInput: 50, cacheOutput: 0 },
+        tokens: {
+          input: 200,
+          output: 100,
+          reasoning: 0,
+          cacheInput: 50,
+          cacheOutput: 0,
+        },
       }),
       makeMessage({
         app: 'opencode',
         mode: 'chat',
         date: new Date('2026-08-11T09:00:00'),
         model: { id: 'gpt-5', provider: 'openai' },
-        tokens: { input: 300, output: 0, reasoning: 0, cacheInput: 0, cacheOutput: 0 },
+        tokens: {
+          input: 300,
+          output: 0,
+          reasoning: 0,
+          cacheInput: 0,
+          cacheOutput: 0,
+        },
       }),
     ]
 
@@ -78,18 +102,30 @@ describe('computeOverview', () => {
     expect(overview.models[1]).toMatchObject({ name: 'claude-4', value: 350 })
     expect(overview.apps[0]).toMatchObject({ name: 'opencode', value: 1800 })
     expect(overview.providers[0]).toMatchObject({ name: 'openai', value: 1800 })
-    expect(overview.projects[0]).toMatchObject({ name: 'mytokens', value: 2150 })
+    expect(overview.projects[0]).toMatchObject({
+      name: 'mytokens',
+      value: 2150,
+    })
   })
 
   it('collapses overflow entries into Others', async () => {
     const messages = Array.from({ length: 9 }, (_, index) =>
       makeMessage({
         project: { name: `project-${index}`, path: `/p/${index}` },
-        tokens: { input: 100, output: 0, reasoning: 0, cacheInput: 0, cacheOutput: 0 },
+        tokens: {
+          input: 100,
+          output: 0,
+          reasoning: 0,
+          cacheInput: 0,
+          cacheOutput: 0,
+        },
       })
     )
 
-    const overview = await computeOverview(messages, { dateStart: null, dateEnd: null })
+    const overview = await computeOverview(messages, {
+      dateStart: null,
+      dateEnd: null,
+    })
 
     expect(overview.models).toHaveLength(1)
     expect(overview.projects).toHaveLength(9)
@@ -118,8 +154,24 @@ describe('renderOverviewToSvg', () => {
       topModel: 'gpt-5',
       topApp: 'opencode',
       daily: [
-        { label: '08/10', total: 1850, input: 1200, output: 600, reasoning: 0, cache: 50, cost: 0.006 },
-        { label: '08/11', total: 300, input: 300, output: 0, reasoning: 0, cache: 0, cost: 0.0006 },
+        {
+          label: '08/10',
+          total: 1850,
+          input: 1200,
+          output: 600,
+          reasoning: 0,
+          cache: 50,
+          cost: 0.006,
+        },
+        {
+          label: '08/11',
+          total: 300,
+          input: 300,
+          output: 0,
+          reasoning: 0,
+          cache: 0,
+          cost: 0.0006,
+        },
       ],
       composition: [
         { id: 'input', name: 'Input', value: 1500, color: '#6366f1' },

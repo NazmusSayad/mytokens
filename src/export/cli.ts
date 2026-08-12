@@ -1,8 +1,8 @@
 import { resolveDateRange } from '@/helpers/args.js'
-import { RenderScreenOptions } from '@/render/types.js'
 import { Command, OptionValues } from '@commander-js/extra-typings'
 import chalk from 'chalk'
 import { exportReportToSvg, showReportImage } from './index.js'
+import { ExportFilterOptions } from './types.js'
 
 type DateRangeOptions = {
   from?: string
@@ -64,7 +64,7 @@ export function attachExportCommands<
       console.log('  $ mytokens image --this-month')
       console.log('  $ mytokens image --last 5')
     })
-    .action(async (options) => {
+    .action(async () => {
       try {
         if (!process.stdout.isTTY) {
           console.warn(
@@ -88,7 +88,7 @@ export function attachExportCommands<
     })
 }
 
-function buildRenderOptions(options: DateRangeOptions): RenderScreenOptions {
+function buildRenderOptions(options: DateRangeOptions): ExportFilterOptions {
   const range = resolveDateRange({
     from: options.from,
     to: options.to,
@@ -104,9 +104,6 @@ function buildRenderOptions(options: DateRangeOptions): RenderScreenOptions {
   })
 
   return {
-    showBy: 'day',
-    screenWidth: 80,
-    screenPadding: 1,
     dateStart: range.dateStart,
     dateEnd: range.dateEnd,
     enabledApps: null,
