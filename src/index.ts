@@ -38,6 +38,7 @@ const program = new Command('mytokens')
   .option('--year', 'shorthand for --by year')
 
 addUsageFilterOptions(program)
+program.enablePositionalOptions()
 
 program.action(async (screen, options: DashboardCommandOptions) => {
   let parsedScreen: AppScreenType | null = null

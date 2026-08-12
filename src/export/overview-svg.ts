@@ -53,7 +53,7 @@ ${body.join('\n')}
 function renderHeader(model: OverviewSummary, theme: ExportTheme): Section {
   return {
     svg: `<text x="${CONTENT_X}" y="34" font-size="26" font-weight="700" fill="${theme.ink}" font-family="${FONT}">AI Coding Usage Overview</text>
-<text x="${CONTENT_X + CONTENT_WIDTH}" y="34" font-size="13" fill="${theme.muted}" text-anchor="end" font-family="${FONT}">${escapeXml(formatRange(model.dataStart, model.dataEnd))}</text>
+<text x="${CONTENT_X + CONTENT_WIDTH}" y="34" font-size="11" fill="${theme.faint}" text-anchor="end" font-family="${FONT}">${escapeXml(formatRange(model.dataStart, model.dataEnd))}</text>
 <line x1="${CONTENT_X}" y1="56" x2="${CONTENT_X + CONTENT_WIDTH}" y2="56" stroke="${theme.border}" stroke-width="1"/>`,
     height: 80,
   }
@@ -64,7 +64,7 @@ function formatRange(dataStart: Date | null, dataEnd: Date | null): string {
     if (formatDate(dataStart) === formatDate(dataEnd)) {
       return formatDate(dataStart)
     }
-    return `${formatDate(dataStart)} – ${formatDate(dataEnd)}`
+    return `${formatDate(dataStart)} - ${formatDate(dataEnd)}`
   }
   if (dataStart) {
     return `From ${formatDate(dataStart)}`
