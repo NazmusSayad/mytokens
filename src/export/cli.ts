@@ -112,12 +112,26 @@ export function attachExportCommands<
     .description(
       'Render the aggregated usage overview (all apps, models and providers) as an image in the terminal.'
     )
+    .option(
+      '--theme <theme>',
+      `Color theme: ${Object.keys(EXPORT_THEMES).join(', ')}. Default: ${DEFAULT_EXPORT_THEME}.`,
+      (val) => {
+        const theme = val.toLowerCase() as ExportThemeId
+        if (!EXPORT_THEMES[theme]) {
+          throw new Error(
+            `Invalid --theme value: ${val}. Supported themes: ${Object.keys(EXPORT_THEMES).join(', ')}`
+          )
+        }
+        return theme
+      }
+    )
     .option('--copy', 'Copy the rendered PNG image to the macOS clipboard.')
     .on('--help', () => {
       console.log('\nExamples:')
       console.log('  $ mytokens image')
       console.log('  $ mytokens image --this-month')
       console.log('  $ mytokens image --last 5')
+      console.log('  $ mytokens image --theme one-dark')
       console.log('  $ mytokens image --copy')
     })
     .action(async (imageOptions) => {
@@ -135,6 +149,7 @@ export function attachExportCommands<
         await showReportImage(renderOptions, {
           width: '100%',
           copy: imageOptions.copy,
+          theme: imageOptions.theme ?? DEFAULT_EXPORT_THEME,
         })
       } catch (err) {
         console.error(

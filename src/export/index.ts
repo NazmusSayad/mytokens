@@ -107,10 +107,17 @@ export async function exportReportToSvg(
 
 export async function showReportImage(
   options: ExportFilterOptions,
-  imageOptions: TerminalImageOptions & { copy?: boolean } = {}
+  imageOptions: TerminalImageOptions & {
+    copy?: boolean
+    theme?: ExportThemeId
+  } = {}
 ): Promise<string> {
-  const svg = await buildOverviewSvg(options)
-  const { copy = false, ...terminalImageOptions } = imageOptions
+  const {
+    copy = false,
+    theme = DEFAULT_EXPORT_THEME,
+    ...terminalImageOptions
+  } = imageOptions
+  const svg = await buildOverviewSvg(options, theme)
   const png = await renderImageInTerminal(svg, terminalImageOptions)
   if (copy) {
     await copyPngToClipboard(png)
