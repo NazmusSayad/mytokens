@@ -10,9 +10,12 @@ import { DEFAULT_EXPORT_THEME, EXPORT_THEMES } from './themes.js'
 import { ExportTheme, ExportThemeId } from './types.js'
 
 const SVG_WIDTH = 1200
-const PADDING = 36
-const CONTENT_X = PADDING
-const CONTENT_WIDTH = SVG_WIDTH - PADDING * 2
+const PADDING_LEFT = 36
+const PADDING_RIGHT = 36
+const PADDING_TOP = 26
+const PADDING_BOTTOM = 28
+const CONTENT_X = PADDING_LEFT
+const CONTENT_WIDTH = SVG_WIDTH - PADDING_LEFT - PADDING_RIGHT
 const CARD_GAP = 16
 const SECTION_GAP = 34
 const FONT =
@@ -34,14 +37,14 @@ export function renderOverviewToSvg(
     sections.push(renderProjectsSection(model.projects, theme))
   }
 
-  let y = PADDING
+  let y = PADDING_TOP
   const body: string[] = []
   for (const section of sections) {
     body.push(`<g transform="translate(0 ${y})">\n${section.svg}\n</g>`)
     y += section.height
   }
 
-  const totalHeight = y + PADDING
+  const totalHeight = y + PADDING_BOTTOM
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_WIDTH}" height="${totalHeight}" viewBox="0 0 ${SVG_WIDTH} ${totalHeight}">
   <rect width="100%" height="100%" fill="${theme.background}"/>
 ${body.join('\n')}
@@ -368,7 +371,8 @@ ${renderRow(firstRow)}
 <g transform="translate(${CONTENT_X} ${cellHeight + rowGap})">
 ${renderRow(secondRow)}
 </g>`,
-    height: cellHeight * 2 + rowGap + SECTION_GAP,
+    height:
+      cellHeight * 2 + rowGap + (model.projects.length > 0 ? SECTION_GAP : 0),
   }
 }
 
