@@ -71,7 +71,8 @@ function filterMessages(
 
 export async function buildOverviewSvg(
   options: ExportFilterOptions,
-  themeId: ExportThemeId = DEFAULT_EXPORT_THEME
+  themeId: ExportThemeId = DEFAULT_EXPORT_THEME,
+  projects = 10
 ): Promise<string> {
   const data = await loadUsageData()
   const messages = filterMessages(data, options)
@@ -79,6 +80,7 @@ export async function buildOverviewSvg(
     dateStart: options.dateStart,
     dateEnd: options.dateEnd,
     usageBy: options.usageBy,
+    projects,
   })
   return renderOverviewToSvg(overview, themeId)
 }
@@ -90,6 +92,7 @@ export async function exportReportToSvg(
     format?: ExportFormat
     theme?: ExportThemeId
     scale?: number
+    projects?: number
   } = {}
 ): Promise<string> {
   const {
@@ -97,7 +100,7 @@ export async function exportReportToSvg(
     theme = DEFAULT_EXPORT_THEME,
     scale = 1,
   } = fileOptions
-  const svg = await buildOverviewSvg(options, theme)
+  const svg = await buildOverviewSvg(options, theme, fileOptions.projects)
   if (format === 'png') {
     await writeFileForced(outputPath, renderPng(svg, { scale }))
     return outputPath
@@ -111,6 +114,7 @@ export async function showReportImage(
   imageOptions: TerminalImageOptions & {
     copy?: boolean
     theme?: ExportThemeId
+    projects?: number
   } = {}
 ): Promise<string> {
   const {
@@ -118,7 +122,7 @@ export async function showReportImage(
     theme = DEFAULT_EXPORT_THEME,
     ...terminalImageOptions
   } = imageOptions
-  const svg = await buildOverviewSvg(options, theme)
+  const svg = await buildOverviewSvg(options, theme, imageOptions.projects)
   const png = await renderImageInTerminal(svg, terminalImageOptions)
   if (copy) {
     await copyPngToClipboard(png)

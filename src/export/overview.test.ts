@@ -207,6 +207,25 @@ describe('computeOverview', () => {
     })
   })
 
+  it('omits projects when the configured count is zero', async () => {
+    const overview = await computeOverview(
+      [
+        makeMessage({
+          tokens: {
+            input: 100,
+            output: 0,
+            reasoning: 0,
+            cacheInput: 0,
+            cacheOutput: 0,
+          },
+        }),
+      ],
+      { dateStart: null, dateEnd: null, projects: 0 }
+    )
+
+    expect(overview.projects).toEqual([])
+  })
+
   it('throws when there are no messages', async () => {
     await expect(
       computeOverview([], { dateStart: null, dateEnd: null })

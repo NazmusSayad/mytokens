@@ -61,6 +61,7 @@ export async function computeOverview(
     dateStart: Date | null
     dateEnd: Date | null
     usageBy?: RenderValueShowBy
+    projects?: number
   }
 ): Promise<OverviewSummary> {
   if (messages.length === 0) {
@@ -171,7 +172,7 @@ export async function computeOverview(
     toRankItems(modelTotals, modelNames, 6),
     toRankItems(appTotals, new Map(), 6),
     toRankItems(providerTotals, new Map(), 6),
-    toRankItems(projectTotals, projectNames, 8),
+    toRankItems(projectTotals, projectNames, range.projects ?? 10),
     toRankItems(modeTotals, new Map(), 6),
   ])
 
@@ -294,6 +295,9 @@ async function toRankItems(
   names: Map<string, string>,
   topCount: number
 ): Promise<OverviewRankItem[]> {
+  if (topCount === 0) {
+    return []
+  }
   const sorted = Array.from(totals.entries()).sort((a, b) => b[1] - a[1])
   if (sorted.length === 0) {
     return []

@@ -18,6 +18,7 @@ import { ExportFormat, ExportThemeId } from './types.js'
 const FORMATS: ExportFormat[] = ['svg', 'png']
 
 type ExportCommandOptions = UsageFilterOptionValues & {
+  projects?: number
   output?: string
   format?: ExportFormat
   scale?: number
@@ -25,8 +26,27 @@ type ExportCommandOptions = UsageFilterOptionValues & {
 }
 
 type ImageCommandOptions = UsageFilterOptionValues & {
+  projects?: number
   copy?: boolean
   theme?: ExportThemeId
+}
+
+function addProjectCountOption<
+  Args extends unknown[],
+  Opts extends OptionValues,
+  GlobalOpts extends OptionValues,
+>(command: Command<Args, Opts, GlobalOpts>) {
+  command.option(
+    '--projects <count>',
+    'Number of top projects to show. Use 0 to hide the projects section. Default: 10.',
+    (value) => {
+      const count = Number.parseInt(value, 10)
+      if (Number.isNaN(count) || count < 0) {
+        throw new InvalidArgumentError('Must be a non-negative whole number.')
+      }
+      return count
+    }
+  )
 }
 
 function addThemeOption<
@@ -76,8 +96,9 @@ export function attachExportCommands<
         return format
       }
     )
-  addUsageFilterOptions(exportCommand)
+  addUsageFilterOptions(exportCommand, { includeProjects: false })
   addUsageByOption(exportCommand)
+  addProjectCountOption(exportCommand)
   addThemeOption(exportCommand)
 
   exportCommand
@@ -112,6 +133,7 @@ export function attachExportCommands<
           format,
           theme: options.theme ?? DEFAULT_EXPORT_THEME,
           scale: options.scale ?? 1,
+          projects: options.projects ?? 10,
         })
         console.log(
           chalk.green(`Saved usage overview to ${chalk.bold(savedPath)}`)
@@ -129,8 +151,9 @@ export function attachExportCommands<
     .description(
       'Render the aggregated usage overview (all apps, models and providers) as an image in the terminal.'
     )
-  addUsageFilterOptions(imageCommand)
+  addUsageFilterOptions(imageCommand, { includeProjects: false })
   addUsageByOption(imageCommand)
+  addProjectCountOption(imageCommand)
   addThemeOption(imageCommand)
 
   imageCommand
@@ -159,6 +182,7 @@ export function attachExportCommands<
           width: '100%',
           copy: imageOptions.copy,
           theme: imageOptions.theme ?? DEFAULT_EXPORT_THEME,
+          projects: imageOptions.projects ?? 10,
         })
       } catch (err) {
         console.error(

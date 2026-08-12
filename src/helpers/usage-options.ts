@@ -26,7 +26,7 @@ export type UsageFilterOptionValues = {
   skipModes?: string[]
   models?: string[]
   skipModels?: string[]
-  projects?: string[]
+  projects?: string[] | number
   skipProjects?: string[]
   providers?: string[]
   skipProviders?: string[]
@@ -36,7 +36,10 @@ export function addUsageFilterOptions<
   Args extends unknown[],
   Opts extends OptionValues,
   GlobalOpts extends OptionValues,
->(command: Command<Args, Opts, GlobalOpts>) {
+>(
+  command: Command<Args, Opts, GlobalOpts>,
+  options: { includeProjects?: boolean } = {}
+) {
   command.option(
     '--from <from>',
     'Start date for the period. example: 2024-01-01'
@@ -87,16 +90,18 @@ export function addUsageFilterOptions<
     'Models to exclude. example: gpt-3.5-turbo',
     (val) => val.split(',')
   )
-  command.option(
-    '--projects <projects>',
-    'Projects to include. example: my-api,frontend',
-    (val) => val.split(',')
-  )
-  command.option(
-    '--skip-projects <projects>',
-    'Projects to exclude. example: legacy-app',
-    (val) => val.split(',')
-  )
+  if (options.includeProjects !== false) {
+    command.option(
+      '--projects <projects>',
+      'Projects to include. example: my-api,frontend',
+      (val) => val.split(',')
+    )
+    command.option(
+      '--skip-projects <projects>',
+      'Projects to exclude. example: legacy-app',
+      (val) => val.split(',')
+    )
+  }
   command.option(
     '--providers <providers>',
     'Providers to include. example: openai,anthropic',
@@ -148,7 +153,7 @@ export function buildUsageFilterOptions(
     disabledModes: options.skipModes ?? null,
     enabledModels: options.models ?? null,
     disabledModels: options.skipModels ?? null,
-    enabledProjects: options.projects ?? null,
+    enabledProjects: Array.isArray(options.projects) ? options.projects : null,
     disabledProjects: options.skipProjects ?? null,
     enabledProviders: options.providers ?? null,
     disabledProviders: options.skipProviders ?? null,
