@@ -108,6 +108,41 @@ describe('computeOverview', () => {
     })
   })
 
+  it('aggregates trend data by the selected usage period', async () => {
+    const messages = [
+      makeMessage({
+        date: new Date('2026-08-10T10:00:00'),
+        tokens: {
+          input: 100,
+          output: 0,
+          reasoning: 0,
+          cacheInput: 0,
+          cacheOutput: 0,
+        },
+      }),
+      makeMessage({
+        date: new Date('2026-08-11T10:00:00'),
+        tokens: {
+          input: 200,
+          output: 0,
+          reasoning: 0,
+          cacheInput: 0,
+          cacheOutput: 0,
+        },
+      }),
+    ]
+
+    const overview = await computeOverview(messages, {
+      dateStart: null,
+      dateEnd: null,
+      usageBy: 'week',
+    })
+
+    expect(overview.daily).toEqual([
+      expect.objectContaining({ label: '08/10', total: 300 }),
+    ])
+  })
+
   it('collapses overflow entries into Others', async () => {
     const messages = Array.from({ length: 9 }, (_, index) =>
       makeMessage({

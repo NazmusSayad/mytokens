@@ -1,4 +1,5 @@
 import { ExportFilterOptions } from '@/export/types.js'
+import { RenderValueShowBy } from '@/render/types.js'
 import {
   Command,
   InvalidArgumentError,
@@ -7,6 +8,7 @@ import {
 import { resolveDateRange } from './args.js'
 
 export type UsageFilterOptionValues = {
+  usageBy?: RenderValueShowBy
   from?: string
   to?: string
   today?: boolean
@@ -107,12 +109,37 @@ export function addUsageFilterOptions<
   )
 }
 
+export function addUsageByOption<
+  Args extends unknown[],
+  Opts extends OptionValues,
+  GlobalOpts extends OptionValues,
+>(command: Command<Args, Opts, GlobalOpts>) {
+  command.option(
+    '--usage-by <period>',
+    'Aggregate overview usage by: day, week, month, year. Default: day.',
+    (value) => {
+      if (
+        value !== 'day' &&
+        value !== 'week' &&
+        value !== 'month' &&
+        value !== 'year'
+      ) {
+        throw new InvalidArgumentError(
+          'Supported usage periods: day, week, month, year.'
+        )
+      }
+      return value
+    }
+  )
+}
+
 export function buildUsageFilterOptions(
   options: UsageFilterOptionValues
 ): ExportFilterOptions {
   const range = resolveDateRange(options)
 
   return {
+    usageBy: options.usageBy ?? 'day',
     dateStart: range.dateStart,
     dateEnd: range.dateEnd,
     enabledApps: options.apps ?? null,

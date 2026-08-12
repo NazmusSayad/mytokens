@@ -78,6 +78,7 @@ export async function buildOverviewSvg(
   const overview = await computeOverview(messages, {
     dateStart: options.dateStart,
     dateEnd: options.dateEnd,
+    usageBy: options.usageBy,
   })
   return renderOverviewToSvg(overview, themeId)
 }

@@ -1,4 +1,5 @@
 import {
+  addUsageByOption,
   addUsageFilterOptions,
   buildUsageFilterOptions,
   UsageFilterOptionValues,
@@ -76,6 +77,7 @@ export function attachExportCommands<
       }
     )
   addUsageFilterOptions(exportCommand)
+  addUsageByOption(exportCommand)
   addThemeOption(exportCommand)
 
   exportCommand
@@ -128,6 +130,7 @@ export function attachExportCommands<
       'Render the aggregated usage overview (all apps, models and providers) as an image in the terminal.'
     )
   addUsageFilterOptions(imageCommand)
+  addUsageByOption(imageCommand)
   addThemeOption(imageCommand)
 
   imageCommand

@@ -233,7 +233,15 @@ function renderActivityChart(
     )
   }
 
-  for (const index of pickLabelIndexes(points.length, 4)) {
+  const longestLabel = points.reduce(
+    (longest, point) => Math.max(longest, point.label.length),
+    0
+  )
+  const maxLabels = Math.max(
+    2,
+    Math.floor(plotWidth / (longestLabel * 6.6 + 18))
+  )
+  for (const index of pickLabelIndexes(points.length, maxLabels)) {
     const point = points[index]
     const x = Number(tokenLinePoints[index].split(',')[0])
     parts.push(

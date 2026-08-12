@@ -2,6 +2,7 @@ import { initializePriceDetector } from '@/core/price-detector.js'
 import { UsageDataMessage } from '@/core/types.js'
 import { ColorGenerator } from '@/render/color-generator.js'
 import { formatDateKey } from '@/render/utils.js'
+import { RenderValueShowBy } from '@/render/types.js'
 
 export type OverviewRankItem = {
   id: string
@@ -56,7 +57,11 @@ const COMPOSITION_COLORS = {
 
 export async function computeOverview(
   messages: UsageDataMessage[],
-  range: { dateStart: Date | null; dateEnd: Date | null }
+  range: {
+    dateStart: Date | null
+    dateEnd: Date | null
+    usageBy?: RenderValueShowBy
+  }
 ): Promise<OverviewSummary> {
   if (messages.length === 0) {
     throw new Error('No data to export.')
@@ -103,12 +108,11 @@ export async function computeOverview(
       tokens.cacheInput * cacheInputPrice +
       tokens.cacheOutput * cacheOutputPrice
 
-    const key = formatDateKey(message.date, 'day')
+    const key = formatDateKey(message.date, range.usageBy ?? 'day')
     let point = daily.get(key)
     if (!point) {
-      const [, month, day] = key.split('/')
       point = {
-        label: `${month}/${day}`,
+        label: formatUsageLabel(key, range.usageBy ?? 'day'),
         total: 0,
         input: 0,
         output: 0,
@@ -214,6 +218,18 @@ export async function computeOverview(
     projects,
     modes,
   }
+}
+
+function formatUsageLabel(key: string, usageBy: RenderValueShowBy): string {
+  if (usageBy === 'year') {
+    return key
+  }
+  if (usageBy === 'month') {
+    const [year, month] = key.split('/')
+    return `${year.slice(2)}/${month}`
+  }
+  const [, month, day] = key.split('/')
+  return `${month}/${day}`
 }
 
 async function toRankItems(
