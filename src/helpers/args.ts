@@ -280,8 +280,13 @@ export function resolveDateRange(options: {
   }
 
   if (options.last !== undefined) {
+    const daysBack = Math.max(options.last - 1, 0)
     return {
-      dateStart: new Date(now.getTime() - options.last * 24 * 60 * 60 * 1000),
+      dateStart: new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() - daysBack
+      ),
       dateEnd: now,
     }
   }
