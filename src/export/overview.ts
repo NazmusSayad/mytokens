@@ -158,6 +158,11 @@ export async function computeOverview(
     }
   }
 
+  const activeDays = daily.size
+  if (dataStart && dataEnd) {
+    fillUsagePeriods(daily, dataStart, dataEnd, range.usageBy ?? 'day')
+  }
+
   const dailyPoints = Array.from(daily.entries())
     .sort((a, b) => (a[0] < b[0] ? -1 : 1))
     .map(([, point]) => point)
@@ -182,7 +187,7 @@ export async function computeOverview(
       tokenTotals.cache,
     totalCost,
     totalMessages: messages.length,
-    activeDays: dailyPoints.length,
+    activeDays,
     topModel: models[0]?.name ?? '—',
     topApp: apps[0]?.name ?? '—',
     daily: dailyPoints,
@@ -230,6 +235,58 @@ function formatUsageLabel(key: string, usageBy: RenderValueShowBy): string {
   }
   const [, month, day] = key.split('/')
   return `${month}/${day}`
+}
+
+function fillUsagePeriods(
+  points: Map<string, OverviewDailyPoint>,
+  start: Date,
+  end: Date,
+  usageBy: RenderValueShowBy
+) {
+  const cursor = startUsagePeriod(start, usageBy)
+  const last = startUsagePeriod(end, usageBy)
+
+  while (cursor.getTime() <= last.getTime()) {
+    const key = formatDateKey(cursor, usageBy)
+    if (!points.has(key)) {
+      points.set(key, {
+        label: formatUsageLabel(key, usageBy),
+        total: 0,
+        input: 0,
+        output: 0,
+        reasoning: 0,
+        cache: 0,
+        cost: 0,
+      })
+    }
+
+    if (usageBy === 'day') {
+      cursor.setDate(cursor.getDate() + 1)
+    } else if (usageBy === 'week') {
+      cursor.setDate(cursor.getDate() + 7)
+    } else if (usageBy === 'month') {
+      cursor.setMonth(cursor.getMonth() + 1)
+    } else {
+      cursor.setFullYear(cursor.getFullYear() + 1)
+    }
+  }
+}
+
+function startUsagePeriod(date: Date, usageBy: RenderValueShowBy): Date {
+  const period = new Date(date)
+  period.setHours(0, 0, 0, 0)
+
+  if (usageBy === 'week') {
+    const day = period.getDay()
+    const difference = day === 0 ? -6 : 1 - day
+    period.setDate(period.getDate() + difference)
+  } else if (usageBy === 'month') {
+    period.setDate(1)
+  } else if (usageBy === 'year') {
+    period.setMonth(0, 1)
+  }
+
+  return period
 }
 
 async function toRankItems(

@@ -143,6 +143,43 @@ describe('computeOverview', () => {
     ])
   })
 
+  it('adds zero-value periods to keep daily trends time-aligned', async () => {
+    const messages = [
+      makeMessage({
+        date: new Date('2026-08-10T10:00:00'),
+        tokens: {
+          input: 100,
+          output: 0,
+          reasoning: 0,
+          cacheInput: 0,
+          cacheOutput: 0,
+        },
+      }),
+      makeMessage({
+        date: new Date('2026-08-12T10:00:00'),
+        tokens: {
+          input: 200,
+          output: 0,
+          reasoning: 0,
+          cacheInput: 0,
+          cacheOutput: 0,
+        },
+      }),
+    ]
+
+    const overview = await computeOverview(messages, {
+      dateStart: null,
+      dateEnd: null,
+    })
+
+    expect(overview.activeDays).toBe(2)
+    expect(overview.daily).toEqual([
+      expect.objectContaining({ label: '08/10', total: 100 }),
+      expect.objectContaining({ label: '08/11', total: 0 }),
+      expect.objectContaining({ label: '08/12', total: 200 }),
+    ])
+  })
+
   it('collapses overflow entries into Others', async () => {
     const messages = Array.from({ length: 9 }, (_, index) =>
       makeMessage({
