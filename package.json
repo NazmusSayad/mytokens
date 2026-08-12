@@ -3,15 +3,20 @@
   "version": "1.1.0",
   "type": "module",
   "scripts": {
-    "lint": "tsc --noEmit && eslint .",
-    "fix": "eslint . --fix",
-    "tc": "tsc --noEmit --watch",
-    "test": "vitest run",
-    "test:watch": "vitest watch",
+    "start": "tsx ./src/index.ts",
+    "dev": "tsx --watch ./src/index.ts",
+    "export": "tsx ./src/index.ts export",
+    "export:watch": "tsx --watch ./src/index.ts export",
+    "image": "tsx ./src/index.ts image",
+    "image:watch": "tsx --watch ./src/index.ts image",
     "build": "tsdown --config ./tsdown.config.ts",
-    "build:watch": "concurrently --names \"R,T\" --prefix-colors \"blue.dim,magenta.dim\" \"tsdown --config ./tsdown.config.ts --watch\" \"tsc --noEmit --watch\"",
-    "start": "rux ./src/index.ts",
-    "dev": "run ./src/index.ts"
+    "build:watch": "tsdown --config ./tsdown.config.ts --watch",
+    "typecheck": "tsc --noEmit",
+    "typecheck:watch": "tsc --noEmit --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run",
+    "test:watch": "vitest watch"
   },
   "bin": "dist/index.js",
   "devDependencies": {
@@ -19,6 +24,8 @@
     "@eslint/compat": "^1.4.1",
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^9.39.4",
+    "@inquirer/core": "^11.2.1",
+    "@inquirer/prompts": "^8.5.2",
     "@types/ms": "^2.1.0",
     "@types/node": "^24.13.2",
     "@typescript-eslint/eslint-plugin": "^8.61.0",
@@ -45,5 +52,9 @@
     "typescript-eslint": "^8.61.0",
     "ulid": "^3.0.2",
     "vitest": "^4.1.8"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "terminal-image": "^5.0.1"
   }
 }

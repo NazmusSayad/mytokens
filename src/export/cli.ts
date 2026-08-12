@@ -1,0 +1,232 @@
+import {
+  addUsageFilterOptions,
+  buildUsageFilterOptions,
+  UsageFilterOptionValues,
+} from '@/helpers/usage-options.js'
+import {
+  Command,
+  InvalidArgumentError,
+  OptionValues,
+} from '@commander-js/extra-typings'
+import chalk from 'chalk'
+import path from 'path'
+import { exportReportToSvg, showReportImage } from './index.js'
+import { DEFAULT_EXPORT_THEME, EXPORT_THEMES } from './themes.js'
+import { ExportFormat, ExportThemeId } from './types.js'
+
+const FORMATS: ExportFormat[] = ['svg', 'png']
+
+type ExportCommandOptions = UsageFilterOptionValues & {
+  output?: string
+  format?: ExportFormat
+  scale?: number
+  theme?: ExportThemeId
+}
+
+type ImageCommandOptions = UsageFilterOptionValues & {
+  copy?: boolean
+  theme?: ExportThemeId
+}
+
+function addThemeOption<
+  Args extends unknown[],
+  Opts extends OptionValues,
+  GlobalOpts extends OptionValues,
+>(command: Command<Args, Opts, GlobalOpts>) {
+  command.option(
+    '--theme <theme>',
+    `Color theme: ${Object.keys(EXPORT_THEMES).join(', ')}. Default: ${DEFAULT_EXPORT_THEME}.`,
+    (val) => {
+      const theme = val.toLowerCase() as ExportThemeId
+      if (!EXPORT_THEMES[theme]) {
+        throw new InvalidArgumentError(
+          `Supported themes: ${Object.keys(EXPORT_THEMES).join(', ')}`
+        )
+      }
+      return theme
+    }
+  )
+}
+
+export function attachExportCommands<
+  Args extends unknown[],
+  Opts extends OptionValues,
+  GlobalOpts extends OptionValues,
+>(program: Command<Args, Opts, GlobalOpts>) {
+  const exportCommand = program
+    .command('export')
+    .description(
+      'Export the aggregated usage overview (all apps, models and providers) as a single image.'
+    )
+    .option(
+      '--output <path>',
+      'Output file path. Defaults to mytokens.svg (or the chosen format).'
+    )
+    .option(
+      '--format <format>',
+      `Output format: ${FORMATS.join(', ')}. Inferred from --output extension when omitted.`,
+      (val) => {
+        const format = val.toLowerCase() as ExportFormat
+        if (!FORMATS.includes(format)) {
+          throw new InvalidArgumentError(
+            `Supported formats: ${FORMATS.join(', ')}`
+          )
+        }
+        return format
+      }
+    )
+  addUsageFilterOptions(exportCommand)
+  addThemeOption(exportCommand)
+
+  exportCommand
+    .option(
+      '--scale <scale>',
+      'Output scale multiplier (PNG only). Default: 1.',
+      (val) => {
+        const scale = Number.parseFloat(val)
+        if (Number.isNaN(scale) || scale <= 0) {
+          throw new InvalidArgumentError('Must be a positive number.')
+        }
+        return scale
+      }
+    )
+    .on('--help', () => {
+      console.log('\nExamples:')
+      console.log('  $ mytokens export')
+      console.log('  $ mytokens export --last 30 --output overview.svg')
+      console.log('  $ mytokens export --from 2026-01-01 --to 2026-03-01')
+      console.log('  $ mytokens export --format png')
+      console.log('  $ mytokens export --format png --output overview.png')
+      console.log('  $ mytokens export --theme dark --format png --scale 2')
+    })
+    .action(async (options: ExportCommandOptions) => {
+      try {
+        const renderOptions = buildUsageFilterOptions(options)
+        const { outputPath, format } = resolveOutput(
+          options.output,
+          options.format
+        )
+        const savedPath = await exportReportToSvg(outputPath, renderOptions, {
+          format,
+          theme: options.theme ?? DEFAULT_EXPORT_THEME,
+          scale: options.scale ?? 1,
+        })
+        console.log(
+          chalk.green(`Saved usage overview to ${chalk.bold(savedPath)}`)
+        )
+      } catch (err) {
+        console.error(
+          chalk.red(err instanceof Error ? err.message : String(err))
+        )
+        process.exit(1)
+      }
+    })
+
+  const imageCommand = program
+    .command('image')
+    .description(
+      'Render the aggregated usage overview (all apps, models and providers) as an image in the terminal.'
+    )
+  addUsageFilterOptions(imageCommand)
+  addThemeOption(imageCommand)
+
+  imageCommand
+    .option('--copy', 'Copy the rendered PNG image to the macOS clipboard.')
+    .on('--help', () => {
+      console.log('\nExamples:')
+      console.log('  $ mytokens image')
+      console.log('  $ mytokens image --this-month')
+      console.log('  $ mytokens image --last 5')
+      console.log('  $ mytokens image --theme one-dark')
+      console.log('  $ mytokens image --copy')
+    })
+    .action(async (imageOptions: ImageCommandOptions) => {
+      try {
+        if (!process.stdout.isTTY) {
+          console.warn(
+            chalk.yellow(
+              'stdout is not a TTY; run `mytokens export` to save the SVG file instead.'
+            )
+          )
+          return
+        }
+
+        const renderOptions = buildUsageFilterOptions(imageOptions)
+        await showReportImage(renderOptions, {
+          width: '100%',
+          copy: imageOptions.copy,
+          theme: imageOptions.theme ?? DEFAULT_EXPORT_THEME,
+        })
+      } catch (err) {
+        console.error(
+          chalk.red(err instanceof Error ? err.message : String(err))
+        )
+        process.exit(1)
+      }
+    })
+
+  program
+    .command('themes')
+    .description('List all available export themes.')
+    .action(() => {
+      console.log(chalk.bold('Available export themes:'))
+      console.log()
+
+      const ids = Object.keys(EXPORT_THEMES) as ExportThemeId[]
+      const nameWidth = Math.max(
+        ...ids.map((id) => id.length),
+        'github-dark'.length
+      )
+      for (const id of ids) {
+        const theme = EXPORT_THEMES[id]
+        const label = `${id}${DEFAULT_EXPORT_THEME === id ? ' (default)' : ''}`
+        const swatches = [
+          theme.background,
+          theme.cardFill,
+          theme.border,
+          theme.ink,
+          theme.muted,
+          theme.faint,
+          theme.accent,
+          theme.accentAlt,
+        ]
+          .map((hex) => chalk.bgHex(hex)('  '))
+          .join('')
+        console.log(`  ${label.padEnd(nameWidth + 8)}${swatches}`)
+        console.log()
+      }
+    })
+}
+
+function resolveOutput(
+  outputPath: string | undefined,
+  format?: ExportFormat
+): { outputPath: string; format: ExportFormat } {
+  const extension = outputPath ? path.extname(outputPath).toLowerCase() : ''
+
+  if (outputPath) {
+    if (extension && format && extension !== `.${format}`) {
+      throw new Error(
+        `--format ${format} does not match output extension "${extension}".`
+      )
+    }
+    if (extension && !FORMATS.includes(extension.slice(1) as ExportFormat)) {
+      throw new Error(
+        `Unsupported output extension "${extension}". Supported formats: ${FORMATS.join(', ')}`
+      )
+    }
+    if (format) {
+      return { outputPath, format }
+    }
+    if (extension) {
+      return { outputPath, format: extension.slice(1) as ExportFormat }
+    }
+    return { outputPath, format: 'svg' }
+  }
+
+  if (format) {
+    return { outputPath: `mytokens.${format}`, format }
+  }
+
+  return { outputPath: 'mytokens.svg', format: 'svg' }
+}

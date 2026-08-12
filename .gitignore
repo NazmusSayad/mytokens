@@ -1,3 +1,4 @@
-node_modules
 dist
-.trash
+node_modules
+mytokens.png
+mytokens.svg
