@@ -29,7 +29,8 @@ import {
 } from './image.js'
 import { renderOverviewToSvg } from './overview-svg.js'
 import { computeOverview } from './overview.js'
-import { ExportFilterOptions, ExportFormat } from './types.js'
+import { DEFAULT_EXPORT_THEME } from './themes.js'
+import { ExportFilterOptions, ExportFormat, ExportThemeId } from './types.js'
 
 export async function loadUsageData(): Promise<UsageDataMessage[]> {
   return (
@@ -68,7 +69,8 @@ function filterMessages(
 }
 
 export async function buildOverviewSvg(
-  options: ExportFilterOptions
+  options: ExportFilterOptions,
+  themeId: ExportThemeId = DEFAULT_EXPORT_THEME
 ): Promise<string> {
   const data = await loadUsageData()
   const messages = filterMessages(data, options)
@@ -76,17 +78,26 @@ export async function buildOverviewSvg(
     dateStart: options.dateStart,
     dateEnd: options.dateEnd,
   })
-  return renderOverviewToSvg(overview)
+  return renderOverviewToSvg(overview, themeId)
 }
 
 export async function exportReportToSvg(
   outputPath: string,
   options: ExportFilterOptions,
-  format: ExportFormat = 'svg'
+  fileOptions: {
+    format?: ExportFormat
+    theme?: ExportThemeId
+    scale?: number
+  } = {}
 ): Promise<string> {
-  const svg = await buildOverviewSvg(options)
+  const {
+    format = 'svg',
+    theme = DEFAULT_EXPORT_THEME,
+    scale = 1,
+  } = fileOptions
+  const svg = await buildOverviewSvg(options, theme)
   if (format === 'png') {
-    await writeFileForced(outputPath, renderPng(svg))
+    await writeFileForced(outputPath, renderPng(svg, { scale }))
     return outputPath
   }
   await writeFileForced(outputPath, svg)

@@ -33,11 +33,18 @@ function readPngDimensions(png: Buffer): { width: number; height: number } {
 
 export function renderPng(
   svg: string,
-  { fitMaxDimension }: { fitMaxDimension: boolean } = {
-    fitMaxDimension: false,
-  }
+  options: { fitMaxDimension?: boolean; scale?: number } = {}
 ): Buffer {
-  if (!fitMaxDimension) {
+  if (options.scale && options.scale > 0 && options.scale !== 1) {
+    return new Resvg(svg, {
+      background: '#ffffff',
+      fitTo: { mode: 'zoom', value: options.scale },
+    })
+      .render()
+      .asPng()
+  }
+
+  if (!options.fitMaxDimension) {
     return new Resvg(svg, { background: '#ffffff' }).render().asPng()
   }
 

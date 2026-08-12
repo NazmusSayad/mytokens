@@ -3,7 +3,8 @@ import { Command, OptionValues } from '@commander-js/extra-typings'
 import chalk from 'chalk'
 import path from 'path'
 import { exportReportToSvg, showReportImage } from './index.js'
-import { ExportFilterOptions, ExportFormat } from './types.js'
+import { DEFAULT_EXPORT_THEME, EXPORT_THEMES } from './themes.js'
+import { ExportFilterOptions, ExportFormat, ExportThemeId } from './types.js'
 
 type DateRangeOptions = {
   from?: string
@@ -48,6 +49,32 @@ export function attachExportCommands<
         return format
       }
     )
+    .option(
+      '--theme <theme>',
+      `Color theme: ${Object.keys(EXPORT_THEMES).join(', ')}. Default: ${DEFAULT_EXPORT_THEME}.`,
+      (val) => {
+        const theme = val.toLowerCase() as ExportThemeId
+        if (!EXPORT_THEMES[theme]) {
+          throw new Error(
+            `Invalid --theme value: ${val}. Supported themes: ${Object.keys(EXPORT_THEMES).join(', ')}`
+          )
+        }
+        return theme
+      }
+    )
+    .option(
+      '--scale <scale>',
+      'Output scale multiplier (PNG only). Default: 1.',
+      (val) => {
+        const scale = Number.parseFloat(val)
+        if (Number.isNaN(scale) || scale <= 0) {
+          throw new Error(
+            `Invalid --scale value: ${val}. Must be a positive number.`
+          )
+        }
+        return scale
+      }
+    )
     .on('--help', () => {
       console.log('\nExamples:')
       console.log('  $ mytokens export')
@@ -55,6 +82,7 @@ export function attachExportCommands<
       console.log('  $ mytokens export --from 2026-01-01 --to 2026-03-01')
       console.log('  $ mytokens export --format png')
       console.log('  $ mytokens export --format png --output overview.png')
+      console.log('  $ mytokens export --theme dark --format png --scale 2')
     })
     .action(async (options) => {
       try {
@@ -63,11 +91,11 @@ export function attachExportCommands<
           options.output,
           options.format
         )
-        const savedPath = await exportReportToSvg(
-          outputPath,
-          renderOptions,
-          format
-        )
+        const savedPath = await exportReportToSvg(outputPath, renderOptions, {
+          format,
+          theme: options.theme ?? DEFAULT_EXPORT_THEME,
+          scale: options.scale ?? 1,
+        })
         console.log(
           chalk.green(`Saved usage overview to ${chalk.bold(savedPath)}`)
         )

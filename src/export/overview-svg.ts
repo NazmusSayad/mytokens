@@ -6,6 +6,8 @@ import {
   OverviewSummary,
   OverviewTokenSlice,
 } from './overview.js'
+import { DEFAULT_EXPORT_THEME, EXPORT_THEMES } from './themes.js'
+import { ExportTheme, ExportThemeId } from './types.js'
 
 const SVG_WIDTH = 1200
 const PADDING = 36
@@ -13,24 +15,23 @@ const CONTENT_X = PADDING
 const CONTENT_WIDTH = SVG_WIDTH - PADDING * 2
 const CARD_GAP = 16
 const SECTION_GAP = 34
-const INK = '#111827'
-const MUTED = '#6b7280'
-const FAINT = '#9ca3af'
-const BORDER = '#e5e7eb'
-const CARD_FILL = '#f9fafb'
 const FONT =
   "'-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
 
-export function renderOverviewToSvg(model: OverviewSummary): string {
+export function renderOverviewToSvg(
+  model: OverviewSummary,
+  themeId: ExportThemeId = DEFAULT_EXPORT_THEME
+): string {
+  const theme = EXPORT_THEMES[themeId]
   const sections = [
-    renderHeader(model),
-    renderStatCards(model),
-    renderActivitySection(model.daily),
-    renderCompositionSection(model.composition),
-    renderRankingsSection(model),
+    renderHeader(model, theme),
+    renderStatCards(model, theme),
+    renderActivitySection(model.daily, theme),
+    renderCompositionSection(model.composition, theme),
+    renderRankingsSection(model, theme),
   ]
   if (model.projects.length > 0) {
-    sections.push(renderProjectsSection(model.projects))
+    sections.push(renderProjectsSection(model.projects, theme))
   }
 
   let y = PADDING
@@ -42,18 +43,18 @@ export function renderOverviewToSvg(model: OverviewSummary): string {
 
   const totalHeight = y
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_WIDTH}" height="${totalHeight}" viewBox="0 0 ${SVG_WIDTH} ${totalHeight}">
-  <rect width="100%" height="100%" fill="#ffffff"/>
+  <rect width="100%" height="100%" fill="${theme.background}"/>
 ${body.join('\n')}
 </svg>`
 }
 
 // ─── Header ──────────────────────────────────────────────────────────────────
 
-function renderHeader(model: OverviewSummary): Section {
+function renderHeader(model: OverviewSummary, theme: ExportTheme): Section {
   return {
-    svg: `<text x="${CONTENT_X}" y="34" font-size="26" font-weight="700" fill="${INK}" font-family="${FONT}">AI Coding Usage Overview</text>
-<text x="${CONTENT_X}" y="56" font-size="13" fill="${MUTED}" font-family="${FONT}">${escapeXml(formatRange(model.dateStart, model.dateEnd))}</text>
-<line x1="${CONTENT_X}" y1="72" x2="${CONTENT_X + CONTENT_WIDTH}" y2="72" stroke="${BORDER}" stroke-width="1"/>`,
+    svg: `<text x="${CONTENT_X}" y="34" font-size="26" font-weight="700" fill="${theme.ink}" font-family="${FONT}">AI Coding Usage Overview</text>
+<text x="${CONTENT_X}" y="56" font-size="13" fill="${theme.muted}" font-family="${FONT}">${escapeXml(formatRange(model.dateStart, model.dateEnd))}</text>
+<line x1="${CONTENT_X}" y1="72" x2="${CONTENT_X + CONTENT_WIDTH}" y2="72" stroke="${theme.border}" stroke-width="1"/>`,
     height: 72,
   }
 }
@@ -79,7 +80,7 @@ function formatDate(date: Date): string {
 
 // ─── Stat cards ──────────────────────────────────────────────────────────────
 
-function renderStatCards(model: OverviewSummary): Section {
+function renderStatCards(model: OverviewSummary, theme: ExportTheme): Section {
   const cards: StatCard[] = [
     {
       label: 'Total Tokens',
@@ -110,10 +111,10 @@ function renderStatCards(model: OverviewSummary): Section {
 
   cards.forEach((card, index) => {
     const x = CONTENT_X + index * (cardWidth + CARD_GAP)
-    parts.push(`<rect x="${x}" y="0" width="${cardWidth}" height="${cardHeight}" rx="10" fill="${CARD_FILL}"/>
-<text x="${x + 16}" y="26" font-size="11" fill="${MUTED}" font-family="${FONT}">${escapeXml(card.label.toUpperCase())}</text>
-<text x="${x + 16}" y="54" font-size="24" font-weight="700" fill="${INK}" font-family="${FONT}">${escapeXml(card.value)}</text>
-<text x="${x + 16}" y="74" font-size="10.5" fill="${FAINT}" font-family="${FONT}">${escapeXml(card.sub)}</text>`)
+    parts.push(`<rect x="${x}" y="0" width="${cardWidth}" height="${cardHeight}" rx="10" fill="${theme.cardFill}"/>
+<text x="${x + 16}" y="26" font-size="11" fill="${theme.muted}" font-family="${FONT}">${escapeXml(card.label.toUpperCase())}</text>
+<text x="${x + 16}" y="54" font-size="24" font-weight="700" fill="${theme.ink}" font-family="${FONT}">${escapeXml(card.value)}</text>
+<text x="${x + 16}" y="74" font-size="10.5" fill="${theme.faint}" font-family="${FONT}">${escapeXml(card.sub)}</text>`)
   })
 
   return { svg: parts.join('\n'), height: cardHeight + SECTION_GAP }
@@ -121,7 +122,10 @@ function renderStatCards(model: OverviewSummary): Section {
 
 // ─── Activity (tokens & cost over time) ─────────────────────────────────────
 
-function renderActivitySection(daily: OverviewDailyPoint[]): Section {
+function renderActivitySection(
+  daily: OverviewDailyPoint[],
+  theme: ExportTheme
+): Section {
   const titleHeight = 30
   const chartHeight = 210
   const panelWidth = (CONTENT_WIDTH - 20) / 2
@@ -130,21 +134,23 @@ function renderActivitySection(daily: OverviewDailyPoint[]): Section {
     'Tokens Over Time',
     daily,
     'none',
-    '#6366f1',
+    theme.accent,
     panelWidth,
-    chartHeight
+    chartHeight,
+    theme
   )
   const costSvg = renderAreaPanel(
     'Cost Over Time',
     daily,
     'dollar',
-    '#10b981',
+    theme.accentAlt,
     panelWidth,
-    chartHeight
+    chartHeight,
+    theme
   )
 
   return {
-    svg: `<text x="${CONTENT_X}" y="26" font-size="16" font-weight="700" fill="${INK}" font-family="${FONT}">Activity</text>
+    svg: `<text x="${CONTENT_X}" y="26" font-size="16" font-weight="700" fill="${theme.ink}" font-family="${FONT}">Activity</text>
 <g transform="translate(${CONTENT_X} ${titleHeight})">
 ${tokensSvg}
 </g>
@@ -161,10 +167,19 @@ function renderAreaPanel(
   unit: RenderValueUnit,
   color: string,
   width: number,
-  height: number
+  height: number,
+  theme: ExportTheme
 ): string {
-  const chart = renderAreaChart(daily, unit, color, width - 60, height - 26, 60)
-  return `<text x="0" y="14" font-size="13" font-weight="600" fill="${INK}" font-family="${FONT}">${escapeXml(title)}</text>
+  const chart = renderAreaChart(
+    daily,
+    unit,
+    color,
+    width - 60,
+    height - 26,
+    60,
+    theme
+  )
+  return `<text x="0" y="14" font-size="13" font-weight="600" fill="${theme.ink}" font-family="${FONT}">${escapeXml(title)}</text>
 <g transform="translate(0 26)">
 ${chart}
 </g>`
@@ -176,7 +191,8 @@ function renderAreaChart(
   color: string,
   width: number,
   height: number,
-  left: number
+  left: number,
+  theme: ExportTheme
 ): string {
   const plotTop = 8
   const plotBottom = height - 20
@@ -187,7 +203,7 @@ function renderAreaChart(
   const parts: string[] = []
 
   if (points.length === 0) {
-    return `<text x="${plotLeft}" y="${plotTop + 10}" font-size="12" fill="${FAINT}" font-family="${FONT}">No data</text>`
+    return `<text x="${plotLeft}" y="${plotTop + 10}" font-size="12" fill="${theme.faint}" font-family="${FONT}">No data</text>`
   }
 
   const maxValue = points.reduce((max, point) => Math.max(max, point.total), 0)
@@ -198,8 +214,8 @@ function renderAreaChart(
     const y = plotBottom - fraction * plotHeight
     const label = formatHumanReadableNumber(Math.round(yMax * fraction), unit)
     parts.push(
-      `<line x1="${plotLeft}" y1="${y}" x2="${plotLeft + plotWidth}" y2="${y}" stroke="${BORDER}" stroke-width="1"/>
-<text x="${plotLeft - 6}" y="${y + 4}" font-size="10" fill="${FAINT}" text-anchor="end" font-family="${FONT}">${escapeXml(label)}</text>`
+      `<line x1="${plotLeft}" y1="${y}" x2="${plotLeft + plotWidth}" y2="${y}" stroke="${theme.border}" stroke-width="1"/>
+<text x="${plotLeft - 6}" y="${y + 4}" font-size="10" fill="${theme.faint}" text-anchor="end" font-family="${FONT}">${escapeXml(label)}</text>`
     )
   }
 
@@ -224,7 +240,7 @@ function renderAreaChart(
     const point = points[index]
     const x = Number(linePoints[index].split(',')[0])
     parts.push(
-      `<text x="${x}" y="${plotBottom + 16}" font-size="10" fill="${FAINT}" text-anchor="middle" font-family="${FONT}">${escapeXml(point.label)}</text>`
+      `<text x="${x}" y="${plotBottom + 16}" font-size="10" fill="${theme.faint}" text-anchor="middle" font-family="${FONT}">${escapeXml(point.label)}</text>`
     )
   }
 
@@ -244,7 +260,10 @@ function pickLabelIndexes(count: number, maxLabels: number): number[] {
 
 // ─── Token composition ───────────────────────────────────────────────────────
 
-function renderCompositionSection(composition: OverviewTokenSlice[]): Section {
+function renderCompositionSection(
+  composition: OverviewTokenSlice[],
+  theme: ExportTheme
+): Section {
   const titleHeight = 30
   const barHeight = 26
   const legendRowHeight = 24
@@ -260,13 +279,15 @@ function renderCompositionSection(composition: OverviewTokenSlice[]): Section {
     cursor += width
   }
 
-  const legend = renderLegendRow(composition, 0, total)
+  const legend = renderLegendRow(composition, 0, total, theme)
   const legendRows = legend.width > CONTENT_WIDTH ? 2 : 1
   const legendSvg =
-    legendRows === 1 ? legend.svg : renderLegendWrapped(composition, total)
+    legendRows === 1
+      ? legend.svg
+      : renderLegendWrapped(composition, total, theme)
 
   return {
-    svg: `<text x="${CONTENT_X}" y="14" font-size="16" font-weight="700" fill="${INK}" font-family="${FONT}">Token Composition</text>
+    svg: `<text x="${CONTENT_X}" y="14" font-size="16" font-weight="700" fill="${theme.ink}" font-family="${FONT}">Token Composition</text>
 <g transform="translate(0 ${titleHeight})">
 ${barParts.join('\n')}
 </g>
@@ -281,7 +302,8 @@ ${legendSvg}
 function renderLegendRow(
   slices: OverviewTokenSlice[] | OverviewRankItem[],
   y: number,
-  total: number
+  total: number,
+  theme: ExportTheme
 ): { svg: string; width: number } {
   let x = 0
   const parts: string[] = []
@@ -293,7 +315,7 @@ function renderLegendRow(
     const textWidth = Math.max(1, text.length * 6.6)
     parts.push(
       `<rect x="${x}" y="${y - 9}" width="10" height="10" rx="2" fill="${slice.color}"/>
-<text x="${x + 16}" y="${y}" font-size="11" fill="${MUTED}" font-family="${FONT}">${escapeXml(text)}</text>`
+<text x="${x + 16}" y="${y}" font-size="11" fill="${theme.muted}" font-family="${FONT}">${escapeXml(text)}</text>`
     )
     x += 16 + textWidth + gap
   }
@@ -302,17 +324,21 @@ function renderLegendRow(
 
 function renderLegendWrapped(
   slices: OverviewTokenSlice[] | OverviewRankItem[],
-  total: number
+  total: number,
+  theme: ExportTheme
 ): string {
   const mid = Math.ceil(slices.length / 2)
-  const first = renderLegendRow(slices.slice(0, mid), 13, total)
-  const second = renderLegendRow(slices.slice(mid), 37, total)
+  const first = renderLegendRow(slices.slice(0, mid), 13, total, theme)
+  const second = renderLegendRow(slices.slice(mid), 37, total, theme)
   return `${first.svg}\n${second.svg}`
 }
 
 // ─── Rankings (donuts) ───────────────────────────────────────────────────────
 
-function renderRankingsSection(model: OverviewSummary): Section {
+function renderRankingsSection(
+  model: OverviewSummary,
+  theme: ExportTheme
+): Section {
   const titleHeight = 30
   const cellGap = 20
   const cellWidth = (CONTENT_WIDTH - cellGap) / 2
@@ -332,13 +358,13 @@ function renderRankingsSection(model: OverviewSummary): Section {
     return cells
       .map((cell, index) => {
         const translateX = index === 0 ? 0 : cellWidth + cellGap
-        return `<g transform="translate(${translateX} 0)">\n${renderRankingCell(cell, cellWidth)}\n</g>`
+        return `<g transform="translate(${translateX} 0)">\n${renderRankingCell(cell, cellWidth, theme)}\n</g>`
       })
       .join('\n')
   }
 
   return {
-    svg: `<text x="${CONTENT_X}" y="26" font-size="16" font-weight="700" fill="${INK}" font-family="${FONT}">Breakdown</text>
+    svg: `<text x="${CONTENT_X}" y="26" font-size="16" font-weight="700" fill="${theme.ink}" font-family="${FONT}">Breakdown</text>
 <g transform="translate(${CONTENT_X} ${titleHeight})">
 ${renderRow(firstRow)}
 </g>
@@ -352,29 +378,33 @@ ${renderRow(secondRow)}
 type StatCard = { label: string; value: string; sub: string }
 type Cell = { title: string; items: OverviewRankItem[]; unit: RenderValueUnit }
 
-function renderRankingCell(cell: Cell, width: number): string {
+function renderRankingCell(
+  cell: Cell,
+  width: number,
+  theme: ExportTheme
+): string {
   const cx = 92
   const cy = 116
   const outer = 76
   const inner = 42
   const parts: string[] = [
-    `<text x="0" y="16" font-size="13" font-weight="600" fill="${INK}" font-family="${FONT}">${escapeXml(cell.title)}</text>`,
+    `<text x="0" y="16" font-size="13" font-weight="600" fill="${theme.ink}" font-family="${FONT}">${escapeXml(cell.title)}</text>`,
   ]
 
   if (cell.items.length > 0) {
     const total = cell.items.reduce((sum, item) => sum + item.value, 0)
     parts.push(renderDonut(cell.items, cx, cy, outer, inner))
     parts.push(
-      `<text x="${cx}" y="${cy + 5}" font-size="16" font-weight="700" fill="${INK}" text-anchor="middle" font-family="${FONT}">${escapeXml(formatHumanReadableNumber(total, cell.unit))}</text>`,
-      `<text x="${cx}" y="${cy + 21}" font-size="9" fill="${FAINT}" text-anchor="middle" font-family="${FONT}">TOTAL</text>`
+      `<text x="${cx}" y="${cy + 5}" font-size="16" font-weight="700" fill="${theme.ink}" text-anchor="middle" font-family="${FONT}">${escapeXml(formatHumanReadableNumber(total, cell.unit))}</text>`,
+      `<text x="${cx}" y="${cy + 21}" font-size="9" fill="${theme.faint}" text-anchor="middle" font-family="${FONT}">TOTAL</text>`
     )
   } else {
     parts.push(
-      `<text x="${cx}" y="${cy}" font-size="12" fill="${FAINT}" text-anchor="middle" font-family="${FONT}">No data</text>`
+      `<text x="${cx}" y="${cy}" font-size="12" fill="${theme.faint}" text-anchor="middle" font-family="${FONT}">No data</text>`
     )
   }
 
-  parts.push(renderDonutLegend(cell.items, 188, 36, width - 188 - 8))
+  parts.push(renderDonutLegend(cell.items, 188, 36, width - 188 - 8, theme))
 
   return parts.join('\n')
 }
@@ -437,7 +467,8 @@ function renderDonutLegend(
   items: OverviewRankItem[],
   x: number,
   y: number,
-  width: number
+  width: number,
+  theme: ExportTheme
 ): string {
   if (items.length === 0) {
     return ''
@@ -459,8 +490,8 @@ function renderDonutLegend(
     const value = `${formatHumanReadableNumber(item.value, 'none')} (${percent}%)`
     parts.push(
       `<rect x="${x}" y="${rowY - 9}" width="10" height="10" rx="2" fill="${item.color}"/>
-<text x="${x + 16}" y="${rowY}" font-size="11" fill="${MUTED}" font-family="${FONT}">${escapeXml(name)}</text>
-<text x="${x + width}" y="${rowY}" font-size="11" fill="${FAINT}" text-anchor="end" font-family="${FONT}">${escapeXml(value)}</text>`
+<text x="${x + 16}" y="${rowY}" font-size="11" fill="${theme.muted}" font-family="${FONT}">${escapeXml(name)}</text>
+<text x="${x + width}" y="${rowY}" font-size="11" fill="${theme.faint}" text-anchor="end" font-family="${FONT}">${escapeXml(value)}</text>`
     )
   })
 
@@ -469,7 +500,10 @@ function renderDonutLegend(
 
 // ─── Top projects (horizontal bars) ──────────────────────────────────────────
 
-function renderProjectsSection(projects: OverviewRankItem[]): Section {
+function renderProjectsSection(
+  projects: OverviewRankItem[],
+  theme: ExportTheme
+): Section {
   const titleHeight = 30
   const rowHeight = 30
   const barHeight = 16
@@ -486,14 +520,14 @@ function renderProjectsSection(projects: OverviewRankItem[]): Section {
     const barLength =
       maxValue > 0 ? Math.max(2, (item.value / maxValue) * barWidth) : 0
     parts.push(
-      `<text x="${CONTENT_X}" y="${y + 12}" font-size="12" fill="${MUTED}" font-family="${FONT}">${escapeXml(truncate(item.name, 22))}</text>`,
+      `<text x="${CONTENT_X}" y="${y + 12}" font-size="12" fill="${theme.muted}" font-family="${FONT}">${escapeXml(truncate(item.name, 22))}</text>`,
       `<rect x="${CONTENT_X + labelWidth}" y="${y + 2}" width="${barLength}" height="${barHeight}" rx="3" fill="${item.color}"/>`,
-      `<text x="${CONTENT_X + labelWidth + barWidth + 10}" y="${y + 12}" font-size="12" fill="${INK}" font-weight="600" font-family="${FONT}">${escapeXml(formatHumanReadableNumber(item.value, 'none'))}</text>`
+      `<text x="${CONTENT_X + labelWidth + barWidth + 10}" y="${y + 12}" font-size="12" fill="${theme.ink}" font-weight="600" font-family="${FONT}">${escapeXml(formatHumanReadableNumber(item.value, 'none'))}</text>`
     )
   })
 
   return {
-    svg: `<text x="${CONTENT_X}" y="14" font-size="16" font-weight="700" fill="${INK}" font-family="${FONT}">Top Projects</text>
+    svg: `<text x="${CONTENT_X}" y="14" font-size="16" font-weight="700" fill="${theme.ink}" font-family="${FONT}">Top Projects</text>
 <g transform="translate(0 ${titleHeight})">
 ${parts.join('\n')}
 </g>`,

@@ -2,6 +2,19 @@ import { RenderValueUnit } from '@/render/types.js'
 
 export type ExportFormat = 'svg' | 'png'
 
+export type ExportThemeId = 'light' | 'dark' | 'one-dark'
+
+export type ExportTheme = {
+  background: string
+  cardFill: string
+  border: string
+  ink: string
+  muted: string
+  faint: string
+  accent: string
+  accentAlt: string
+}
+
 export type ExportFilterOptions = {
   dateStart: Date | null
   dateEnd: Date | null
