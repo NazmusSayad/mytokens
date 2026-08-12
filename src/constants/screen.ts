@@ -15,6 +15,12 @@ import { RenderTokensScreen } from '../screens/tokens.js'
 export type AppScreenType =
   `${'type' | 'apps' | 'modes' | 'models' | 'projects' | 'providers'}-by-${'costs' | 'tokens'}`
 
+export type AppScreenInfo = {
+  type: AppScreenType
+  title: string
+  description: string
+}
+
 export const APP_SCREENS_MAP: Record<AppScreenType, typeof RenderScreen> = {
   'type-by-costs': RenderCostsScreen,
   'type-by-tokens': RenderTokensScreen,
@@ -29,3 +35,78 @@ export const APP_SCREENS_MAP: Record<AppScreenType, typeof RenderScreen> = {
   'providers-by-costs': RenderProvidersByCostsScreen,
   'providers-by-tokens': RenderProvidersByTokensScreen,
 }
+
+export const APP_SCREENS_INFO: AppScreenInfo[] = [
+  {
+    type: 'models-by-tokens',
+    title: 'Models by Tokens',
+    description:
+      'Token usage grouped by the underlying AI model (e.g. gpt-5, claude-sonnet-4).',
+  },
+  {
+    type: 'models-by-costs',
+    title: 'Models by Costs',
+    description:
+      'Estimated cost grouped by the underlying AI model (e.g. gpt-5, claude-sonnet-4).',
+  },
+  {
+    type: 'apps-by-tokens',
+    title: 'Apps by Tokens',
+    description:
+      'Token usage grouped by the coding CLI app that produced it (e.g. opencode, codex, claude).',
+  },
+  {
+    type: 'apps-by-costs',
+    title: 'Apps by Costs',
+    description:
+      'Estimated cost grouped by the coding CLI app that produced it (e.g. opencode, codex, claude).',
+  },
+  {
+    type: 'modes-by-tokens',
+    title: 'Modes by Tokens',
+    description:
+      'Token usage grouped by usage mode such as chat, build, agent or plan.',
+  },
+  {
+    type: 'modes-by-costs',
+    title: 'Modes by Costs',
+    description:
+      'Estimated cost grouped by usage mode such as chat, build, agent or plan.',
+  },
+  {
+    type: 'projects-by-tokens',
+    title: 'Projects by Tokens',
+    description:
+      'Token usage grouped by the project or working directory where usage was recorded.',
+  },
+  {
+    type: 'projects-by-costs',
+    title: 'Projects by Costs',
+    description:
+      'Estimated cost grouped by the project or working directory where usage was recorded.',
+  },
+  {
+    type: 'providers-by-tokens',
+    title: 'Providers by Tokens',
+    description:
+      'Token usage grouped by the provider that served the model (e.g. openai, anthropic).',
+  },
+  {
+    type: 'providers-by-costs',
+    title: 'Providers by Costs',
+    description:
+      'Estimated cost grouped by the provider that served the model (e.g. openai, anthropic).',
+  },
+  {
+    type: 'type-by-tokens',
+    title: 'Types by Tokens',
+    description:
+      'Total token usage broken down by input, output, cache and reasoning tokens over time.',
+  },
+  {
+    type: 'type-by-costs',
+    title: 'Types by Costs',
+    description:
+      'Estimated dollar cost of token usage broken down by input, output, cache and reasoning tokens over time.',
+  },
+]

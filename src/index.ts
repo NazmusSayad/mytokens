@@ -4,7 +4,9 @@ import { Command } from '@commander-js/extra-typings'
 import chalk from 'chalk'
 import { runApp } from './app.js'
 import { APP_SCREENS_MAP, AppScreenType } from './constants/screen.js'
+import { attachExportCommands } from './export/cli.js'
 import { parseScreenArg, resolveBy, resolveDateRange } from './helpers/args.js'
+import { pickScreen } from './helpers/picker.js'
 import { RenderValueShowBy } from './render/types.js'
 
 const program = new Command('mytokens')
@@ -93,17 +95,30 @@ const program = new Command('mytokens')
     'Providers to exclude. example: --skip-providers groq',
     (val) => val.split(',')
   )
-  .action((screen, options) => {
-    const parsedScreen = parseScreenArg(
-      screen ?? ('models-by-tokens' satisfies AppScreenType)
-    )
+  .action(async (screen, options) => {
+    let parsedScreen: AppScreenType | null = null
 
-    if (!parsedScreen) {
-      console.error(chalk.red(`Invalid screen argument: ${chalk.bold(screen)}`))
-      console.log(
-        `Available screens: ${Object.keys(APP_SCREENS_MAP).join(', ')}`
-      )
-      process.exit(1)
+    if (screen) {
+      parsedScreen = parseScreenArg(screen)
+
+      if (!parsedScreen) {
+        console.error(
+          chalk.red(`Invalid screen argument: ${chalk.bold(screen)}`)
+        )
+        console.log(
+          `Available screens: ${Object.keys(APP_SCREENS_MAP).join(', ')}`
+        )
+        process.exit(1)
+      }
+    } else {
+      try {
+        parsedScreen = await pickScreen()
+      } catch (err) {
+        if (err instanceof Error && err.name === 'ExitPromptError') {
+          process.exit(0)
+        }
+        throw err
+      }
     }
 
     let dateStart: Date | null
@@ -166,4 +181,5 @@ const program = new Command('mytokens')
     })
   })
 
+attachExportCommands(program)
 program.parse()

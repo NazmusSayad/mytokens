@@ -3,7 +3,7 @@ import { RenderScreen } from '@/render/render-screen.js'
 import { RenderDataItem } from '@/render/types.js'
 
 export class RenderTokensScreen extends RenderScreen {
-  protected title = 'Tokens Usage'
+  protected title = 'Types by Tokens'
 
   protected resolveItem(
     item: UsageDataMessage,

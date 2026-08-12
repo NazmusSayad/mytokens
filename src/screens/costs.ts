@@ -9,7 +9,7 @@ import { RenderDataItem, RenderValueUnit } from '@/render/types.js'
 export class RenderCostsScreen extends RenderScreen {
   private priceDetector = null as unknown as PriceDetector
 
-  protected title = 'Costs'
+  protected title = 'Types by Costs'
   protected valueUnit: RenderValueUnit = 'dollar'
 
   protected async init() {
