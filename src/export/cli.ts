@@ -37,7 +37,7 @@ function addProjectCountOption<
   GlobalOpts extends OptionValues,
 >(command: Command<Args, Opts, GlobalOpts>) {
   command.option(
-    '--projects <count>',
+    '-p, --projects <count>',
     'Number of top projects to show. Use 0 to hide the projects section. Default: 10.',
     (value) => {
       const count = Number.parseInt(value, 10)
@@ -55,7 +55,7 @@ function addThemeOption<
   GlobalOpts extends OptionValues,
 >(command: Command<Args, Opts, GlobalOpts>) {
   command.option(
-    '--theme <theme>',
+    '-t, --theme <theme>',
     `Color theme: ${Object.keys(EXPORT_THEMES).join(', ')}. Default: ${DEFAULT_EXPORT_THEME}.`,
     (val) => {
       const theme = val.toLowerCase() as ExportThemeId
@@ -84,7 +84,7 @@ export function attachExportCommands<
       'Output file path. Defaults to mytokens.svg (or the chosen format).'
     )
     .option(
-      '--format <format>',
+      '-f, --format <format>',
       `Output format: ${FORMATS.join(', ')}. Inferred from --output extension when omitted.`,
       (val) => {
         const format = val.toLowerCase() as ExportFormat
@@ -157,7 +157,7 @@ export function attachExportCommands<
   addThemeOption(imageCommand)
 
   imageCommand
-    .option('--copy', 'Copy the rendered PNG image to the macOS clipboard.')
+    .option('-c, --copy', 'Copy the rendered PNG image to the macOS clipboard.')
     .on('--help', () => {
       console.log('\nExamples:')
       console.log('  $ mytokens image')
