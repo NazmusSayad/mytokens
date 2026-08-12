@@ -1,6 +1,7 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { DatabaseSync } from 'node:sqlite'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { parseCopilot } from './copilot.js'
 
@@ -30,6 +31,29 @@ function restoreHome() {
   }
 }
 
+function createCopilotDb(dbPath: string): DatabaseSync {
+  const db = new DatabaseSync(dbPath)
+  db.exec(`
+    CREATE TABLE sessions (
+      id TEXT PRIMARY KEY,
+      cwd TEXT,
+      repository TEXT
+    );
+    CREATE TABLE assistant_usage_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id TEXT NOT NULL,
+      model TEXT NOT NULL,
+      input_tokens INTEGER,
+      output_tokens INTEGER,
+      cache_read_tokens INTEGER,
+      cache_write_tokens INTEGER,
+      reasoning_tokens INTEGER,
+      created_at TEXT
+    );
+  `)
+  return db
+}
+
 describe('parseCopilot', () => {
   beforeEach(() => {
     setupTempHome()
@@ -44,7 +68,69 @@ describe('parseCopilot', () => {
     expect(result).toEqual([])
   })
 
-  it('parses a chat span', async () => {
+  it('parses usage events from the sqlite session store', async () => {
+    const copilotDir = join(tempHome, '.copilot')
+    mkdirSync(copilotDir, { recursive: true })
+    const db = createCopilotDb(join(copilotDir, 'session-store.db'))
+    db.exec(`
+      INSERT INTO sessions (id, cwd, repository)
+      VALUES ('sess-1', '/Users/test/project', 'user/project');
+      INSERT INTO assistant_usage_events
+        (session_id, model, input_tokens, output_tokens, cache_read_tokens, cache_write_tokens, reasoning_tokens, created_at)
+      VALUES
+        ('sess-1', 'gpt-5-mini', 13296, 218, 5376, 0, 128, '2026-08-12T02:30:23.563Z');
+    `)
+    db.close()
+
+    const result = await parseCopilot()
+    expect(result).toHaveLength(1)
+    expect(result[0].app).toBe('copilot')
+    expect(result[0].model.id).toBe('gpt-5-mini')
+    expect(result[0].model.provider).toBe('openai')
+    expect(result[0].tokens.input).toBe(13296)
+    expect(result[0].tokens.output).toBe(218)
+    expect(result[0].tokens.cacheInput).toBe(5376)
+    expect(result[0].tokens.reasoning).toBe(128)
+    expect(result[0].project?.name).toBe('project')
+    expect(result[0].project?.path).toBe('/Users/test/project')
+  })
+
+  it('falls back to generic provider for unknown sqlite models', async () => {
+    const copilotDir = join(tempHome, '.copilot')
+    mkdirSync(copilotDir, { recursive: true })
+    const db = createCopilotDb(join(copilotDir, 'session-store.db'))
+    db.exec(`
+      INSERT INTO assistant_usage_events
+        (session_id, model, input_tokens, output_tokens, created_at)
+      VALUES
+        ('sess-1', 'custom-model', 7, 9, '2026-08-12T02:30:23.563Z');
+    `)
+    db.close()
+
+    const result = await parseCopilot()
+    expect(result).toHaveLength(1)
+    expect(result[0].model.provider).toBe('github-copilot')
+    expect(result[0].tokens.input).toBe(7)
+    expect(result[0].tokens.output).toBe(9)
+  })
+
+  it('skips sqlite events with no tokens', async () => {
+    const copilotDir = join(tempHome, '.copilot')
+    mkdirSync(copilotDir, { recursive: true })
+    const db = createCopilotDb(join(copilotDir, 'session-store.db'))
+    db.exec(`
+      INSERT INTO assistant_usage_events
+        (session_id, model, input_tokens, output_tokens, created_at)
+      VALUES
+        ('sess-1', 'gpt-5-mini', 0, 0, '2026-08-12T02:30:23.563Z');
+    `)
+    db.close()
+
+    const result = await parseCopilot()
+    expect(result).toEqual([])
+  })
+
+  it('parses a chat span from the legacy jsonl file', async () => {
     const copilotDir = join(tempHome, '.copilot')
     mkdirSync(copilotDir, { recursive: true })
     const content = `{"type":"span","traceId":"trace-1","spanId":"span-1","name":"chat claude-sonnet-4","startTime":[1775934260,133000000],"endTime":[1775934264,967317833],"attributes":{"gen_ai.operation.name":"chat","gen_ai.request.model":"claude-sonnet-4","gen_ai.response.model":"claude-sonnet-4","gen_ai.conversation.id":"conv-1","gen_ai.usage.input_tokens":19452,"gen_ai.usage.output_tokens":281,"gen_ai.usage.cache_read.input_tokens":123,"gen_ai.usage.reasoning.output_tokens":128,"github.copilot.interaction_id":"interaction-1"}}`
