@@ -186,6 +186,10 @@ function renderAreaChart(
   const gridLines = 4
   const parts: string[] = []
 
+  if (points.length === 0) {
+    return `<text x="${plotLeft}" y="${plotTop + 10}" font-size="12" fill="${FAINT}" font-family="${FONT}">No data</text>`
+  }
+
   const maxValue = points.reduce((max, point) => Math.max(max, point.total), 0)
   const yMax = maxValue > 0 ? maxValue * 1.08 : 1
 
