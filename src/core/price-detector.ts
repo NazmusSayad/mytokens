@@ -43,7 +43,7 @@ export class PriceDetector {
     const modelsDotDevProvider = this.modelsDotDev[input.provider]
     if (!modelsDotDevProvider) return null
 
-    const nonFreeId = input.id.replace(/(:free|-free)$/, '')
+    const nonFreeId = input.id.replace(/([-:_.\/])free$/i, '')
     if (nonFreeId === input.id) return null
     return modelsDotDevProvider.models[nonFreeId] ?? null
   }
