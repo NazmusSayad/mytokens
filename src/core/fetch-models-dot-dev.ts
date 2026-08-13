@@ -17,7 +17,7 @@ type ModelsDotDevModalities = {
   output: string[]
 }
 
-type ModelsDotDevModel = {
+export type ModelsDotDevModel = {
   id: string
   name: string
   family?: string

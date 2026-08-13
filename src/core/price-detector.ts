@@ -1,5 +1,6 @@
 import {
   fetchModelsDotDev,
+  ModelsDotDevModel,
   ModelsDotDevResponse,
 } from './fetch-models-dot-dev.js'
 import { fetchOpenrouter, OpenrouterResponse } from './fetch-openrouter.js'
@@ -26,10 +27,34 @@ export class PriceDetector {
 
     if (modelsDotDevProvider) {
       const model = modelsDotDevProvider.models[input.id]
+
+      if (model && this.hasZeroCost(model.cost)) {
+        const nonFreeModel = this.getNonFreeModelsDotDevModel(input)
+        if (nonFreeModel) return nonFreeModel
+      }
+
       if (model) return model
     }
 
     return null
+  }
+
+  private getNonFreeModelsDotDevModel(input: UsageDataModel) {
+    const modelsDotDevProvider = this.modelsDotDev[input.provider]
+    if (!modelsDotDevProvider) return null
+
+    const nonFreeId = input.id.replace(/(:free|-free)$/, '')
+    if (nonFreeId === input.id) return null
+    return modelsDotDevProvider.models[nonFreeId] ?? null
+  }
+
+  private hasZeroCost(cost?: ModelsDotDevModel['cost']) {
+    if (!cost) return true
+    if (cost.input) return false
+    if (cost.output) return false
+    if (cost.cache_read) return false
+    if (cost.cache_write) return false
+    return true
   }
 
   public getInputPrice(input: UsageDataModel): number {
