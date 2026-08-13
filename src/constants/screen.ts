@@ -22,18 +22,18 @@ export type AppScreenInfo = {
 }
 
 export const APP_SCREENS_MAP: Record<AppScreenType, typeof RenderScreen> = {
-  'type-by-costs': RenderCostsScreen,
-  'type-by-tokens': RenderTokensScreen,
-  'apps-by-costs': RenderAppsByCostsScreen,
-  'apps-by-tokens': RenderAppsByTokensScreen,
-  'modes-by-costs': RenderModesByCostsScreen,
-  'modes-by-tokens': RenderModesByTokensScreen,
   'models-by-costs': RenderModelsByCostsScreen,
   'models-by-tokens': RenderModelsByTokensScreen,
+  'apps-by-costs': RenderAppsByCostsScreen,
+  'apps-by-tokens': RenderAppsByTokensScreen,
   'projects-by-costs': RenderProjectsByCostsScreen,
   'projects-by-tokens': RenderProjectsByTokensScreen,
   'providers-by-costs': RenderProvidersByCostsScreen,
   'providers-by-tokens': RenderProvidersByTokensScreen,
+  'modes-by-costs': RenderModesByCostsScreen,
+  'modes-by-tokens': RenderModesByTokensScreen,
+  'type-by-costs': RenderCostsScreen,
+  'type-by-tokens': RenderTokensScreen,
 }
 
 export const APP_SCREENS_INFO: AppScreenInfo[] = [
@@ -62,18 +62,6 @@ export const APP_SCREENS_INFO: AppScreenInfo[] = [
       'Estimated cost grouped by the coding CLI app that produced it (e.g. opencode, codex, claude).',
   },
   {
-    type: 'modes-by-tokens',
-    title: 'Modes by Tokens',
-    description:
-      'Token usage grouped by usage mode such as chat, build, agent or plan.',
-  },
-  {
-    type: 'modes-by-costs',
-    title: 'Modes by Costs',
-    description:
-      'Estimated cost grouped by usage mode such as chat, build, agent or plan.',
-  },
-  {
     type: 'projects-by-tokens',
     title: 'Projects by Tokens',
     description:
@@ -96,6 +84,18 @@ export const APP_SCREENS_INFO: AppScreenInfo[] = [
     title: 'Providers by Costs',
     description:
       'Estimated cost grouped by the provider that served the model (e.g. openai, anthropic).',
+  },
+  {
+    type: 'modes-by-tokens',
+    title: 'Modes by Tokens',
+    description:
+      'Token usage grouped by usage mode such as chat, build, agent or plan.',
+  },
+  {
+    type: 'modes-by-costs',
+    title: 'Modes by Costs',
+    description:
+      'Estimated cost grouped by usage mode such as chat, build, agent or plan.',
   },
   {
     type: 'type-by-tokens',

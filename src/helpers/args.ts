@@ -3,14 +3,13 @@ import chalk from 'chalk'
 import Fuse from 'fuse.js'
 
 const ScreenKeywordMap: Record<string, AppScreenType> = {
-  token: 'type-by-tokens',
-  usage: 'type-by-tokens',
-  usages: 'type-by-tokens',
+  usage: 'models-by-tokens',
+  usages: 'models-by-tokens',
 
-  '.': 'type-by-costs',
-  cost: 'type-by-costs',
-  price: 'type-by-costs',
-  prices: 'type-by-costs',
+  cost: 'models-by-costs',
+  costs: 'models-by-costs',
+  price: 'models-by-costs',
+  prices: 'models-by-costs',
 
   app: 'apps-by-tokens',
   apps: 'apps-by-tokens',
@@ -121,6 +120,28 @@ const ScreenKeywordMap: Record<string, AppScreenType> = {
   'providers/costs': 'providers-by-costs',
   'providers/price': 'providers-by-costs',
   'providers/prices': 'providers-by-costs',
+
+  type: 'type-by-tokens',
+  types: 'type-by-tokens',
+  'type/token': 'type-by-tokens',
+  'type/tokens': 'type-by-tokens',
+  'types/token': 'type-by-tokens',
+  'types/tokens': 'type-by-tokens',
+  'type/usage': 'type-by-tokens',
+  'types/usage': 'type-by-tokens',
+  'type/usages': 'type-by-tokens',
+  'types/usages': 'type-by-tokens',
+
+  'type.': 'type-by-costs',
+  'types.': 'type-by-costs',
+  'type/cost': 'type-by-costs',
+  'type/costs': 'type-by-costs',
+  'types/cost': 'type-by-costs',
+  'types/costs': 'type-by-costs',
+  'type/price': 'type-by-costs',
+  'types/price': 'type-by-costs',
+  'type/prices': 'type-by-costs',
+  'types/prices': 'type-by-costs',
 
   ...Object.fromEntries<AppScreenType>(
     Object.keys(APP_SCREENS_MAP).map((k) => [k, k as AppScreenType])
