@@ -68,7 +68,7 @@ describe('parseOpenClaw', () => {
 
     const result = await parseOpenClaw()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('openclaw')
+    expect(result[0].source).toBe('openclaw')
     expect(result[0].model.id).toBe('gpt-4o')
     expect(result[0].model.provider).toBe('openai')
     expect(result[0].tokens.input).toBe(100)

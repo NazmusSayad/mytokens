@@ -29,8 +29,8 @@ export type ExportFilterOptions = {
   usageBy: RenderValueShowBy
   dateStart: Date | null
   dateEnd: Date | null
-  enabledApps: string[] | null
-  disabledApps: string[] | null
+  enabledSources: string[] | null
+  disabledSources: string[] | null
   enabledProviders: string[] | null
   disabledProviders: string[] | null
   enabledModels: string[] | null

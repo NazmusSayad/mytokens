@@ -76,7 +76,7 @@ describe('parseOpenCode', () => {
 
     const result = await parseOpenCode()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('opencode')
+    expect(result[0].source).toBe('opencode')
     expect(result[0].model.id).toBe('claude-sonnet-4')
     expect(result[0].model.provider).toBe('anthropic')
     expect(result[0].tokens.input).toBe(1000)

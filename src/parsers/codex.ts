@@ -430,7 +430,7 @@ function buildCodexMessage(
 ): UsageDataMessage {
   const normalizedAgent = agent ? normalizeAgentName(agent) : undefined
   return {
-    app: 'codex',
+    source: 'codex',
     mode: deriveModeFromAgent(normalizedAgent),
     type: 'assistant',
     date: new Date(timestamp),

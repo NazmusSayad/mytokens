@@ -81,7 +81,7 @@ function parseQwenFile(path: string): UsageDataMessage[] {
       : fileMtime
 
     const msg: UsageDataMessage = {
-      app: 'qwen',
+      source: 'qwen',
       mode: 'chat',
       type: 'assistant',
       date: new Date(timestamp),

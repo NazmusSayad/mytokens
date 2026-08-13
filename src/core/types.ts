@@ -25,7 +25,7 @@ export type UsageDataProject = {
 }
 
 export type UsageDataMessage = {
-  app: string
+  source: string
   mode: UsageDataMode
   type: UsageDataType
 

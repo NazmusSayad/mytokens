@@ -113,7 +113,7 @@ function parsePiFile(path: string): UsageDataMessage[] {
       : fallbackTimestamp
 
     const msg: UsageDataMessage = {
-      app: 'pi',
+      source: 'pi',
       mode: 'chat',
       type: 'assistant',
       date: new Date(timestamp),

@@ -38,11 +38,11 @@ export type OverviewSummary = {
   totalMessages: number
   activeDays: number
   topModel: string
-  topApp: string
+  topSource: string
   daily: OverviewDailyPoint[]
   composition: OverviewTokenSlice[]
   models: OverviewRankItem[]
-  apps: OverviewRankItem[]
+  sources: OverviewRankItem[]
   providers: OverviewRankItem[]
   projects: OverviewRankItem[]
   modes: OverviewRankItem[]
@@ -73,7 +73,7 @@ export async function computeOverview(
   const daily = new Map<string, OverviewDailyPoint>()
   const tokenTotals = { input: 0, output: 0, reasoning: 0, cache: 0 }
   const modelTotals = new Map<string, number>()
-  const appTotals = new Map<string, number>()
+  const sourceTotals = new Map<string, number>()
   const providerTotals = new Map<string, number>()
   const projectTotals = new Map<string, number>()
   const modeTotals = new Map<string, number>()
@@ -145,7 +145,10 @@ export async function computeOverview(
       (modelTotals.get(message.model.id) ?? 0) + all
     )
     modelNames.set(message.model.id, message.model.id)
-    appTotals.set(message.app, (appTotals.get(message.app) ?? 0) + all)
+    sourceTotals.set(
+      message.source,
+      (sourceTotals.get(message.source) ?? 0) + all
+    )
     providerTotals.set(
       message.model.provider,
       (providerTotals.get(message.model.provider) ?? 0) + all
@@ -168,9 +171,9 @@ export async function computeOverview(
     .sort((a, b) => (a[0] < b[0] ? -1 : 1))
     .map(([, point]) => point)
 
-  const [models, apps, providers, projects, modes] = await Promise.all([
+  const [models, sources, providers, projects, modes] = await Promise.all([
     toRankItems(modelTotals, modelNames, 7),
-    toRankItems(appTotals, new Map(), 7),
+    toRankItems(sourceTotals, new Map(), 7),
     toRankItems(providerTotals, new Map(), 7),
     toRankItems(projectTotals, projectNames, range.projects ?? 10),
     toRankItems(modeTotals, new Map(), 7),
@@ -190,7 +193,7 @@ export async function computeOverview(
     totalMessages: messages.length,
     activeDays,
     topModel: models[0]?.name ?? '—',
-    topApp: apps[0]?.name ?? '—',
+    topSource: sources[0]?.name ?? '—',
     daily: dailyPoints,
     composition: [
       {
@@ -219,7 +222,7 @@ export async function computeOverview(
       },
     ],
     models,
-    apps,
+    sources,
     providers,
     projects,
     modes,

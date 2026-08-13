@@ -95,7 +95,7 @@ function parseKimiFile(path: string): UsageDataMessage[] {
       : fallbackTimestamp
 
     messages.push({
-      app: 'kimi',
+      source: 'kimi',
       mode: 'chat',
       type: 'assistant',
       date: new Date(timestamp),

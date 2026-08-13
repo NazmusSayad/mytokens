@@ -15,8 +15,8 @@ export type RenderScreenOptions = {
   screenWidth: number
   screenPadding: number
 
-  enabledApps: string[] | null
-  disabledApps: string[] | null
+  enabledSources: string[] | null
+  disabledSources: string[] | null
 
   enabledProviders: string[] | null
   disabledProviders: string[] | null

@@ -84,7 +84,7 @@ describe('parseCopilot', () => {
 
     const result = await parseCopilot()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('copilot')
+    expect(result[0].source).toBe('copilot')
     expect(result[0].model.id).toBe('gpt-5-mini')
     expect(result[0].model.provider).toBe('openai')
     expect(result[0].tokens.input).toBe(13296)
@@ -138,7 +138,7 @@ describe('parseCopilot', () => {
 
     const result = await parseCopilot()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('copilot')
+    expect(result[0].source).toBe('copilot')
     expect(result[0].model.id).toBe('claude-sonnet-4')
     expect(result[0].model.provider).toBe('anthropic')
     expect(result[0].tokens.input).toBe(19329)

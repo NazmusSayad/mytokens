@@ -81,7 +81,7 @@ describe('parseKilo', () => {
 
     const result = await parseKilo()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('kilo')
+    expect(result[0].source).toBe('kilo')
     expect(result[0].model.id).toBe('claude-sonnet-4')
     expect(result[0].tokens.input).toBe(100)
     expect(result[0].tokens.output).toBe(50)

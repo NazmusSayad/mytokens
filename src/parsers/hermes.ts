@@ -83,7 +83,7 @@ export async function parseHermes(): Promise<UsageDataMessage[]> {
         const timestamp = timestampSecsToMs(startedAt)
 
         messages.push({
-          app: 'hermes',
+          source: 'hermes',
           mode: 'chat',
           type: 'assistant',
           date: new Date(timestamp),

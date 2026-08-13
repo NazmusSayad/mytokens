@@ -87,7 +87,7 @@ describe('parseRooCode', () => {
 
     const result = await parseRooCode()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('roocode')
+    expect(result[0].source).toBe('roocode')
     expect(result[0].model.id).toBe('claude-sonnet-4')
     expect(result[0].model.provider).toBe('anthropic')
     expect(result[0].tokens.input).toBe(100)
@@ -206,7 +206,7 @@ describe('parseKiloCode', () => {
 
     const result = await parseKiloCode()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('kilocode')
+    expect(result[0].source).toBe('kilocode')
     expect(result[0].tokens.input).toBe(200)
     expect(result[0].tokens.output).toBe(100)
   })

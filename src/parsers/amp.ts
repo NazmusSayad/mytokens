@@ -300,7 +300,7 @@ function recordToMessage(
   _threadId: string
 ): UsageDataMessage {
   return {
-    app: 'amp',
+    source: 'amp',
     mode: 'chat',
     type: 'assistant',
     date: new Date(record.timestamp),

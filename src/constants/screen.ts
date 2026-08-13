@@ -1,6 +1,4 @@
 import { RenderScreen } from '../render/render-screen.js'
-import { RenderAppsByCostsScreen } from '../screens/apps-by-costs.js'
-import { RenderAppsByTokensScreen } from '../screens/apps-by-tokens.js'
 import { RenderCostsScreen } from '../screens/costs.js'
 import { RenderModelsByCostsScreen } from '../screens/models-by-costs.js'
 import { RenderModelsByTokensScreen } from '../screens/models-by-tokens.js'
@@ -10,10 +8,12 @@ import { RenderProjectsByCostsScreen } from '../screens/projects-by-costs.js'
 import { RenderProjectsByTokensScreen } from '../screens/projects-by-tokens.js'
 import { RenderProvidersByCostsScreen } from '../screens/providers-by-costs.js'
 import { RenderProvidersByTokensScreen } from '../screens/providers-by-tokens.js'
+import { RenderSourcesByCostsScreen } from '../screens/sources-by-costs.js'
+import { RenderSourcesByTokensScreen } from '../screens/sources-by-tokens.js'
 import { RenderTokensScreen } from '../screens/tokens.js'
 
 export type AppScreenType =
-  `${'type' | 'apps' | 'modes' | 'models' | 'projects' | 'providers'}-by-${'costs' | 'tokens'}`
+  `${'type' | 'sources' | 'modes' | 'models' | 'projects' | 'providers'}-by-${'costs' | 'tokens'}`
 
 export type AppScreenInfo = {
   type: AppScreenType
@@ -24,8 +24,8 @@ export type AppScreenInfo = {
 export const APP_SCREENS_MAP: Record<AppScreenType, typeof RenderScreen> = {
   'models-by-costs': RenderModelsByCostsScreen,
   'models-by-tokens': RenderModelsByTokensScreen,
-  'apps-by-costs': RenderAppsByCostsScreen,
-  'apps-by-tokens': RenderAppsByTokensScreen,
+  'sources-by-costs': RenderSourcesByCostsScreen,
+  'sources-by-tokens': RenderSourcesByTokensScreen,
   'projects-by-costs': RenderProjectsByCostsScreen,
   'projects-by-tokens': RenderProjectsByTokensScreen,
   'providers-by-costs': RenderProvidersByCostsScreen,
@@ -50,16 +50,16 @@ export const APP_SCREENS_INFO: AppScreenInfo[] = [
       'Estimated cost grouped by the underlying AI model (e.g. gpt-5, claude-sonnet-4).',
   },
   {
-    type: 'apps-by-tokens',
-    title: 'Apps by Tokens',
+    type: 'sources-by-tokens',
+    title: 'Sources by Tokens',
     description:
-      'Token usage grouped by the coding CLI app that produced it (e.g. opencode, codex, claude).',
+      'Token usage grouped by the coding CLI source that produced it (e.g. opencode, codex, claude).',
   },
   {
-    type: 'apps-by-costs',
-    title: 'Apps by Costs',
+    type: 'sources-by-costs',
+    title: 'Sources by Costs',
     description:
-      'Estimated cost grouped by the coding CLI app that produced it (e.g. opencode, codex, claude).',
+      'Estimated cost grouped by the coding CLI source that produced it (e.g. opencode, codex, claude).',
   },
   {
     type: 'projects-by-tokens',

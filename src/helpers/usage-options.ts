@@ -20,8 +20,8 @@ export type UsageFilterOptionValues = {
   thisMonth?: boolean
   thisYear?: boolean
   last?: number
-  apps?: string[]
-  skipApps?: string[]
+  sources?: string[]
+  skipSources?: string[]
   modes?: string[]
   skipModes?: string[]
   models?: string[]
@@ -61,13 +61,13 @@ export function addUsageFilterOptions<
     return days
   })
   command.option(
-    '--apps <apps>',
-    'Apps to include. example: opencode,codex',
+    '--sources <sources>',
+    'Sources to include. example: opencode,codex',
     (val) => val.split(',')
   )
   command.option(
-    '--skip-apps <apps>',
-    'Apps to exclude. example: claude',
+    '--skip-sources <sources>',
+    'Sources to exclude. example: claude',
     (val) => val.split(',')
   )
   command.option(
@@ -98,7 +98,7 @@ export function addUsageFilterOptions<
     )
     command.option(
       '--skip-projects <projects>',
-      'Projects to exclude. example: legacy-app',
+      'Projects to exclude. example: legacy-source',
       (val) => val.split(',')
     )
   }
@@ -147,8 +147,8 @@ export function buildUsageFilterOptions(
     usageBy: options.usageBy ?? 'day',
     dateStart: range.dateStart,
     dateEnd: range.dateEnd,
-    enabledApps: options.apps ?? null,
-    disabledApps: options.skipApps ?? null,
+    enabledSources: options.sources ?? null,
+    disabledSources: options.skipSources ?? null,
     enabledModes: options.modes ?? null,
     disabledModes: options.skipModes ?? null,
     enabledModels: options.models ?? null,

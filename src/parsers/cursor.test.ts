@@ -55,7 +55,7 @@ describe('parseCursor', () => {
 
     const result = await parseCursor()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('cursor')
+    expect(result[0].source).toBe('cursor')
     expect(result[0].model.id).toBe('gpt-4o')
     expect(result[0].tokens.input).toBe(100)
     expect(result[0].tokens.output).toBe(50)

@@ -81,7 +81,7 @@ describe('parseHermes', () => {
 
     const result = await parseHermes()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('hermes')
+    expect(result[0].source).toBe('hermes')
     expect(result[0].model.id).toBe('claude-sonnet-4')
     expect(result[0].model.provider).toBe('anthropic')
     expect(result[0].tokens.input).toBe(100)

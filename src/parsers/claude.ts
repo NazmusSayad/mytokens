@@ -250,7 +250,7 @@ function buildMessage(
 ): UsageDataMessage {
   const agent = sidechainAgent ? normalizeAgentName(sidechainAgent) : undefined
   return {
-    app: 'claude',
+    source: 'claude',
     mode: deriveModeFromAgent(agent),
     type: 'assistant',
     date: new Date(timestamp),
@@ -614,7 +614,7 @@ function extractClaudeHeadlessMessage(
   const timestamp = extractClaudeTimestamp(value) || fallbackTimestamp
 
   return {
-    app: 'claude',
+    source: 'claude',
     mode: 'chat',
     type: 'assistant',
     date: new Date(timestamp),
@@ -684,7 +684,7 @@ function finalizeHeadlessState(
   }
 
   const msg: UsageDataMessage = {
-    app: 'claude',
+    source: 'claude',
     mode: 'chat',
     type: 'assistant',
     date: new Date(timestamp),

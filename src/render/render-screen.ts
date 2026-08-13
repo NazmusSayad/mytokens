@@ -46,7 +46,7 @@ export class RenderScreen {
   }
 
   private isMessageIgnored(message: UsageDataMessage) {
-    const { dateStart, dateEnd, enabledApps, disabledApps } = this.options
+    const { dateStart, dateEnd, enabledSources, disabledSources } = this.options
 
     if (dateEnd && message.date.getTime() > dateEnd.getTime()) {
       return true
@@ -56,11 +56,11 @@ export class RenderScreen {
       return true
     }
 
-    if (enabledApps?.length && !enabledApps.includes(message.app)) {
+    if (enabledSources?.length && !enabledSources.includes(message.source)) {
       return true
     }
 
-    if (disabledApps?.length && disabledApps.includes(message.app)) {
+    if (disabledSources?.length && disabledSources.includes(message.source)) {
       return true
     }
 

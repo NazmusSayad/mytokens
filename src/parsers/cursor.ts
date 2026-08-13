@@ -109,7 +109,7 @@ function parseCursorFile(path: string): UsageDataMessage[] {
     const input = inputWithoutCacheWrite
 
     messages.push({
-      app: 'cursor',
+      source: 'cursor',
       mode: 'chat',
       type: 'assistant',
       date: new Date(timestamp),

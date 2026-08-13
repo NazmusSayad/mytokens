@@ -71,7 +71,7 @@ describe('parseSynthetic', () => {
 
     const result = await parseSynthetic()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('synthetic')
+    expect(result[0].source).toBe('synthetic')
     expect(result[0].model.id).toBe('gpt-4o')
     expect(result[0].model.provider).toBe('openai')
     expect(result[0].tokens.input).toBe(100)
@@ -102,7 +102,7 @@ describe('parseSynthetic', () => {
 
     const result = await parseSynthetic()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('synthetic')
+    expect(result[0].source).toBe('synthetic')
     expect(result[0].tokens.input).toBe(10)
     expect(result[0].tokens.output).toBe(5)
   })

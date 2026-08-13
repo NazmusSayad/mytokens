@@ -99,7 +99,7 @@ function parseMuxFile(path: string): UsageDataMessage[] {
     }
 
     messages.push({
-      app: 'mux',
+      source: 'mux',
       mode: 'chat',
       type: 'assistant',
       date: new Date(timestamp),

@@ -19,7 +19,7 @@ export function isMessageIgnored(
   message: UsageDataMessage,
   options: ExportFilterOptions
 ): boolean {
-  const { dateStart, dateEnd, enabledApps, disabledApps } = options
+  const { dateStart, dateEnd, enabledSources, disabledSources } = options
 
   if (dateEnd && message.date.getTime() > dateEnd.getTime()) {
     return true
@@ -29,11 +29,11 @@ export function isMessageIgnored(
     return true
   }
 
-  if (enabledApps?.length && !enabledApps.includes(message.app)) {
+  if (enabledSources?.length && !enabledSources.includes(message.source)) {
     return true
   }
 
-  if (disabledApps?.length && disabledApps.includes(message.app)) {
+  if (disabledSources?.length && disabledSources.includes(message.source)) {
     return true
   }
 

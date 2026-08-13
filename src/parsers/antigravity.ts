@@ -100,7 +100,7 @@ function parseUsageRow(
   }
 
   return {
-    app: 'antigravity',
+    source: 'antigravity',
     mode: 'chat',
     type: 'assistant',
     date: new Date(timestamp),

@@ -52,7 +52,7 @@ describe('parseClaude', () => {
 
     const result = await parseClaude()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('claude')
+    expect(result[0].source).toBe('claude')
     expect(result[0].model.id).toBe('claude-3-5-sonnet')
     expect(result[0].tokens.input).toBe(100)
     expect(result[0].tokens.output).toBe(50)

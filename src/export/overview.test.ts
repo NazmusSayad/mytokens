@@ -14,7 +14,7 @@ vi.mock('@/core/price-detector.js', () => ({
 
 function makeMessage(partial: Partial<UsageDataMessage>): UsageDataMessage {
   return {
-    app: 'opencode',
+    source: 'opencode',
     mode: 'chat',
     type: 'assistant',
     date: new Date('2026-08-10T10:00:00'),
@@ -35,7 +35,7 @@ describe('computeOverview', () => {
   it('aggregates totals, daily series, composition and rankings', async () => {
     const messages = [
       makeMessage({
-        app: 'opencode',
+        source: 'opencode',
         mode: 'build',
         date: new Date('2026-08-10T10:00:00'),
         model: { id: 'gpt-5', provider: 'openai' },
@@ -48,7 +48,7 @@ describe('computeOverview', () => {
         },
       }),
       makeMessage({
-        app: 'codex',
+        source: 'codex',
         mode: 'agent',
         date: new Date('2026-08-10T12:00:00'),
         model: { id: 'claude-4', provider: 'anthropic' },
@@ -61,7 +61,7 @@ describe('computeOverview', () => {
         },
       }),
       makeMessage({
-        app: 'opencode',
+        source: 'opencode',
         mode: 'chat',
         date: new Date('2026-08-11T09:00:00'),
         model: { id: 'gpt-5', provider: 'openai' },
@@ -85,7 +85,7 @@ describe('computeOverview', () => {
     expect(overview.activeDays).toBe(2)
     expect(overview.totalCost).toBeCloseTo(0.00782, 5)
     expect(overview.topModel).toBe('gpt-5')
-    expect(overview.topApp).toBe('opencode')
+    expect(overview.topSource).toBe('opencode')
 
     expect(overview.daily).toHaveLength(2)
     expect(overview.daily[0]).toMatchObject({ label: '08/10', total: 1850 })
@@ -100,7 +100,7 @@ describe('computeOverview', () => {
 
     expect(overview.models[0]).toMatchObject({ name: 'gpt-5', value: 1800 })
     expect(overview.models[1]).toMatchObject({ name: 'claude-4', value: 350 })
-    expect(overview.apps[0]).toMatchObject({ name: 'opencode', value: 1800 })
+    expect(overview.sources[0]).toMatchObject({ name: 'opencode', value: 1800 })
     expect(overview.providers[0]).toMatchObject({ name: 'openai', value: 1800 })
     expect(overview.projects[0]).toMatchObject({
       name: 'mytokens',
@@ -246,7 +246,7 @@ describe('renderOverviewToSvg', () => {
       totalMessages: 3,
       activeDays: 2,
       topModel: 'gpt-5',
-      topApp: 'opencode',
+      topSource: 'opencode',
       daily: [
         {
           label: '08/10',
@@ -277,7 +277,7 @@ describe('renderOverviewToSvg', () => {
         { id: 'gpt-5', name: 'gpt-5', value: 1800, color: '#7b44e9' },
         { id: 'claude-4', name: 'claude-4', value: 350, color: '#64a659' },
       ],
-      apps: [
+      sources: [
         { id: 'opencode', name: 'opencode', value: 1800, color: '#7b44e9' },
         { id: 'codex', name: 'codex', value: 350, color: '#64a659' },
       ],
@@ -307,7 +307,7 @@ describe('renderOverviewToSvg', () => {
     expect(svg).toContain('COST')
     expect(svg).toContain('Token Composition')
     expect(svg).toContain('Models')
-    expect(svg).toContain('Apps')
+    expect(svg).toContain('Sources')
     expect(svg).toContain('Providers')
     expect(svg).toContain('Modes')
     expect(svg).toContain('Projects')
@@ -325,11 +325,11 @@ describe('renderOverviewToSvg', () => {
       totalMessages: 0,
       activeDays: 0,
       topModel: '—',
-      topApp: '—',
+      topSource: '—',
       daily: [],
       composition: [],
       models: [],
-      apps: [],
+      sources: [],
       providers: [],
       modes: [],
     }

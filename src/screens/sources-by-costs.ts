@@ -7,10 +7,10 @@ import { UsageDataMessage } from '@/core/types.js'
 import { RenderScreen } from '@/render/render-screen.js'
 import { RenderDataItem, RenderValueUnit } from '@/render/types.js'
 
-export class RenderAppsByCostsScreen extends RenderScreen {
+export class RenderSourcesByCostsScreen extends RenderScreen {
   private priceDetector = null as unknown as PriceDetector
 
-  protected title = 'Apps by Costs'
+  protected title = 'Sources by Costs'
   protected valueUnit: RenderValueUnit = 'dollar'
 
   protected async init() {
@@ -25,11 +25,11 @@ export class RenderAppsByCostsScreen extends RenderScreen {
       const cost = this.priceDetector.getInputPrice(item.model)
       if (cost) {
         add({
-          id: item.app,
-          name: item.app,
+          id: item.source,
+          name: item.source,
           date: item.date,
           value: cost * item.tokens.input,
-          color: KNOWN_LLM_BRANDS[item.app],
+          color: KNOWN_LLM_BRANDS[item.source],
         })
       }
     }
@@ -38,11 +38,11 @@ export class RenderAppsByCostsScreen extends RenderScreen {
       const cost = this.priceDetector.getOutputPrice(item.model)
       if (cost) {
         add({
-          id: item.app,
-          name: item.app,
+          id: item.source,
+          name: item.source,
           date: item.date,
           value: cost * item.tokens.output,
-          color: KNOWN_LLM_BRANDS[item.app],
+          color: KNOWN_LLM_BRANDS[item.source],
         })
       }
     }
@@ -51,11 +51,11 @@ export class RenderAppsByCostsScreen extends RenderScreen {
       const cost = this.priceDetector.getOutputPrice(item.model)
       if (cost) {
         add({
-          id: item.app,
-          name: item.app,
+          id: item.source,
+          name: item.source,
           date: item.date,
           value: cost * item.tokens.reasoning,
-          color: KNOWN_LLM_BRANDS[item.app],
+          color: KNOWN_LLM_BRANDS[item.source],
         })
       }
     }
@@ -64,11 +64,11 @@ export class RenderAppsByCostsScreen extends RenderScreen {
       const cost = this.priceDetector.getCacheInputPrice(item.model)
       if (cost) {
         add({
-          id: item.app,
-          name: item.app,
+          id: item.source,
+          name: item.source,
           date: item.date,
           value: cost * item.tokens.cacheInput,
-          color: KNOWN_LLM_BRANDS[item.app],
+          color: KNOWN_LLM_BRANDS[item.source],
         })
       }
     }
@@ -77,11 +77,11 @@ export class RenderAppsByCostsScreen extends RenderScreen {
       const cost = this.priceDetector.getCacheOutputPrice(item.model)
       if (cost) {
         add({
-          id: item.app,
-          name: item.app,
+          id: item.source,
+          name: item.source,
           date: item.date,
           value: cost * item.tokens.cacheOutput,
-          color: KNOWN_LLM_BRANDS[item.app],
+          color: KNOWN_LLM_BRANDS[item.source],
         })
       }
     }

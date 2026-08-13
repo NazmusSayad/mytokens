@@ -87,7 +87,7 @@ export async function parseGoose(): Promise<UsageDataMessage[]> {
         const reasoning = total > input + output ? total - input - output : 0
 
         messages.push({
-          app: 'goose',
+          source: 'goose',
           mode: 'chat',
           type: 'assistant',
           date: new Date(timestampSecsToMs(createdAtTs)),

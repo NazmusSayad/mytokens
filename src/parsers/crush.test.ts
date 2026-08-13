@@ -84,7 +84,7 @@ describe('parseCrush', () => {
 
     const result = await parseCrush()
     expect(result.length).toBeGreaterThanOrEqual(1)
-    expect(result[0].app).toBe('crush')
+    expect(result[0].source).toBe('crush')
     expect(result[0].model.id).toBe('session-total')
     expect(result[0].model.provider).toBe('crush')
   })

@@ -80,7 +80,7 @@ async function parseCopilotSqlite(
     const repository = rowToString(row.repository)
 
     messages.push({
-      app: 'copilot',
+      source: 'copilot',
       mode: 'chat',
       type: 'assistant',
       date: new Date(timestampMs),
@@ -158,7 +158,7 @@ function parseCopilotFile(path: string): UsageDataMessage[] {
     }
 
     messages.push({
-      app: 'copilot',
+      source: 'copilot',
       mode: 'chat',
       type: 'assistant',
       date: new Date(timestampMs),

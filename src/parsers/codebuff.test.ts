@@ -73,7 +73,7 @@ describe('parseCodebuff', () => {
 
     const result = await parseCodebuff()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('codebuff')
+    expect(result[0].source).toBe('codebuff')
     expect(result[0].model.id).toBe('claude-sonnet-4')
     expect(result[0].tokens.input).toBe(100)
     expect(result[0].tokens.output).toBe(50)

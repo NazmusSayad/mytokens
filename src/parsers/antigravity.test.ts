@@ -64,7 +64,7 @@ describe('parseAntigravity', () => {
 
     const result = await parseAntigravity()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('antigravity')
+    expect(result[0].source).toBe('antigravity')
     expect(result[0].model.id).toBe('gpt-4o')
     expect(result[0].tokens.input).toBe(100)
     expect(result[0].tokens.output).toBe(50)

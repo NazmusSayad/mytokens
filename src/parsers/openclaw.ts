@@ -177,7 +177,7 @@ function parseOpenClawSession(
         const timestamp = entry.message.timestamp || fileMtime
 
         messages.push({
-          app: 'openclaw',
+          source: 'openclaw',
           mode: 'chat',
           type: 'assistant',
           date: new Date(timestamp),

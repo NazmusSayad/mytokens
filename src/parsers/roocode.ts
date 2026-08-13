@@ -76,7 +76,10 @@ export async function parseKiloCode(): Promise<UsageDataMessage[]> {
 
 // ─── Internal ────────────────────────────────────────────────────────────────
 
-function parseRooKiloFile(path: string, source: string): UsageDataMessage[] {
+function parseRooKiloFile(
+  path: string,
+  sourceName: string
+): UsageDataMessage[] {
   const data = readFileOrNone(path)
   if (!data) return []
 
@@ -106,7 +109,7 @@ function parseRooKiloFile(path: string, source: string): UsageDataMessage[] {
     const provider = payload.apiProtocol || inferProviderFromModel(modelId)
 
     messages.push({
-      app: source,
+      source: sourceName,
       mode: deriveModeFromAgent(agent),
       type: 'assistant',
       date: new Date(timestamp),

@@ -64,7 +64,7 @@ describe('parseQwen', () => {
 
     const result = await parseQwen()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('qwen')
+    expect(result[0].source).toBe('qwen')
     expect(result[0].model.id).toBe('qwen-max')
     expect(result[0].model.provider).toBe('qwen')
     expect(result[0].tokens.input).toBe(100)

@@ -3,8 +3,8 @@ import { UsageDataMessage } from '@/core/types.js'
 import { RenderScreen } from '@/render/render-screen.js'
 import { RenderDataItem } from '@/render/types.js'
 
-export class RenderAppsByTokensScreen extends RenderScreen {
-  protected title = 'Apps by Tokens'
+export class RenderSourcesByTokensScreen extends RenderScreen {
+  protected title = 'Sources by Tokens'
 
   protected resolveItem(
     item: UsageDataMessage,
@@ -12,51 +12,51 @@ export class RenderAppsByTokensScreen extends RenderScreen {
   ) {
     if (item.tokens.input) {
       add({
-        id: item.app,
-        name: item.app,
+        id: item.source,
+        name: item.source,
         date: item.date,
         value: item.tokens.input,
-        color: KNOWN_LLM_BRANDS[item.app],
+        color: KNOWN_LLM_BRANDS[item.source],
       })
     }
 
     if (item.tokens.output) {
       add({
-        id: item.app,
-        name: item.app,
+        id: item.source,
+        name: item.source,
         date: item.date,
         value: item.tokens.output,
-        color: KNOWN_LLM_BRANDS[item.app],
+        color: KNOWN_LLM_BRANDS[item.source],
       })
     }
 
     if (item.tokens.reasoning) {
       add({
-        id: item.app,
-        name: item.app,
+        id: item.source,
+        name: item.source,
         date: item.date,
         value: item.tokens.reasoning,
-        color: KNOWN_LLM_BRANDS[item.app],
+        color: KNOWN_LLM_BRANDS[item.source],
       })
     }
 
     if (item.tokens.cacheInput) {
       add({
-        id: item.app,
-        name: item.app,
+        id: item.source,
+        name: item.source,
         date: item.date,
         value: item.tokens.cacheInput,
-        color: KNOWN_LLM_BRANDS[item.app],
+        color: KNOWN_LLM_BRANDS[item.source],
       })
     }
 
     if (item.tokens.cacheOutput) {
       add({
-        id: item.app,
-        name: item.app,
+        id: item.source,
+        name: item.source,
         date: item.date,
         value: item.tokens.cacheOutput,
-        color: KNOWN_LLM_BRANDS[item.app],
+        color: KNOWN_LLM_BRANDS[item.source],
       })
     }
   }

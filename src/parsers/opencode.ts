@@ -144,7 +144,7 @@ function processOpenCodeRows(
       : undefined
 
     const message: UsageDataMessage = {
-      app: 'opencode',
+      source: 'opencode',
       mode: agent
         ? deriveModeFromAgent(agent)
         : msg.mode
@@ -207,7 +207,7 @@ function parseOpenCodeFile(path: string): UsageDataMessage | undefined {
     : undefined
 
   return {
-    app: 'opencode',
+    source: 'opencode',
     mode: agent
       ? deriveModeFromAgent(agent)
       : msg.mode

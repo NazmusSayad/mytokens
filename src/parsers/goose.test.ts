@@ -79,7 +79,7 @@ describe('parseGoose', () => {
 
     const result = await parseGoose()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('goose')
+    expect(result[0].source).toBe('goose')
     expect(result[0].model.id).toBe('claude-sonnet-4')
     expect(result[0].model.provider).toBe('anthropic')
     expect(result[0].tokens.input).toBe(100)

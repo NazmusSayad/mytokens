@@ -71,7 +71,7 @@ async function parseOctofriendSqlite(
       const tsMs = timestamp > 1e12 ? timestamp : timestamp * 1000
 
       messages.push({
-        app: 'synthetic',
+        source: 'synthetic',
         mode: 'chat',
         type: 'assistant',
         date: new Date(tsMs),
@@ -115,7 +115,7 @@ async function parseOctofriendSqlite(
         const tsMs = timestamp > 1e12 ? timestamp : timestamp * 1000
 
         messages.push({
-          app: 'synthetic',
+          source: 'synthetic',
           mode: 'chat',
           type: 'assistant',
           date: new Date(tsMs),

@@ -167,7 +167,7 @@ function buildGeminiTokenMessage(
     )
 
   return {
-    app: 'gemini',
+    source: 'gemini',
     mode: 'chat',
     type: 'assistant',
     date: new Date(timestamp),
@@ -307,7 +307,7 @@ function parseDirectGeminiTokenMessage(
   const [normInput, normCache] = subtractCachedOverlap(input, cached)
 
   return {
-    app: 'gemini',
+    source: 'gemini',
     mode: 'chat',
     type: 'assistant',
     date: new Date(timestamp),
@@ -359,7 +359,7 @@ function buildMessagesFromStats(
   return usages.map((usage) => {
     const [input, cacheRead] = subtractCachedOverlap(usage.input, usage.cached)
     return {
-      app: 'gemini',
+      source: 'gemini',
       mode: 'chat',
       type: 'assistant',
       date: new Date(timestamp),

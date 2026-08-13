@@ -69,7 +69,7 @@ describe('parseKimi', () => {
 
     const result = await parseKimi()
     expect(result).toHaveLength(1)
-    expect(result[0].app).toBe('kimi')
+    expect(result[0].source).toBe('kimi')
     expect(result[0].model.provider).toBe('moonshot')
     expect(result[0].tokens.input).toBe(100)
     expect(result[0].tokens.output).toBe(50)

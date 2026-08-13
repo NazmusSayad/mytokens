@@ -106,7 +106,7 @@ function renderStatCards(model: OverviewSummary, theme: ExportTheme): Section {
     {
       label: 'Active Days',
       value: String(model.activeDays),
-      sub: `top app ${truncate(model.topApp, 20)}`,
+      sub: `top source ${truncate(model.topSource, 20)}`,
     },
   ]
 
@@ -348,7 +348,7 @@ function renderRankingsSection(
 
   const firstRow: Cell[] = [
     { title: 'Models', items: model.models, unit: 'none' },
-    { title: 'Apps', items: model.apps, unit: 'none' },
+    { title: 'Sources', items: model.sources, unit: 'none' },
   ]
   const secondRow: Cell[] = [
     { title: 'Providers', items: model.providers, unit: 'none' },

@@ -125,7 +125,7 @@ function parseCodebuffFile(path: string): UsageDataMessage[] {
     const provider = inferProviderFromModel(model)
 
     results.push({
-      app: 'codebuff',
+      source: 'codebuff',
       mode: 'chat',
       type: 'assistant',
       date: new Date(ts),

@@ -77,7 +77,7 @@ export function attachExportCommands<
   const exportCommand = program
     .command('export')
     .description(
-      'Export the aggregated usage overview (all apps, models and providers) as a single image.'
+      'Export the aggregated usage overview (all sources, models and providers) as a single image.'
     )
     .option(
       '--output <path>',
@@ -149,7 +149,7 @@ export function attachExportCommands<
   const imageCommand = program
     .command('image')
     .description(
-      'Render the aggregated usage overview (all apps, models and providers) as an image in the terminal.'
+      'Render the aggregated usage overview (all sources, models and providers) as an image in the terminal.'
     )
   addUsageFilterOptions(imageCommand, { includeProjects: false })
   addUsageByOption(imageCommand)

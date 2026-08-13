@@ -140,7 +140,7 @@ async function parseCrushSqlite(
         allocatedCost += bucketCost
 
         messages.push({
-          app: 'crush',
+          source: 'crush',
           mode: 'chat',
           type: 'assistant',
           date: new Date(bucket.timestampMs),
@@ -166,7 +166,7 @@ async function parseCrushSqlite(
     if (timestampMs === undefined) continue
 
     messages.push({
-      app: 'crush',
+      source: 'crush',
       mode: 'chat',
       type: 'assistant',
       date: new Date(timestampMs),
