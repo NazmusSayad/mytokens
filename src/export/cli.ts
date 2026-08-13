@@ -184,6 +184,11 @@ export function attachExportCommands<
           theme: imageOptions.theme ?? DEFAULT_EXPORT_THEME,
           projects: imageOptions.projects ?? 10,
         })
+        console.log(
+          `${chalk.bgYellow.dim.white(' WARN ')} ${chalk.dim.yellow(
+            'If your terminal fails to render the image, run `mytokens export` to export it and view it normally.'
+          )}`
+        )
       } catch (err) {
         console.error(
           chalk.red(err instanceof Error ? err.message : String(err))

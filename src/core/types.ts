@@ -1,19 +1,8 @@
 export type UsageDataMode =
-  | 'ask'
-  | 'chat'
-  | 'plan'
-  | 'build'
-  | 'agent'
-  | 'debug'
-  | 'unknown'
+  'ask' | 'chat' | 'plan' | 'build' | 'agent' | 'debug' | 'unknown'
 
 export type UsageDataType =
-  | 'user'
-  | 'system'
-  | 'assistant'
-  | 'developer'
-  | 'tool'
-  | 'other'
+  'user' | 'system' | 'assistant' | 'developer' | 'tool' | 'other'
 
 export type UsageDataModel = {
   id: string
