@@ -141,7 +141,7 @@ async function parseCrushSqlite(
 
         messages.push({
           source: 'crush',
-          agent: 'chat',
+          agent: 'default',
           type: 'assistant',
           date: new Date(bucket.timestampMs),
           model: {
@@ -167,7 +167,7 @@ async function parseCrushSqlite(
 
     messages.push({
       source: 'crush',
-      agent: 'chat',
+      agent: 'default',
       type: 'assistant',
       date: new Date(timestampMs),
       model: {

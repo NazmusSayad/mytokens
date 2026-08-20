@@ -395,7 +395,7 @@ export function subtractCachedOverlap(
 }
 
 export function deriveAgent(agent: string | undefined): string {
-  if (!agent) return 'chat'
+  if (!agent) return 'default'
   const lower = agent.toLowerCase()
   if (lower.includes('plan')) return 'plan'
   if (lower.includes('build')) return 'build'
@@ -403,5 +403,5 @@ export function deriveAgent(agent: string | undefined): string {
   if (lower === 'headless') return 'build'
   if (lower.includes('debug')) return 'debug'
   if (lower.includes('ask')) return 'ask'
-  return 'chat'
+  return 'default'
 }

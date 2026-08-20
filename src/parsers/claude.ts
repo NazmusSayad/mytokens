@@ -615,7 +615,7 @@ function extractClaudeHeadlessMessage(
 
   return {
     source: 'claude',
-    agent: 'chat',
+    agent: 'default',
     type: 'assistant',
     date: new Date(timestamp),
     model: { id: model, provider: 'anthropic' },
@@ -685,7 +685,7 @@ function finalizeHeadlessState(
 
   const msg: UsageDataMessage = {
     source: 'claude',
-    agent: 'chat',
+    agent: 'default',
     type: 'assistant',
     date: new Date(timestamp),
     model: { id: state.model, provider: 'anthropic' },

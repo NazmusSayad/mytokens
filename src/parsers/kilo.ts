@@ -80,7 +80,7 @@ export async function parseKilo(): Promise<UsageDataMessage[]> {
       const tokens = msg.tokens
       messages.push({
         source: 'kilo',
-        agent: msg.agent || msg.mode ? 'agent' : 'chat',
+        agent: msg.agent || msg.mode ? 'agent' : 'default',
         type: 'assistant',
         date: new Date(timestamp),
         model: {

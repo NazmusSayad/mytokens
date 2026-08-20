@@ -82,7 +82,7 @@ function parseQwenFile(path: string): UsageDataMessage[] {
 
     const msg: UsageDataMessage = {
       source: 'qwen',
-      agent: 'chat',
+      agent: 'default',
       type: 'assistant',
       date: new Date(timestamp),
       model: {

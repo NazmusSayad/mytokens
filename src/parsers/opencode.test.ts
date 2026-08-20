@@ -200,6 +200,6 @@ describe('parseOpenCode', () => {
 
     const result = await parseOpenCode()
     expect(result).toHaveLength(1)
-    expect(result[0].agent).toBe('chat')
+    expect(result[0].agent).toBe('default')
   })
 })

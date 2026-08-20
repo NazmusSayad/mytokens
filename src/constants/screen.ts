@@ -89,13 +89,13 @@ export const APP_SCREENS_INFO: AppScreenInfo[] = [
     type: 'agents-by-tokens',
     title: 'Agents by Tokens',
     description:
-      'Token usage grouped by the agent that produced it such as chat, build, agent or plan.',
+      'Token usage grouped by the agent that produced it such as default, build, agent or plan.',
   },
   {
     type: 'agents-by-costs',
     title: 'Agents by Costs',
     description:
-      'Estimated cost grouped by the agent that produced it such as chat, build, agent or plan.',
+      'Estimated cost grouped by the agent that produced it such as default, build, agent or plan.',
   },
   {
     type: 'type-by-tokens',

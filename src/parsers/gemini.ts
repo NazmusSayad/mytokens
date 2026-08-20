@@ -168,7 +168,7 @@ function buildGeminiTokenMessage(
 
   return {
     source: 'gemini',
-    agent: 'chat',
+    agent: 'default',
     type: 'assistant',
     date: new Date(timestamp),
     model: { id: model, provider: 'google' },
@@ -308,7 +308,7 @@ function parseDirectGeminiTokenMessage(
 
   return {
     source: 'gemini',
-    agent: 'chat',
+    agent: 'default',
     type: 'assistant',
     date: new Date(timestamp),
     model: { id: model, provider: 'google' },
@@ -360,7 +360,7 @@ function buildMessagesFromStats(
     const [input, cacheRead] = subtractCachedOverlap(usage.input, usage.cached)
     return {
       source: 'gemini',
-      agent: 'chat',
+      agent: 'default',
       type: 'assistant',
       date: new Date(timestamp),
       model: { id: usage.model, provider: 'google' },

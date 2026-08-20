@@ -15,7 +15,7 @@ vi.mock('@/core/price-detector.js', () => ({
 function makeMessage(partial: Partial<UsageDataMessage>): UsageDataMessage {
   return {
     source: 'opencode',
-    agent: 'chat',
+    agent: 'default',
     type: 'assistant',
     date: new Date('2026-08-10T10:00:00'),
     model: { id: 'gpt-5', provider: 'openai' },
@@ -62,7 +62,7 @@ describe('computeOverview', () => {
       }),
       makeMessage({
         source: 'opencode',
-        agent: 'chat',
+        agent: 'default',
         date: new Date('2026-08-11T09:00:00'),
         model: { id: 'gpt-5', provider: 'openai' },
         tokens: {
@@ -288,7 +288,7 @@ describe('renderOverviewToSvg', () => {
       agents: [
         { id: 'build', name: 'build', value: 1500, color: '#7b44e9' },
         { id: 'agent', name: 'agent', value: 350, color: '#64a659' },
-        { id: 'chat', name: 'chat', value: 300, color: '#9ca3af' },
+        { id: 'default', name: 'default', value: 300, color: '#9ca3af' },
       ],
       projects: [
         { id: 'mytokens', name: 'mytokens', value: 2150, color: '#7b44e9' },

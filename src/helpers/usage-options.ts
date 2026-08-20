@@ -72,7 +72,7 @@ export function addUsageFilterOptions<
   )
   command.option(
     '--agents <agents>',
-    'Agents to include. example: agent,chat',
+    'Agents to include. example: agent,default',
     (val) => val.split(',')
   )
   command.option(

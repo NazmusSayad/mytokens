@@ -114,7 +114,7 @@ function parsePiFile(path: string): UsageDataMessage[] {
 
     const msg: UsageDataMessage = {
       source: 'pi',
-      agent: 'chat',
+      agent: 'default',
       type: 'assistant',
       date: new Date(timestamp),
       model: {

@@ -84,7 +84,7 @@ export async function parseHermes(): Promise<UsageDataMessage[]> {
 
         messages.push({
           source: 'hermes',
-          agent: 'chat',
+          agent: 'default',
           type: 'assistant',
           date: new Date(timestamp),
           model: {

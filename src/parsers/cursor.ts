@@ -110,7 +110,7 @@ function parseCursorFile(path: string): UsageDataMessage[] {
 
     messages.push({
       source: 'cursor',
-      agent: 'chat',
+      agent: 'default',
       type: 'assistant',
       date: new Date(timestamp),
       model: {

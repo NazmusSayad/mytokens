@@ -100,7 +100,7 @@ function parseMuxFile(path: string): UsageDataMessage[] {
 
     messages.push({
       source: 'mux',
-      agent: 'chat',
+      agent: 'default',
       type: 'assistant',
       date: new Date(timestamp),
       model: {

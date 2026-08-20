@@ -149,7 +149,7 @@ function processOpenCodeRows(
         ? deriveAgent(agent)
         : msg.mode
           ? deriveAgentFromOpenCodeMode(msg.mode)
-          : 'chat',
+          : 'default',
       type: 'assistant',
       date: new Date(timestamp),
       model: {
@@ -212,7 +212,7 @@ function parseOpenCodeFile(path: string): UsageDataMessage | undefined {
       ? deriveAgent(agent)
       : msg.mode
         ? deriveAgentFromOpenCodeMode(msg.mode)
-        : 'chat',
+        : 'default',
     type: 'assistant',
     date: new Date(timestamp),
     model: {
@@ -278,7 +278,7 @@ function normalizeOpenCodeAgentName(agent: string): string {
 
 function deriveAgentFromOpenCodeMode(
   mode: string
-): 'plan' | 'build' | 'agent' | 'chat' | 'ask' | 'debug' {
+): 'plan' | 'build' | 'agent' | 'default' | 'ask' | 'debug' {
   switch (mode.toLowerCase()) {
     case 'plan':
       return 'plan'
@@ -287,12 +287,12 @@ function deriveAgentFromOpenCodeMode(
     case 'agent':
       return 'agent'
     case 'chat':
-      return 'chat'
+      return 'default'
     case 'ask':
       return 'ask'
     case 'debug':
       return 'debug'
     default:
-      return 'chat'
+      return 'default'
   }
 }
