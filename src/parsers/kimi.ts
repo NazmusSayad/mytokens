@@ -96,7 +96,7 @@ function parseKimiFile(path: string): UsageDataMessage[] {
 
     messages.push({
       source: 'kimi',
-      mode: 'chat',
+      agent: 'chat',
       type: 'assistant',
       date: new Date(timestamp),
       model: {

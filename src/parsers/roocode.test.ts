@@ -94,7 +94,7 @@ describe('parseRooCode', () => {
     expect(result[0].tokens.output).toBe(50)
     expect(result[0].tokens.cacheInput).toBe(20)
     expect(result[0].tokens.cacheOutput).toBe(5)
-    expect(result[0].mode).toBe('build')
+    expect(result[0].agent).toBe('build')
   })
 
   it('skips non-api_req_started entries', async () => {

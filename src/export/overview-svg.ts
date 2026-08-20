@@ -352,7 +352,7 @@ function renderRankingsSection(
   ]
   const secondRow: Cell[] = [
     { title: 'Providers', items: model.providers, unit: 'none' },
-    { title: 'Modes', items: model.modes, unit: 'none' },
+    { title: 'Agents', items: model.agents, unit: 'none' },
   ]
 
   function renderRow(cells: Cell[]) {

@@ -88,7 +88,7 @@ export async function parseGoose(): Promise<UsageDataMessage[]> {
 
         messages.push({
           source: 'goose',
-          mode: 'chat',
+          agent: 'chat',
           type: 'assistant',
           date: new Date(timestampSecsToMs(createdAtTs)),
           model: {

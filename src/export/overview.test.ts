@@ -15,7 +15,7 @@ vi.mock('@/core/price-detector.js', () => ({
 function makeMessage(partial: Partial<UsageDataMessage>): UsageDataMessage {
   return {
     source: 'opencode',
-    mode: 'chat',
+    agent: 'chat',
     type: 'assistant',
     date: new Date('2026-08-10T10:00:00'),
     model: { id: 'gpt-5', provider: 'openai' },
@@ -36,7 +36,7 @@ describe('computeOverview', () => {
     const messages = [
       makeMessage({
         source: 'opencode',
-        mode: 'build',
+        agent: 'build',
         date: new Date('2026-08-10T10:00:00'),
         model: { id: 'gpt-5', provider: 'openai' },
         tokens: {
@@ -49,7 +49,7 @@ describe('computeOverview', () => {
       }),
       makeMessage({
         source: 'codex',
-        mode: 'agent',
+        agent: 'agent',
         date: new Date('2026-08-10T12:00:00'),
         model: { id: 'claude-4', provider: 'anthropic' },
         tokens: {
@@ -62,7 +62,7 @@ describe('computeOverview', () => {
       }),
       makeMessage({
         source: 'opencode',
-        mode: 'chat',
+        agent: 'chat',
         date: new Date('2026-08-11T09:00:00'),
         model: { id: 'gpt-5', provider: 'openai' },
         tokens: {
@@ -285,7 +285,7 @@ describe('renderOverviewToSvg', () => {
         { id: 'openai', name: 'openai', value: 1800, color: '#7b44e9' },
         { id: 'anthropic', name: 'anthropic', value: 350, color: '#64a659' },
       ],
-      modes: [
+      agents: [
         { id: 'build', name: 'build', value: 1500, color: '#7b44e9' },
         { id: 'agent', name: 'agent', value: 350, color: '#64a659' },
         { id: 'chat', name: 'chat', value: 300, color: '#9ca3af' },
@@ -309,7 +309,7 @@ describe('renderOverviewToSvg', () => {
     expect(svg).toContain('Models')
     expect(svg).toContain('Sources')
     expect(svg).toContain('Providers')
-    expect(svg).toContain('Modes')
+    expect(svg).toContain('Agents')
     expect(svg).toContain('Projects')
     expect(svg).toContain('08/10')
   })
@@ -331,7 +331,7 @@ describe('renderOverviewToSvg', () => {
       models: [],
       sources: [],
       providers: [],
-      modes: [],
+      agents: [],
     }
     const svg = renderOverviewToSvg({ ...base, projects: [] })
 

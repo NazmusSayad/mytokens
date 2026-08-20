@@ -126,7 +126,7 @@ function parseCodebuffFile(path: string): UsageDataMessage[] {
 
     results.push({
       source: 'codebuff',
-      mode: 'chat',
+      agent: 'chat',
       type: 'assistant',
       date: new Date(ts),
       model: {

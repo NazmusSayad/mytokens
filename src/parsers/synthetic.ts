@@ -72,7 +72,7 @@ async function parseOctofriendSqlite(
 
       messages.push({
         source: 'synthetic',
-        mode: 'chat',
+        agent: 'chat',
         type: 'assistant',
         date: new Date(tsMs),
         model: {
@@ -116,7 +116,7 @@ async function parseOctofriendSqlite(
 
         messages.push({
           source: 'synthetic',
-          mode: 'chat',
+          agent: 'chat',
           type: 'assistant',
           date: new Date(tsMs),
           model: {

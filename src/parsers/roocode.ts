@@ -1,6 +1,6 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import {
-  deriveModeFromAgent,
+  deriveAgent,
   inferProviderFromModel,
   readFileOrNone,
   resolveHome,
@@ -110,7 +110,7 @@ function parseRooKiloFile(
 
     messages.push({
       source: sourceName,
-      mode: deriveModeFromAgent(agent),
+      agent: deriveAgent(agent),
       type: 'assistant',
       date: new Date(timestamp),
       model: {

@@ -1,9 +1,3 @@
-export type UsageDataMode =
-  'ask' | 'chat' | 'plan' | 'build' | 'agent' | 'debug' | 'unknown'
-
-export type UsageDataType =
-  'user' | 'system' | 'assistant' | 'developer' | 'tool' | 'other'
-
 export type UsageDataModel = {
   id: string
   provider: string
@@ -26,8 +20,8 @@ export type UsageDataProject = {
 
 export type UsageDataMessage = {
   source: string
-  mode: UsageDataMode
-  type: UsageDataType
+  agent: string
+  type: 'user' | 'system' | 'assistant' | 'developer' | 'tool' | 'other'
 
   date: Date
   model: UsageDataModel

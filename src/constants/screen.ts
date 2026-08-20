@@ -1,9 +1,9 @@
 import { RenderScreen } from '../render/render-screen.js'
+import { RenderAgentsByCostsScreen } from '../screens/agents-by-costs.js'
+import { RenderAgentsByTokensScreen } from '../screens/agents-by-tokens.js'
 import { RenderCostsScreen } from '../screens/costs.js'
 import { RenderModelsByCostsScreen } from '../screens/models-by-costs.js'
 import { RenderModelsByTokensScreen } from '../screens/models-by-tokens.js'
-import { RenderModesByCostsScreen } from '../screens/modes-by-costs.js'
-import { RenderModesByTokensScreen } from '../screens/modes-by-tokens.js'
 import { RenderProjectsByCostsScreen } from '../screens/projects-by-costs.js'
 import { RenderProjectsByTokensScreen } from '../screens/projects-by-tokens.js'
 import { RenderProvidersByCostsScreen } from '../screens/providers-by-costs.js'
@@ -13,7 +13,7 @@ import { RenderSourcesByTokensScreen } from '../screens/sources-by-tokens.js'
 import { RenderTokensScreen } from '../screens/tokens.js'
 
 export type AppScreenType =
-  `${'type' | 'sources' | 'modes' | 'models' | 'projects' | 'providers'}-by-${'costs' | 'tokens'}`
+  `${'type' | 'sources' | 'agents' | 'models' | 'projects' | 'providers'}-by-${'costs' | 'tokens'}`
 
 export type AppScreenInfo = {
   type: AppScreenType
@@ -30,8 +30,8 @@ export const APP_SCREENS_MAP: Record<AppScreenType, typeof RenderScreen> = {
   'projects-by-tokens': RenderProjectsByTokensScreen,
   'providers-by-costs': RenderProvidersByCostsScreen,
   'providers-by-tokens': RenderProvidersByTokensScreen,
-  'modes-by-costs': RenderModesByCostsScreen,
-  'modes-by-tokens': RenderModesByTokensScreen,
+  'agents-by-costs': RenderAgentsByCostsScreen,
+  'agents-by-tokens': RenderAgentsByTokensScreen,
   'type-by-costs': RenderCostsScreen,
   'type-by-tokens': RenderTokensScreen,
 }
@@ -86,16 +86,16 @@ export const APP_SCREENS_INFO: AppScreenInfo[] = [
       'Estimated cost grouped by the provider that served the model (e.g. openai, anthropic).',
   },
   {
-    type: 'modes-by-tokens',
-    title: 'Modes by Tokens',
+    type: 'agents-by-tokens',
+    title: 'Agents by Tokens',
     description:
-      'Token usage grouped by usage mode such as chat, build, agent or plan.',
+      'Token usage grouped by the agent that produced it such as chat, build, agent or plan.',
   },
   {
-    type: 'modes-by-costs',
-    title: 'Modes by Costs',
+    type: 'agents-by-costs',
+    title: 'Agents by Costs',
     description:
-      'Estimated cost grouped by usage mode such as chat, build, agent or plan.',
+      'Estimated cost grouped by the agent that produced it such as chat, build, agent or plan.',
   },
   {
     type: 'type-by-tokens',

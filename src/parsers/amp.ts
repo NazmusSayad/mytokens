@@ -301,7 +301,7 @@ function recordToMessage(
 ): UsageDataMessage {
   return {
     source: 'amp',
-    mode: 'chat',
+    agent: 'chat',
     type: 'assistant',
     date: new Date(record.timestamp),
     model: {

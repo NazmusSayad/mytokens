@@ -104,7 +104,7 @@ describe('parseOpenCode', () => {
         cache: { read: 200, write: 50 },
       },
       time: { created: 1700000000000.0, completed: 1700000000500.0 },
-      mode: 'build',
+      agent: 'build',
     })
 
     const db = new DatabaseSync(dbPath)
@@ -200,6 +200,6 @@ describe('parseOpenCode', () => {
 
     const result = await parseOpenCode()
     expect(result).toHaveLength(1)
-    expect(result[0].mode).toBe('chat')
+    expect(result[0].agent).toBe('chat')
   })
 })

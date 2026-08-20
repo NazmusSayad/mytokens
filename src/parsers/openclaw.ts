@@ -178,7 +178,7 @@ function parseOpenClawSession(
 
         messages.push({
           source: 'openclaw',
-          mode: 'chat',
+          agent: 'chat',
           type: 'assistant',
           date: new Date(timestamp),
           model: {

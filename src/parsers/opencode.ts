@@ -1,7 +1,7 @@
 import { UsageDataMessage } from '@/core/types.js'
 import { readSQLiteDB, sqliteAll } from '@/helpers/db.js'
 import {
-  deriveModeFromAgent,
+  deriveAgent,
   extractString,
   normalizeTokens,
   normalizeWorkspaceKey,
@@ -145,10 +145,10 @@ function processOpenCodeRows(
 
     const message: UsageDataMessage = {
       source: 'opencode',
-      mode: agent
-        ? deriveModeFromAgent(agent)
+      agent: agent
+        ? deriveAgent(agent)
         : msg.mode
-          ? deriveModeFromOpenCodeMode(msg.mode)
+          ? deriveAgentFromOpenCodeMode(msg.mode)
           : 'chat',
       type: 'assistant',
       date: new Date(timestamp),
@@ -208,10 +208,10 @@ function parseOpenCodeFile(path: string): UsageDataMessage | undefined {
 
   return {
     source: 'opencode',
-    mode: agent
-      ? deriveModeFromAgent(agent)
+    agent: agent
+      ? deriveAgent(agent)
       : msg.mode
-        ? deriveModeFromOpenCodeMode(msg.mode)
+        ? deriveAgentFromOpenCodeMode(msg.mode)
         : 'chat',
     type: 'assistant',
     date: new Date(timestamp),
@@ -272,11 +272,11 @@ function normalizeOpenCodeAgentName(agent: string): string {
     case 'planner-sisyphus':
       return 'Planner-Sisyphus'
     default:
-      return deriveModeFromAgent(cleaned)
+      return deriveAgent(cleaned)
   }
 }
 
-function deriveModeFromOpenCodeMode(
+function deriveAgentFromOpenCodeMode(
   mode: string
 ): 'plan' | 'build' | 'agent' | 'chat' | 'ask' | 'debug' {
   switch (mode.toLowerCase()) {

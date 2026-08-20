@@ -1,4 +1,4 @@
-import type { UsageDataMode, UsageDataToken } from '@/core/types.js'
+import type { UsageDataToken } from '@/core/types.js'
 import {
   createReadStream,
   existsSync,
@@ -394,7 +394,7 @@ export function subtractCachedOverlap(
   return [safeInput - cachedPortion, safeCached]
 }
 
-export function deriveModeFromAgent(agent: string | undefined): UsageDataMode {
+export function deriveAgent(agent: string | undefined): string {
   if (!agent) return 'chat'
   const lower = agent.toLowerCase()
   if (lower.includes('plan')) return 'plan'

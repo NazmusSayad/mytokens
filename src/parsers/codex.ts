@@ -1,7 +1,7 @@
 import { UsageDataMessage, UsageDataToken } from '@/core/types.js'
 import {
   canonicalProvider,
-  deriveModeFromAgent,
+  deriveAgent,
   extractI64,
   extractString,
   fileModifiedTimestampMs,
@@ -431,7 +431,7 @@ function buildCodexMessage(
   const normalizedAgent = agent ? normalizeAgentName(agent) : undefined
   return {
     source: 'codex',
-    mode: deriveModeFromAgent(normalizedAgent),
+    agent: deriveAgent(normalizedAgent),
     type: 'assistant',
     date: new Date(timestamp),
     model: {

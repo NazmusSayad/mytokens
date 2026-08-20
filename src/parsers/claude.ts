@@ -1,6 +1,6 @@
 import { UsageDataMessage, UsageDataToken } from '@/core/types.js'
 import {
-  deriveModeFromAgent,
+  deriveAgent,
   extractI64,
   extractString,
   fileModifiedTimestampMs,
@@ -251,7 +251,7 @@ function buildMessage(
   const agent = sidechainAgent ? normalizeAgentName(sidechainAgent) : undefined
   return {
     source: 'claude',
-    mode: deriveModeFromAgent(agent),
+    agent: deriveAgent(agent),
     type: 'assistant',
     date: new Date(timestamp),
     model: {
@@ -615,7 +615,7 @@ function extractClaudeHeadlessMessage(
 
   return {
     source: 'claude',
-    mode: 'chat',
+    agent: 'chat',
     type: 'assistant',
     date: new Date(timestamp),
     model: { id: model, provider: 'anthropic' },
@@ -685,7 +685,7 @@ function finalizeHeadlessState(
 
   const msg: UsageDataMessage = {
     source: 'claude',
-    mode: 'chat',
+    agent: 'chat',
     type: 'assistant',
     date: new Date(timestamp),
     model: { id: state.model, provider: 'anthropic' },

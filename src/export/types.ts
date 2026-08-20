@@ -35,8 +35,8 @@ export type ExportFilterOptions = {
   disabledProviders: string[] | null
   enabledModels: string[] | null
   disabledModels: string[] | null
-  enabledModes: string[] | null
-  disabledModes: string[] | null
+  enabledAgents: string[] | null
+  disabledAgents: string[] | null
   enabledProjects: string[] | null
   disabledProjects: string[] | null
 }

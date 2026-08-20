@@ -66,15 +66,15 @@ export function isMessageIgnored(
   }
 
   if (
-    options.enabledModes?.length &&
-    !options.enabledModes.includes(message.mode)
+    options.enabledAgents?.length &&
+    !options.enabledAgents.includes(message.agent)
   ) {
     return true
   }
 
   if (
-    options.disabledModes?.length &&
-    options.disabledModes.includes(message.mode)
+    options.disabledAgents?.length &&
+    options.disabledAgents.includes(message.agent)
   ) {
     return true
   }

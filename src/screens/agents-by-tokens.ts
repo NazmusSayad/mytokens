@@ -2,8 +2,8 @@ import { UsageDataMessage } from '@/core/types.js'
 import { RenderScreen } from '@/render/render-screen.js'
 import { RenderDataItem } from '@/render/types.js'
 
-export class RenderModesByTokensScreen extends RenderScreen {
-  protected title = 'Modes by Tokens'
+export class RenderAgentsByTokensScreen extends RenderScreen {
+  protected title = 'Agents by Tokens'
 
   protected resolveItem(
     item: UsageDataMessage,
@@ -11,8 +11,8 @@ export class RenderModesByTokensScreen extends RenderScreen {
   ) {
     if (item.tokens.input) {
       add({
-        id: item.mode,
-        name: item.mode,
+        id: item.agent,
+        name: item.agent,
         date: item.date,
         value: item.tokens.input,
       })
@@ -20,8 +20,8 @@ export class RenderModesByTokensScreen extends RenderScreen {
 
     if (item.tokens.output) {
       add({
-        id: item.mode,
-        name: item.mode,
+        id: item.agent,
+        name: item.agent,
         date: item.date,
         value: item.tokens.output,
       })
@@ -29,8 +29,8 @@ export class RenderModesByTokensScreen extends RenderScreen {
 
     if (item.tokens.reasoning) {
       add({
-        id: item.mode,
-        name: item.mode,
+        id: item.agent,
+        name: item.agent,
         date: item.date,
         value: item.tokens.reasoning,
       })
@@ -38,8 +38,8 @@ export class RenderModesByTokensScreen extends RenderScreen {
 
     if (item.tokens.cacheInput) {
       add({
-        id: item.mode,
-        name: item.mode,
+        id: item.agent,
+        name: item.agent,
         date: item.date,
         value: item.tokens.cacheInput,
       })
@@ -47,8 +47,8 @@ export class RenderModesByTokensScreen extends RenderScreen {
 
     if (item.tokens.cacheOutput) {
       add({
-        id: item.mode,
-        name: item.mode,
+        id: item.agent,
+        name: item.agent,
         date: item.date,
         value: item.tokens.cacheOutput,
       })

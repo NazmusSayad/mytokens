@@ -22,8 +22,8 @@ export type UsageFilterOptionValues = {
   last?: number
   sources?: string[]
   skipSources?: string[]
-  modes?: string[]
-  skipModes?: string[]
+  agents?: string[]
+  skipAgents?: string[]
   models?: string[]
   skipModels?: string[]
   projects?: string[] | number
@@ -71,13 +71,13 @@ export function addUsageFilterOptions<
     (val) => val.split(',')
   )
   command.option(
-    '--modes <modes>',
-    'Modes to include. example: agent,chat',
+    '--agents <agents>',
+    'Agents to include. example: agent,chat',
     (val) => val.split(',')
   )
   command.option(
-    '--skip-modes <modes>',
-    'Modes to exclude. example: edit',
+    '--skip-agents <agents>',
+    'Agents to exclude. example: edit',
     (val) => val.split(',')
   )
   command.option(
@@ -149,8 +149,8 @@ export function buildUsageFilterOptions(
     dateEnd: range.dateEnd,
     enabledSources: options.sources ?? null,
     disabledSources: options.skipSources ?? null,
-    enabledModes: options.modes ?? null,
-    disabledModes: options.skipModes ?? null,
+    enabledAgents: options.agents ?? null,
+    disabledAgents: options.skipAgents ?? null,
     enabledModels: options.models ?? null,
     disabledModels: options.skipModels ?? null,
     enabledProjects: Array.isArray(options.projects) ? options.projects : null,

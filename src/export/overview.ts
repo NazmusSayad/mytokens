@@ -45,7 +45,7 @@ export type OverviewSummary = {
   sources: OverviewRankItem[]
   providers: OverviewRankItem[]
   projects: OverviewRankItem[]
-  modes: OverviewRankItem[]
+  agents: OverviewRankItem[]
 }
 
 const COMPOSITION_COLORS = {
@@ -76,7 +76,7 @@ export async function computeOverview(
   const sourceTotals = new Map<string, number>()
   const providerTotals = new Map<string, number>()
   const projectTotals = new Map<string, number>()
-  const modeTotals = new Map<string, number>()
+  const agentTotals = new Map<string, number>()
   const modelNames = new Map<string, string>()
   const projectNames = new Map<string, string>()
   let totalCost = 0
@@ -153,7 +153,7 @@ export async function computeOverview(
       message.model.provider,
       (providerTotals.get(message.model.provider) ?? 0) + all
     )
-    modeTotals.set(message.mode, (modeTotals.get(message.mode) ?? 0) + all)
+    agentTotals.set(message.agent, (agentTotals.get(message.agent) ?? 0) + all)
 
     if (message.project?.name) {
       const name = message.project.name
@@ -171,12 +171,12 @@ export async function computeOverview(
     .sort((a, b) => (a[0] < b[0] ? -1 : 1))
     .map(([, point]) => point)
 
-  const [models, sources, providers, projects, modes] = await Promise.all([
+  const [models, sources, providers, projects, agents] = await Promise.all([
     toRankItems(modelTotals, modelNames, 7),
     toRankItems(sourceTotals, new Map(), 7),
     toRankItems(providerTotals, new Map(), 7),
     toRankItems(projectTotals, projectNames, range.projects ?? 10),
-    toRankItems(modeTotals, new Map(), 7),
+    toRankItems(agentTotals, new Map(), 7),
   ])
 
   return {
@@ -225,7 +225,7 @@ export async function computeOverview(
     sources,
     providers,
     projects,
-    modes,
+    agents,
   }
 }
 

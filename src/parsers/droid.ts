@@ -88,7 +88,7 @@ function parseDroidFile(path: string): UsageDataMessage[] {
   return [
     {
       source: 'droid',
-      mode: 'chat',
+      agent: 'chat',
       type: 'assistant',
       date: new Date(timestamp),
       model: {

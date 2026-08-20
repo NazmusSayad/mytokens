@@ -101,7 +101,7 @@ function parseUsageRow(
 
   return {
     source: 'antigravity',
-    mode: 'chat',
+    agent: 'chat',
     type: 'assistant',
     date: new Date(timestamp),
     model: {

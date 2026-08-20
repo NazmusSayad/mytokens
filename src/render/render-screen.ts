@@ -93,15 +93,15 @@ export class RenderScreen {
     }
 
     if (
-      this.options.enabledModes?.length &&
-      !this.options.enabledModes.includes(message.mode)
+      this.options.enabledAgents?.length &&
+      !this.options.enabledAgents.includes(message.agent)
     ) {
       return true
     }
 
     if (
-      this.options.disabledModes?.length &&
-      this.options.disabledModes.includes(message.mode)
+      this.options.disabledAgents?.length &&
+      this.options.disabledAgents.includes(message.agent)
     ) {
       return true
     }

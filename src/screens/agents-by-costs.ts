@@ -6,10 +6,10 @@ import { UsageDataMessage } from '@/core/types.js'
 import { RenderScreen } from '@/render/render-screen.js'
 import { RenderDataItem, RenderValueUnit } from '@/render/types.js'
 
-export class RenderModesByCostsScreen extends RenderScreen {
+export class RenderAgentsByCostsScreen extends RenderScreen {
   private priceDetector = null as unknown as PriceDetector
 
-  protected title = 'Modes by Costs'
+  protected title = 'Agents by Costs'
   protected valueUnit: RenderValueUnit = 'dollar'
 
   protected async init() {
@@ -24,8 +24,8 @@ export class RenderModesByCostsScreen extends RenderScreen {
       const cost = this.priceDetector.getInputPrice(item.model)
       if (cost) {
         add({
-          id: item.mode,
-          name: item.mode,
+          id: item.agent,
+          name: item.agent,
           date: item.date,
           value: cost * item.tokens.input,
         })
@@ -36,8 +36,8 @@ export class RenderModesByCostsScreen extends RenderScreen {
       const cost = this.priceDetector.getOutputPrice(item.model)
       if (cost) {
         add({
-          id: item.mode,
-          name: item.mode,
+          id: item.agent,
+          name: item.agent,
           date: item.date,
           value: cost * item.tokens.output,
         })
@@ -48,8 +48,8 @@ export class RenderModesByCostsScreen extends RenderScreen {
       const cost = this.priceDetector.getOutputPrice(item.model)
       if (cost) {
         add({
-          id: item.mode,
-          name: item.mode,
+          id: item.agent,
+          name: item.agent,
           date: item.date,
           value: cost * item.tokens.reasoning,
         })
@@ -60,8 +60,8 @@ export class RenderModesByCostsScreen extends RenderScreen {
       const cost = this.priceDetector.getCacheInputPrice(item.model)
       if (cost) {
         add({
-          id: item.mode,
-          name: item.mode,
+          id: item.agent,
+          name: item.agent,
           date: item.date,
           value: cost * item.tokens.cacheInput,
         })
@@ -72,8 +72,8 @@ export class RenderModesByCostsScreen extends RenderScreen {
       const cost = this.priceDetector.getCacheOutputPrice(item.model)
       if (cost) {
         add({
-          id: item.mode,
-          name: item.mode,
+          id: item.agent,
+          name: item.agent,
           date: item.date,
           value: cost * item.tokens.cacheOutput,
         })
