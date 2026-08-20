@@ -344,6 +344,11 @@ export function fileModifiedTimestampMs(path: string): number {
   }
 }
 
+export function filePredatesRange(path: string, range?: DateRange): boolean {
+  if (!range?.from) return false
+  return fileModifiedTimestampMs(path) < range.from.getTime()
+}
+
 export function scanDirectory(root: string, pattern: string): string[] {
   if (!existsSync(root)) return []
   const result: string[] = []

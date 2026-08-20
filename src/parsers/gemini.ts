@@ -4,6 +4,7 @@ import {
   extractI64,
   extractString,
   fileModifiedTimestampMs,
+  filePredatesRange,
   filterMessagesByDateRange,
   normalizeTokens,
   parseTimestampValue,
@@ -60,6 +61,7 @@ export async function parseGemini(
   const results: UsageDataMessage[] = []
 
   for (const path of files) {
+    if (filePredatesRange(path, range)) continue
     const messages = parseGeminiFile(path)
     results.push(...messages)
   }

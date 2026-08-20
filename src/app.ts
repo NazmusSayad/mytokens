@@ -1,4 +1,5 @@
 import { APP_SCREENS_MAP, AppScreenType } from './constants/screen.js'
+import { flushFileMessagesCache } from './helpers/parse-cache.js'
 import { DateRange } from './helpers/parser.js'
 import { parseAmp } from './parsers/amp.js'
 import { parseAntigravity } from './parsers/antigravity.js'
@@ -57,6 +58,8 @@ export async function runApp(
       parseSynthetic(range),
     ])
   ).flat()
+
+  flushFileMessagesCache()
 
   const ScreenConstructor = APP_SCREENS_MAP[options.screen]
   if (!ScreenConstructor) {

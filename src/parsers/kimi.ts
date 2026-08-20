@@ -2,6 +2,7 @@ import type { UsageDataMessage } from '@/core/types.js'
 import {
   DateRange,
   fileModifiedTimestampMs,
+  filePredatesRange,
   filterMessagesByDateRange,
   readFileOrNone,
   resolveHome,
@@ -47,6 +48,7 @@ export async function parseKimi(
 
   for (const path of files) {
     if (basename(path) !== 'wire.jsonl') continue
+    if (filePredatesRange(path, range)) continue
     const messages = parseKimiFile(path)
     results.push(...messages)
   }

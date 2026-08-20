@@ -2,6 +2,7 @@ import type { UsageDataMessage } from '@/core/types.js'
 import {
   DateRange,
   fileModifiedTimestampMs,
+  filePredatesRange,
   filterMessagesByDateRange,
   inferProviderFromModel,
   readFileOrNone,
@@ -79,6 +80,7 @@ export async function parseAmp(range?: DateRange): Promise<UsageDataMessage[]> {
 
   for (const path of files) {
     if (!basename(path).startsWith('T-')) continue
+    if (filePredatesRange(path, range)) continue
     const messages = parseAmpFile(path)
     results.push(...messages)
   }

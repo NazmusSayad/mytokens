@@ -1,10 +1,12 @@
 import { UsageDataMessage, UsageDataToken } from '@/core/types.js'
+import { cachedFileMessages } from '@/helpers/parse-cache.js'
 import {
   DateRange,
   deriveAgent,
   extractI64,
   extractString,
   fileModifiedTimestampMs,
+  filePredatesRange,
   filterMessagesByDateRange,
   normalizeAgentName,
   normalizeTokens,
@@ -52,7 +54,9 @@ export async function parseClaude(
     resolveHome('~/.config/claude/usage.jsonl'),
   ]
   for (const path of fixedPaths) {
-    const messages = parseClaudeFile(path, parentCache)
+    const messages = cachedFileMessages(path, () =>
+      parseClaudeFile(path, parentCache)
+    )
     results.push(...messages)
   }
 
@@ -60,7 +64,10 @@ export async function parseClaude(
   const projectRoot = resolveHome('~/.claude/projects')
   const projectFiles = scanDirectory(projectRoot, '*.jsonl')
   for (const path of projectFiles) {
-    const messages = parseClaudeFile(path, parentCache)
+    if (filePredatesRange(path, range)) continue
+    const messages = cachedFileMessages(path, () =>
+      parseClaudeFile(path, parentCache)
+    )
     results.push(...messages)
   }
 
@@ -90,10 +97,12 @@ function parseClaudeFile(
     if (jsonMessages.length > 0) return jsonMessages
   }
 
-  const lines = readJsonlSync(path)
+  const data = readFileOrNone(path)
+  if (!data) return []
+  const rawLines = data.toString('utf-8').split(/\r?\n/)
 
   // Try to extract real project path from cwd in file entries
-  const [cwdKey, cwdLabel] = extractClaudeProjectFromLines(lines)
+  const [cwdKey, cwdLabel] = extractClaudeProjectFromRawLines(rawLines)
   const workspaceKey = cwdKey || workspaceKeyFromPath
   const workspaceLabel = cwdLabel || workspaceLabelFromPath
 
@@ -103,9 +112,18 @@ function parseClaudeFile(
   let sidechainAgent: string | undefined
   let sidechainDetected = false
 
-  for (const raw of lines) {
-    if (!raw || typeof raw !== 'object') continue
-    const entry = raw as Record<string, unknown>
+  for (const line of rawLines) {
+    const trimmedLine = line.trim()
+    if (!trimmedLine) continue
+
+    let entry: Record<string, unknown>
+    try {
+      const parsed: unknown = JSON.parse(trimmedLine)
+      if (!parsed || typeof parsed !== 'object') continue
+      entry = parsed as Record<string, unknown>
+    } catch {
+      continue
+    }
 
     // Detect sidechain on first parseable entry
     if (!sidechainDetected) {
@@ -126,7 +144,7 @@ function parseClaudeFile(
     const entryType = String(entry.type || '')
 
     if (entryType === 'user') {
-      if (isHumanTurn(JSON.stringify(entry))) {
+      if (isHumanTurn(trimmedLine)) {
         // human turn detected
       }
       continue
@@ -170,7 +188,7 @@ function parseClaudeFile(
 
     // Headless fallback for unhandled lines
     const headless = processClaudeHeadlessLine(
-      JSON.stringify(entry),
+      trimmedLine,
       sessionId,
       headlessState,
       fallbackTimestamp
@@ -285,12 +303,19 @@ function claudeWorkspaceFromPath(
   return [undefined, undefined]
 }
 
-function extractClaudeProjectFromLines(
-  lines: unknown[]
+function extractClaudeProjectFromRawLines(
+  rawLines: string[]
 ): [string | undefined, string | undefined] {
-  for (const raw of lines) {
-    if (!raw || typeof raw !== 'object') continue
-    const entry = raw as Record<string, unknown>
+  for (const line of rawLines) {
+    if (!line.includes('"cwd"')) continue
+    let entry: Record<string, unknown>
+    try {
+      const parsed: unknown = JSON.parse(line.trim())
+      if (!parsed || typeof parsed !== 'object') continue
+      entry = parsed as Record<string, unknown>
+    } catch {
+      continue
+    }
     const cwd = extractString(entry.cwd)
     if (cwd) {
       const key = normalizeWorkspaceKey(cwd)

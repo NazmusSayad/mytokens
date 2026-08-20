@@ -2,6 +2,7 @@ import type { UsageDataMessage } from '@/core/types.js'
 import {
   DateRange,
   deriveAgent,
+  filePredatesRange,
   filterMessagesByDateRange,
   inferProviderFromModel,
   readFileOrNone,
@@ -48,6 +49,7 @@ export async function parseRooCode(
     const files = scanDirectory(root, '*.json')
     for (const path of files) {
       if (basename(path) !== 'ui_messages.json') continue
+      if (filePredatesRange(path, range)) continue
       const messages = parseRooKiloFile(path, 'roocode')
       results.push(...messages)
     }
@@ -72,6 +74,7 @@ export async function parseKiloCode(
     const files = scanDirectory(root, '*.json')
     for (const path of files) {
       if (basename(path) !== 'ui_messages.json') continue
+      if (filePredatesRange(path, range)) continue
       const messages = parseRooKiloFile(path, 'kilocode')
       results.push(...messages)
     }

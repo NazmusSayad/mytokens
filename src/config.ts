@@ -10,3 +10,7 @@ export const MYTOKENS_CACHE_REGISTRY_PATH = path.join(
   MYTOKENS_CACHE_PATH,
   'registry.json'
 )
+export const MYTOKENS_PARSE_CACHE_PATH = path.join(
+  MYTOKENS_CACHE_PATH,
+  'parse-cache-v1.json'
+)

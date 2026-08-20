@@ -1,4 +1,5 @@
 import { UsageDataMessage, UsageDataToken } from '@/core/types.js'
+import { cachedFileMessages } from '@/helpers/parse-cache.js'
 import {
   canonicalProvider,
   DateRange,
@@ -6,13 +7,14 @@ import {
   extractI64,
   extractString,
   fileModifiedTimestampMs,
+  filePredatesRange,
   filterMessagesByDateRange,
   inferProviderFromModel,
   normalizeAgentName,
   normalizeTokens,
   normalizeWorkspaceKey,
   parseTimestampValue,
-  readJsonlSync,
+  readFileOrNone,
   resolveHome,
   scanDirectory,
   workspaceLabelFromKey,
@@ -72,12 +74,17 @@ export async function parseCodex(
   const results: UsageDataMessage[] = []
 
   const fixedPath = resolveHome('~/.codex/usage.jsonl')
-  results.push(...parseCodexFile(fixedPath))
+  if (!filePredatesRange(fixedPath, range)) {
+    results.push(
+      ...cachedFileMessages(fixedPath, () => parseCodexFile(fixedPath))
+    )
+  }
 
   const sessionsRoot = resolveHome('~/.codex/sessions')
   const sessionFiles = scanDirectory(sessionsRoot, '*.jsonl')
   for (const path of sessionFiles) {
-    results.push(...parseCodexFile(path))
+    if (filePredatesRange(path, range)) continue
+    results.push(...cachedFileMessages(path, () => parseCodexFile(path)))
   }
 
   return filterMessagesByDateRange(results, range)
@@ -87,7 +94,9 @@ export async function parseCodex(
 
 function parseCodexFile(path: string): UsageDataMessage[] {
   const fallbackTimestamp = fileModifiedTimestampMs(path)
-  const lines = readJsonlSync(path)
+  const data = readFileOrNone(path)
+  if (!data) return []
+  const rawLines = data.toString('utf-8').split(/\r?\n/)
   const state = createCodexParseState()
   const messages: UsageDataMessage[] = []
   const pendingModelMessages: Array<{
@@ -95,9 +104,18 @@ function parseCodexFile(path: string): UsageDataMessage[] {
     usedFallbackTimestamp: boolean
   }> = []
 
-  for (const raw of lines) {
-    if (!raw || typeof raw !== 'object') continue
-    const entry = raw as Record<string, unknown>
+  for (const line of rawLines) {
+    const trimmedLine = line.trim()
+    if (!trimmedLine) continue
+
+    let entry: Record<string, unknown>
+    try {
+      const parsed: unknown = JSON.parse(trimmedLine)
+      if (!parsed || typeof parsed !== 'object') continue
+      entry = parsed as Record<string, unknown>
+    } catch {
+      continue
+    }
     const entryType = String(entry.type || '')
 
     let handled = false
@@ -212,7 +230,7 @@ function parseCodexFile(path: string): UsageDataMessage[] {
     if (handled) continue
 
     // Headless fallback
-    const headless = parseCodexHeadlessLine(JSON.stringify(entry), state)
+    const headless = parseCodexHeadlessLine(trimmedLine, state)
     if (headless) {
       headless.message.project = state.sessionWorkspaceKey
         ? {

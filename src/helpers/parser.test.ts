@@ -1,6 +1,9 @@
 import type { UsageDataMessage } from '@/core/types.js'
+import { mkdtempSync, utimesSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { filterMessagesByDateRange } from './parser.js'
+import { filePredatesRange, filterMessagesByDateRange } from './parser.js'
 
 function messageAt(timestamp: number): UsageDataMessage {
   return {
@@ -70,5 +73,45 @@ describe('filterMessagesByDateRange', () => {
       to: new Date(jan1 + 20 * day),
     })
     expect(result).toEqual([])
+  })
+})
+
+describe('filePredatesRange', () => {
+  function createFileWithMtime(mtime: Date): string {
+    const dir = mkdtempSync(join(tmpdir(), 'range-'))
+    const path = join(dir, 'log.jsonl')
+    writeFileSync(path, '{}')
+    utimesSync(path, mtime, mtime)
+    return path
+  }
+
+  it('returns false when no range is given', () => {
+    const path = createFileWithMtime(new Date(0))
+    expect(filePredatesRange(path)).toBe(false)
+  })
+
+  it('returns false when range has no from bound', () => {
+    const path = createFileWithMtime(new Date(0))
+    expect(filePredatesRange(path, { from: null, to: null })).toBe(false)
+  })
+
+  it('returns true when file mtime is before the from bound', () => {
+    const path = createFileWithMtime(new Date('2024-01-01T00:00:00Z'))
+    expect(
+      filePredatesRange(path, {
+        from: new Date('2024-06-01T00:00:00Z'),
+        to: null,
+      })
+    ).toBe(true)
+  })
+
+  it('returns false when file mtime is after the from bound', () => {
+    const path = createFileWithMtime(new Date('2024-06-15T00:00:00Z'))
+    expect(
+      filePredatesRange(path, {
+        from: new Date('2024-06-01T00:00:00Z'),
+        to: null,
+      })
+    ).toBe(false)
   })
 })

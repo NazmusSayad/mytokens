@@ -2,6 +2,7 @@ import type { UsageDataMessage } from '@/core/types.js'
 import {
   DateRange,
   fileModifiedTimestampMs,
+  filePredatesRange,
   filterMessagesByDateRange,
   readFileOrNone,
   resolveHome,
@@ -45,6 +46,7 @@ export async function parseMux(range?: DateRange): Promise<UsageDataMessage[]> {
 
   for (const path of files) {
     if (basename(path) !== 'session-usage.json') continue
+    if (filePredatesRange(path, range)) continue
     const messages = parseMuxFile(path)
     results.push(...messages)
   }

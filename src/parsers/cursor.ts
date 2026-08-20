@@ -1,6 +1,7 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import {
   DateRange,
+  filePredatesRange,
   filterMessagesByDateRange,
   inferProviderFromModel,
   readFileOrNone,
@@ -19,6 +20,7 @@ export async function parseCursor(
   const files = scanDirectory(root, '*.csv')
 
   for (const path of files) {
+    if (filePredatesRange(path, range)) continue
     const messages = parseCursorFile(path)
     results.push(...messages)
   }

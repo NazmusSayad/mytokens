@@ -2,6 +2,7 @@ import type { UsageDataMessage } from '@/core/types.js'
 import {
   DateRange,
   fileModifiedTimestampMs,
+  filePredatesRange,
   filterMessagesByDateRange,
   inferProviderFromModel,
   readFileOrNone,
@@ -38,6 +39,7 @@ export async function parseDroid(
 
   for (const path of files) {
     if (!path.endsWith('.settings.json')) continue
+    if (filePredatesRange(path, range)) continue
     const messages = parseDroidFile(path)
     results.push(...messages)
   }

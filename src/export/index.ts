@@ -1,5 +1,6 @@
 import { UsageDataMessage } from '@/core/types.js'
 import { writeFileForced } from '@/helpers/fs.js'
+import { flushFileMessagesCache } from '@/helpers/parse-cache.js'
 import { DateRange } from '@/helpers/parser.js'
 import { parseAmp } from '@/parsers/amp.js'
 import { parseAntigravity } from '@/parsers/antigravity.js'
@@ -81,6 +82,7 @@ export async function buildOverviewSvg(
     from: options.dateStart ?? null,
     to: options.dateEnd ?? null,
   })
+  flushFileMessagesCache()
   const messages = filterMessages(data, options)
   const overview = await computeOverview(messages, {
     dateStart: options.dateStart,

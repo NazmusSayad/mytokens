@@ -1,6 +1,7 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import {
   DateRange,
+  filePredatesRange,
   filterMessagesByDateRange,
   inferProviderFromModel,
   readJsonlSync,
@@ -43,6 +44,7 @@ export async function parseAntigravity(
   for (const root of paths) {
     const files = scanDirectory(root, '*.jsonl')
     for (const path of files) {
+      if (filePredatesRange(path, range)) continue
       const messages = parseAntigravityFile(path)
       results.push(...messages)
     }

@@ -2,6 +2,7 @@ import type { UsageDataMessage } from '@/core/types.js'
 import {
   DateRange,
   fileModifiedTimestampMs,
+  filePredatesRange,
   filterMessagesByDateRange,
   readFileOrNone,
   resolveHome,
@@ -49,6 +50,7 @@ export async function parsePi(range?: DateRange): Promise<UsageDataMessage[]> {
   const files = scanDirectory(root, '*.jsonl')
 
   for (const path of files) {
+    if (filePredatesRange(path, range)) continue
     const messages = parsePiFile(path)
     results.push(...messages)
   }

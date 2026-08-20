@@ -2,6 +2,7 @@ import type { UsageDataMessage } from '@/core/types.js'
 import {
   DateRange,
   fileModifiedTimestampMs,
+  filePredatesRange,
   filterMessagesByDateRange,
   readFileOrNone,
   resolveHome,
@@ -71,6 +72,7 @@ export async function parseOpenClaw(
 
   const jsonlFiles = scanDirectory(root, '*.jsonl')
   for (const path of jsonlFiles) {
+    if (filePredatesRange(path, range)) continue
     const messages = parseOpenClawTranscript(path)
     results.push(...messages)
   }

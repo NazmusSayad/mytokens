@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, utimesSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -111,5 +111,42 @@ describe('parseMux', () => {
     expect(result).toHaveLength(1)
     expect(result[0].model.id).toBe('gpt-4o')
     expect(result[0].model.provider).toBe('')
+  })
+
+  it('skips files whose mtime predates the range start', async () => {
+    const dir = join(tempHome, '.mux', 'sessions')
+    mkdirSync(dir, { recursive: true })
+    const path = join(dir, 'session-usage.json')
+    writeFileSync(
+      path,
+      JSON.stringify({
+        byModel: { 'openai:gpt-4o': { input: { tokens: 100 } } },
+      })
+    )
+    const old = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+    utimesSync(path, old, old)
+
+    const result = await parseMux({
+      from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      to: null,
+    })
+    expect(result).toEqual([])
+  })
+
+  it('keeps files modified after the range start', async () => {
+    const dir = join(tempHome, '.mux', 'sessions')
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(
+      join(dir, 'session-usage.json'),
+      JSON.stringify({
+        byModel: { 'openai:gpt-4o': { input: { tokens: 100 } } },
+      })
+    )
+
+    const result = await parseMux({
+      from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      to: null,
+    })
+    expect(result).toHaveLength(1)
   })
 })

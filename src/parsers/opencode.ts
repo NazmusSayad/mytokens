@@ -1,6 +1,10 @@
 import { UsageDataMessage } from '@/core/types.js'
 import { readSQLiteDB, sqliteAll } from '@/helpers/db.js'
 import {
+  getCachedFileMessages,
+  storeFileMessages,
+} from '@/helpers/parse-cache.js'
+import {
   DateRange,
   deriveAgent,
   extractString,
@@ -47,7 +51,7 @@ export async function parseOpenCode(
   range?: DateRange
 ): Promise<UsageDataMessage[]> {
   const dbPath = resolveHome('~/.local/share/opencode/opencode.db')
-  const messages = await parseOpenCodeSqlite(dbPath)
+  const messages = await parseOpenCodeSqlite(dbPath, range)
   if (messages.length > 0) return filterMessagesByDateRange(messages, range)
 
   // Legacy JSON fallback
@@ -64,8 +68,14 @@ export async function parseOpenCode(
 // ─── SQLite parser ───────────────────────────────────────────────────────────
 
 async function parseOpenCodeSqlite(
-  dbPath: string
+  dbPath: string,
+  range?: DateRange
 ): Promise<UsageDataMessage[]> {
+  const cached = getCachedFileMessages(dbPath)
+  if (cached) {
+    return filterMessagesByDateRange(cached, range)
+  }
+
   const db = await readSQLiteDB(dbPath)
   if (!db) return []
 
@@ -75,7 +85,6 @@ async function parseOpenCodeSqlite(
     LEFT JOIN session s ON s.id = m.session_id
     WHERE json_extract(m.data, '$.role') = 'assistant'
       AND json_extract(m.data, '$.tokens') IS NOT NULL
-    ORDER BY m.id, m.session_id
   `
 
   const legacyQuery = `
@@ -83,7 +92,6 @@ async function parseOpenCodeSqlite(
     FROM message m
     WHERE json_extract(m.data, '$.role') = 'assistant'
       AND json_extract(m.data, '$.tokens') IS NOT NULL
-    ORDER BY m.id, m.session_id
   `
 
   let rows: Record<string, unknown>[]
@@ -99,7 +107,9 @@ async function parseOpenCodeSqlite(
   }
 
   db.close()
-  return processOpenCodeRows(rows)
+  const messages = processOpenCodeRows(rows)
+  storeFileMessages(dbPath, messages)
+  return filterMessagesByDateRange(messages, range)
 }
 
 function processOpenCodeRows(

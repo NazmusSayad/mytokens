@@ -2,6 +2,7 @@ import type { UsageDataMessage } from '@/core/types.js'
 import {
   DateRange,
   fileModifiedTimestampMs,
+  filePredatesRange,
   filterMessagesByDateRange,
   inferProviderFromModel,
   parseTimestampValue,
@@ -84,6 +85,7 @@ export async function parseCodebuff(
     const files = scanDirectory(root, '*.json')
     for (const path of files) {
       if (basename(path) !== 'chat-messages.json') continue
+      if (filePredatesRange(path, range)) continue
       const messages = parseCodebuffFile(path)
       results.push(...messages)
     }

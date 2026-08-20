@@ -2,6 +2,7 @@ import type { UsageDataMessage } from '@/core/types.js'
 import {
   DateRange,
   fileModifiedTimestampMs,
+  filePredatesRange,
   filterMessagesByDateRange,
   normalizeWorkspaceKey,
   readFileOrNone,
@@ -38,6 +39,7 @@ export async function parseQwen(
   const files = scanDirectory(root, '*.jsonl')
 
   for (const path of files) {
+    if (filePredatesRange(path, range)) continue
     const messages = parseQwenFile(path)
     results.push(...messages)
   }
