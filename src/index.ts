@@ -20,6 +20,8 @@ type DashboardCommandOptions = UsageFilterOptionValues & {
   week?: boolean
   month?: boolean
   year?: boolean
+  screen?: string | boolean
+  display?: string | boolean
 }
 
 const program = new Command('mytokens')
@@ -27,6 +29,14 @@ const program = new Command('mytokens')
   .argument(
     '[screen]',
     `Screen to display. Available screens: ${Object.keys(APP_SCREENS_MAP).join(', ')}`
+  )
+  .option(
+    '-s, --screen [screen]',
+    `Screen to display. Available screens: ${Object.keys(APP_SCREENS_MAP).join(', ')}. example: --screen models`
+  )
+  .option(
+    '-d, --display [display]',
+    `Alias for --screen. example: --display models`
   )
   .option(
     '--by <by>',
@@ -43,17 +53,38 @@ program.enablePositionalOptions()
 program.action(async (screen, options: DashboardCommandOptions) => {
   let parsedScreen: AppScreenType | null = null
 
-  if (screen) {
-    parsedScreen = parseScreenArg(screen)
+  if (
+    screen &&
+    (options.screen !== undefined || options.display !== undefined)
+  ) {
+    console.error(
+      chalk.red(
+        `Cannot use the ${chalk.bold('[screen]')} argument together with ${chalk.bold('--screen')}/${chalk.bold('--display')}`
+      )
+    )
+    process.exit(1)
+  }
+
+  const screenInput =
+    typeof options.screen === 'string'
+      ? options.screen
+      : typeof options.display === 'string'
+        ? options.display
+        : screen
+
+  if (screenInput) {
+    parsedScreen = parseScreenArg(screenInput)
 
     if (!parsedScreen) {
-      console.error(chalk.red(`Invalid screen argument: ${chalk.bold(screen)}`))
+      console.error(
+        chalk.red(`Invalid screen argument: ${chalk.bold(screenInput)}`)
+      )
       console.log(
         `Available screens: ${Object.keys(APP_SCREENS_MAP).join(', ')}`
       )
       process.exit(1)
     }
-  } else {
+  } else if (options.screen === true || options.display === true) {
     try {
       parsedScreen = await pickScreen()
     } catch (err) {
@@ -62,6 +93,8 @@ program.action(async (screen, options: DashboardCommandOptions) => {
       }
       throw err
     }
+  } else {
+    parsedScreen = 'models-by-tokens'
   }
 
   let showBy: string
