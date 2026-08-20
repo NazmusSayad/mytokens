@@ -6,6 +6,7 @@ import { parseAntigravity } from './antigravity.js'
 
 let originalUserProfile: string | undefined
 let originalHome: string | undefined
+let originalTokscaleConfigDir: string | undefined
 let tempHome: string
 
 function setupTempHome(): string {
@@ -37,6 +38,12 @@ describe('parseAntigravity', () => {
 
   afterEach(() => {
     restoreHome()
+    if (originalTokscaleConfigDir !== undefined) {
+      process.env.TOKSCALE_CONFIG_DIR = originalTokscaleConfigDir
+    } else {
+      delete process.env.TOKSCALE_CONFIG_DIR
+    }
+    originalTokscaleConfigDir = undefined
   })
 
   it('returns empty array when no files exist', async () => {
@@ -45,7 +52,13 @@ describe('parseAntigravity', () => {
   })
 
   it('parses session_meta + usage rows', async () => {
-    const dir = join(tempHome, '.config', 'antigravity-cache', 'sessions')
+    const dir = join(
+      tempHome,
+      '.config',
+      'tokscale',
+      'antigravity-cache',
+      'sessions'
+    )
     mkdirSync(dir, { recursive: true })
     const lines = [
       JSON.stringify({ type: 'session_meta', modelId: 'gpt-4o' }),
@@ -74,7 +87,13 @@ describe('parseAntigravity', () => {
   })
 
   it('skips zero-token usage rows', async () => {
-    const dir = join(tempHome, '.config', 'antigravity-cache', 'sessions')
+    const dir = join(
+      tempHome,
+      '.config',
+      'tokscale',
+      'antigravity-cache',
+      'sessions'
+    )
     mkdirSync(dir, { recursive: true })
     const lines = [
       JSON.stringify({ type: 'session_meta', modelId: 'gpt-4o' }),
@@ -93,7 +112,13 @@ describe('parseAntigravity', () => {
   })
 
   it('falls back to entry modelId over session meta', async () => {
-    const dir = join(tempHome, '.config', 'antigravity-cache', 'sessions')
+    const dir = join(
+      tempHome,
+      '.config',
+      'tokscale',
+      'antigravity-cache',
+      'sessions'
+    )
     mkdirSync(dir, { recursive: true })
     const lines = [
       JSON.stringify({ type: 'session_meta', modelId: 'gpt-4o' }),
@@ -112,5 +137,29 @@ describe('parseAntigravity', () => {
     expect(result).toHaveLength(1)
     expect(result[0].model.id).toBe('claude-sonnet-4')
     expect(result[0].model.provider).toBe('anthropic')
+  })
+
+  it('reads from TOKSCALE_CONFIG_DIR when set', async () => {
+    const customDir = mkdtempSync(join(tmpdir(), 'tokscale-config-'))
+    originalTokscaleConfigDir = process.env.TOKSCALE_CONFIG_DIR
+    process.env.TOKSCALE_CONFIG_DIR = customDir
+
+    const dir = join(customDir, 'antigravity-cache', 'sessions')
+    mkdirSync(dir, { recursive: true })
+    const lines = [
+      JSON.stringify({ type: 'session_meta', modelId: 'gpt-4o' }),
+      JSON.stringify({
+        type: 'usage',
+        sessionId: 'ses-1',
+        timestamp: 1700000000000,
+        input: 7,
+        output: 3,
+      }),
+    ]
+    writeFileSync(join(dir, 'session.jsonl'), lines.join('\n'))
+
+    const result = await parseAntigravity()
+    expect(result).toHaveLength(1)
+    expect(result[0].tokens.input).toBe(7)
   })
 })

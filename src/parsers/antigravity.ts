@@ -27,7 +27,11 @@ interface AntigravityEntry {
 export async function parseAntigravity(): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
 
+  const configDir = process.env.TOKSCALE_CONFIG_DIR
   const paths = [
+    configDir
+      ? resolveHome(`${configDir}/antigravity-cache/sessions`)
+      : resolveHome('~/.config/tokscale/antigravity-cache/sessions'),
     resolveHome('~/.config/antigravity-cache/sessions'),
     resolveHome('~/Library/Application Support/antigravity-cache/sessions'),
   ]
