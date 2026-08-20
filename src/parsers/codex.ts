@@ -1,10 +1,12 @@
 import { UsageDataMessage, UsageDataToken } from '@/core/types.js'
 import {
   canonicalProvider,
+  DateRange,
   deriveAgent,
   extractI64,
   extractString,
   fileModifiedTimestampMs,
+  filterMessagesByDateRange,
   inferProviderFromModel,
   normalizeAgentName,
   normalizeTokens,
@@ -64,7 +66,9 @@ interface CodexParseState {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseCodex(): Promise<UsageDataMessage[]> {
+export async function parseCodex(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
 
   const fixedPath = resolveHome('~/.codex/usage.jsonl')
@@ -76,7 +80,7 @@ export async function parseCodex(): Promise<UsageDataMessage[]> {
     results.push(...parseCodexFile(path))
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── File-level parser ───────────────────────────────────────────────────────

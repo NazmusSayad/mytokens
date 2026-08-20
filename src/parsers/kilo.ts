@@ -1,7 +1,9 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import { readSQLiteDB, sqliteAll } from '@/helpers/db.js'
 import {
+  DateRange,
   fileModifiedTimestampMs,
+  filterMessagesByDateRange,
   inferProviderFromModel,
   resolveHome,
 } from '@/helpers/parser.js'
@@ -40,7 +42,9 @@ interface KiloTime {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseKilo(): Promise<UsageDataMessage[]> {
+export async function parseKilo(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const dbPath = resolveHome('~/.local/share/kilo/kilo.db')
   const db = await readSQLiteDB(dbPath)
   if (!db) return []
@@ -98,7 +102,7 @@ export async function parseKilo(): Promise<UsageDataMessage[]> {
     }
 
     db.close()
-    return messages
+    return filterMessagesByDateRange(messages, range)
   } catch {
     db.close()
     return []

@@ -1,6 +1,8 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import {
+  DateRange,
   fileModifiedTimestampMs,
+  filterMessagesByDateRange,
   readFileOrNone,
   resolveHome,
   scanDirectory,
@@ -35,7 +37,9 @@ interface TokenUsage {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseKimi(): Promise<UsageDataMessage[]> {
+export async function parseKimi(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
 
   const root = resolveHome('~/.kimi/sessions')
@@ -47,7 +51,7 @@ export async function parseKimi(): Promise<UsageDataMessage[]> {
     results.push(...messages)
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── Internal ────────────────────────────────────────────────────────────────

@@ -1,8 +1,10 @@
 import { UsageDataMessage } from '@/core/types.js'
 import { readSQLiteDB, sqliteAll } from '@/helpers/db.js'
 import {
+  DateRange,
   deriveAgent,
   extractString,
+  filterMessagesByDateRange,
   normalizeTokens,
   normalizeWorkspaceKey,
   readFileOrNone,
@@ -41,10 +43,12 @@ interface OpenCodeTime {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseOpenCode(): Promise<UsageDataMessage[]> {
+export async function parseOpenCode(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const dbPath = resolveHome('~/.local/share/opencode/opencode.db')
   const messages = await parseOpenCodeSqlite(dbPath)
-  if (messages.length > 0) return messages
+  if (messages.length > 0) return filterMessagesByDateRange(messages, range)
 
   // Legacy JSON fallback
   const legacyDir = resolveHome('~/.local/share/opencode/storage/message')
@@ -54,7 +58,7 @@ export async function parseOpenCode(): Promise<UsageDataMessage[]> {
     const msg = parseOpenCodeFile(path)
     if (msg) results.push(msg)
   }
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── SQLite parser ───────────────────────────────────────────────────────────

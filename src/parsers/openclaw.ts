@@ -1,6 +1,8 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import {
+  DateRange,
   fileModifiedTimestampMs,
+  filterMessagesByDateRange,
   readFileOrNone,
   resolveHome,
   scanDirectory,
@@ -52,7 +54,9 @@ interface OpenClawUsage {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseOpenClaw(): Promise<UsageDataMessage[]> {
+export async function parseOpenClaw(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
 
   const root = resolveHome('~/.openclaw/agents')
@@ -71,7 +75,7 @@ export async function parseOpenClaw(): Promise<UsageDataMessage[]> {
     results.push(...messages)
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── Internal ────────────────────────────────────────────────────────────────

@@ -296,19 +296,22 @@ export function resolveBy(options: {
   return options.by ?? 'day'
 }
 
-export function resolveDateRange(options: {
-  from?: string
-  to?: string
-  today?: boolean
-  yesterday?: boolean
-  lastWeek?: boolean
-  lastMonth?: boolean
-  lastYear?: boolean
-  thisWeek?: boolean
-  thisMonth?: boolean
-  thisYear?: boolean
-  last?: number
-}): { dateStart: Date | null; dateEnd: Date | null } {
+export function resolveDateRange(
+  options: {
+    from?: string
+    to?: string
+    today?: boolean
+    yesterday?: boolean
+    lastWeek?: boolean
+    lastMonth?: boolean
+    lastYear?: boolean
+    thisWeek?: boolean
+    thisMonth?: boolean
+    thisYear?: boolean
+    last?: number
+  },
+  defaults: { lastDays?: number } = {}
+): { dateStart: Date | null; dateEnd: Date | null } {
   const shorthandOptions = [
     options.today ? '--today' : null,
     options.yesterday ? '--yesterday' : null,
@@ -405,8 +408,27 @@ export function resolveDateRange(options: {
     }
   }
 
+  if (options.from || options.to) {
+    return {
+      dateStart: options.from ? new Date(options.from) : null,
+      dateEnd: options.to ? new Date(options.to) : null,
+    }
+  }
+
+  if (defaults.lastDays !== undefined) {
+    const daysBack = Math.max(defaults.lastDays - 1, 0)
+    return {
+      dateStart: new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() - daysBack
+      ),
+      dateEnd: now,
+    }
+  }
+
   return {
-    dateStart: options.from ? new Date(options.from) : null,
-    dateEnd: options.to ? new Date(options.to) : null,
+    dateStart: null,
+    dateEnd: null,
   }
 }

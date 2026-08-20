@@ -1,5 +1,7 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import {
+  DateRange,
+  filterMessagesByDateRange,
   inferProviderFromModel,
   readJsonlSync,
   resolveHome,
@@ -24,7 +26,9 @@ interface AntigravityEntry {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseAntigravity(): Promise<UsageDataMessage[]> {
+export async function parseAntigravity(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
 
   const configDir = process.env.TOKSCALE_CONFIG_DIR
@@ -44,7 +48,7 @@ export async function parseAntigravity(): Promise<UsageDataMessage[]> {
     }
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── Internal ────────────────────────────────────────────────────────────────

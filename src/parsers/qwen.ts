@@ -1,6 +1,8 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import {
+  DateRange,
   fileModifiedTimestampMs,
+  filterMessagesByDateRange,
   normalizeWorkspaceKey,
   readFileOrNone,
   resolveHome,
@@ -27,7 +29,9 @@ interface QwenUsageMetadata {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseQwen(): Promise<UsageDataMessage[]> {
+export async function parseQwen(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
 
   const root = resolveHome('~/.qwen/projects')
@@ -38,7 +42,7 @@ export async function parseQwen(): Promise<UsageDataMessage[]> {
     results.push(...messages)
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── Internal ────────────────────────────────────────────────────────────────

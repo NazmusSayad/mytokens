@@ -139,9 +139,10 @@ export function addUsageByOption<
 }
 
 export function buildUsageFilterOptions(
-  options: UsageFilterOptionValues
+  options: UsageFilterOptionValues,
+  dateRangeDefaults: { lastDays?: number } = {}
 ): ExportFilterOptions {
-  const range = resolveDateRange(options)
+  const range = resolveDateRange(options, dateRangeDefaults)
 
   return {
     usageBy: options.usageBy ?? 'day',

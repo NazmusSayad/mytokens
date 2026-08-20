@@ -1,6 +1,8 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import {
+  DateRange,
   deriveAgent,
+  filterMessagesByDateRange,
   inferProviderFromModel,
   readFileOrNone,
   resolveHome,
@@ -28,7 +30,9 @@ interface ApiReqStartedPayload {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseRooCode(): Promise<UsageDataMessage[]> {
+export async function parseRooCode(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
 
   const paths = [
@@ -49,10 +53,12 @@ export async function parseRooCode(): Promise<UsageDataMessage[]> {
     }
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
-export async function parseKiloCode(): Promise<UsageDataMessage[]> {
+export async function parseKiloCode(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
 
   const paths = [
@@ -71,7 +77,7 @@ export async function parseKiloCode(): Promise<UsageDataMessage[]> {
     }
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── Internal ────────────────────────────────────────────────────────────────

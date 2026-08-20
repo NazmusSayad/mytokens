@@ -1,11 +1,17 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import { readSQLiteDB, sqliteAll } from '@/helpers/db.js'
-import { resolveHome } from '@/helpers/parser.js'
+import {
+  DateRange,
+  filterMessagesByDateRange,
+  resolveHome,
+} from '@/helpers/parser.js'
 import type { DatabaseSync } from 'node:sqlite'
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseSynthetic(): Promise<UsageDataMessage[]> {
+export async function parseSynthetic(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const paths = [
     resolveHome('~/.local/share/octofriend/octofriend.db'),
     resolveHome('~/Library/Application Support/octofriend/octofriend.db'),
@@ -18,7 +24,7 @@ export async function parseSynthetic(): Promise<UsageDataMessage[]> {
     try {
       const messages = await parseOctofriendSqlite(db)
       db.close()
-      return messages
+      return filterMessagesByDateRange(messages, range)
     } catch {
       db.close()
       continue

@@ -1,5 +1,7 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import {
+  DateRange,
+  filterMessagesByDateRange,
   inferProviderFromModel,
   readFileOrNone,
   resolveHome,
@@ -8,7 +10,9 @@ import {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseCursor(): Promise<UsageDataMessage[]> {
+export async function parseCursor(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
 
   const root = resolveHome('~/.config/tokscale/cursor-cache')
@@ -19,7 +23,7 @@ export async function parseCursor(): Promise<UsageDataMessage[]> {
     results.push(...messages)
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── Internal ────────────────────────────────────────────────────────────────

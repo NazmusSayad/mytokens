@@ -2,13 +2,17 @@ import type { UsageDataMessage } from '@/core/types.js'
 import { readSQLiteDB, sqliteAll } from '@/helpers/db.js'
 import {
   canonicalProvider,
+  DateRange,
+  filterMessagesByDateRange,
   inferProviderFromModel,
   resolveHome,
 } from '@/helpers/parser.js'
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseHermes(): Promise<UsageDataMessage[]> {
+export async function parseHermes(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const paths = [
     resolveHome('~/.hermes/state.db'),
     resolveHome('~/Library/Application Support/hermes/state.db'),
@@ -102,7 +106,7 @@ export async function parseHermes(): Promise<UsageDataMessage[]> {
       }
 
       db.close()
-      return messages
+      return filterMessagesByDateRange(messages, range)
     } catch {
       db.close()
       continue

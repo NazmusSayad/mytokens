@@ -101,7 +101,7 @@ program.action(async (screen, options: DashboardCommandOptions) => {
   let filterOptions
 
   try {
-    filterOptions = buildUsageFilterOptions(options)
+    filterOptions = buildUsageFilterOptions(options, { lastDays: 30 })
 
     showBy = resolveBy({
       by: options.by,

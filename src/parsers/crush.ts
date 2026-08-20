@@ -1,12 +1,18 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import { readSQLiteDB, sqliteAll } from '@/helpers/db.js'
-import { resolveHome } from '@/helpers/parser.js'
+import {
+  DateRange,
+  filterMessagesByDateRange,
+  resolveHome,
+} from '@/helpers/parser.js'
 import { readFileSync } from 'node:fs'
 import type { DatabaseSync } from 'node:sqlite'
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseCrush(): Promise<UsageDataMessage[]> {
+export async function parseCrush(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const dbPaths = discoverCrushDbs()
 
   for (const dbPath of dbPaths) {
@@ -16,7 +22,7 @@ export async function parseCrush(): Promise<UsageDataMessage[]> {
     try {
       const messages = await parseCrushSqlite(db, dbPath)
       db.close()
-      return messages
+      return filterMessagesByDateRange(messages, range)
     } catch {
       db.close()
       continue

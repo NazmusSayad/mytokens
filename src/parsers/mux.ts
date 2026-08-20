@@ -1,6 +1,8 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import {
+  DateRange,
   fileModifiedTimestampMs,
+  filterMessagesByDateRange,
   readFileOrNone,
   resolveHome,
   scanDirectory,
@@ -35,7 +37,7 @@ interface MuxLastRequest {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseMux(): Promise<UsageDataMessage[]> {
+export async function parseMux(range?: DateRange): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
 
   const root = resolveHome('~/.mux/sessions')
@@ -47,7 +49,7 @@ export async function parseMux(): Promise<UsageDataMessage[]> {
     results.push(...messages)
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── Internal ────────────────────────────────────────────────────────────────

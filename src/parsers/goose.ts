@@ -2,6 +2,8 @@ import type { UsageDataMessage } from '@/core/types.js'
 import { readSQLiteDB, sqliteAll } from '@/helpers/db.js'
 import {
   canonicalProvider,
+  DateRange,
+  filterMessagesByDateRange,
   inferProviderFromModel,
   resolveHome,
 } from '@/helpers/parser.js'
@@ -14,7 +16,9 @@ interface GooseModelConfig {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseGoose(): Promise<UsageDataMessage[]> {
+export async function parseGoose(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const paths = [
     resolveHome('~/.local/share/goose/sessions/sessions.db'),
     resolveHome('~/Library/Application Support/goose/sessions/sessions.db'),
@@ -106,7 +110,7 @@ export async function parseGoose(): Promise<UsageDataMessage[]> {
       }
 
       db.close()
-      return messages
+      return filterMessagesByDateRange(messages, range)
     } catch {
       db.close()
       continue

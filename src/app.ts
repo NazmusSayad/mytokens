@@ -1,4 +1,5 @@
 import { APP_SCREENS_MAP, AppScreenType } from './constants/screen.js'
+import { DateRange } from './helpers/parser.js'
 import { parseAmp } from './parsers/amp.js'
 import { parseAntigravity } from './parsers/antigravity.js'
 import { parseClaude } from './parsers/claude.js'
@@ -25,30 +26,35 @@ import { RenderScreenOptions } from './render/types.js'
 export async function runApp(
   options: RenderScreenOptions & { screen: AppScreenType }
 ) {
+  const range: DateRange = {
+    from: options.dateStart ?? null,
+    to: options.dateEnd ?? null,
+  }
+
   const data = (
     await Promise.all([
-      parseAntigravity(),
-      parseAmp(),
-      parseClaude(),
-      parseCodebuff(),
-      parseCodex(),
-      parseCopilot(),
-      parseCrush(),
-      parseCursor(),
-      parseDroid(),
-      parseGemini(),
-      parseGoose(),
-      parseHermes(),
-      parseKilo(),
-      parseKiloCode(),
-      parseKimi(),
-      parseMux(),
-      parseOpenClaw(),
-      parseOpenCode(),
-      parsePi(),
-      parseQwen(),
-      parseRooCode(),
-      parseSynthetic(),
+      parseAntigravity(range),
+      parseAmp(range),
+      parseClaude(range),
+      parseCodebuff(range),
+      parseCodex(range),
+      parseCopilot(range),
+      parseCrush(range),
+      parseCursor(range),
+      parseDroid(range),
+      parseGemini(range),
+      parseGoose(range),
+      parseHermes(range),
+      parseKilo(range),
+      parseKiloCode(range),
+      parseKimi(range),
+      parseMux(range),
+      parseOpenClaw(range),
+      parseOpenCode(range),
+      parsePi(range),
+      parseQwen(range),
+      parseRooCode(range),
+      parseSynthetic(range),
     ])
   ).flat()
 

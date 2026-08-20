@@ -1,7 +1,9 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import { readSQLiteDB, sqliteAll } from '@/helpers/db.js'
 import {
+  DateRange,
   fileModifiedTimestampMs,
+  filterMessagesByDateRange,
   inferProviderFromModel,
   normalizeTokens,
   readJsonlSync,
@@ -12,19 +14,24 @@ import type { DatabaseSync } from 'node:sqlite'
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseCopilot(): Promise<UsageDataMessage[]> {
+export async function parseCopilot(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const dbPath = resolveHome('~/.copilot/session-store.db')
   const db = await readSQLiteDB(dbPath)
   if (db) {
     try {
       const messages = await parseCopilotSqlite(db)
       db.close()
-      return messages
+      return filterMessagesByDateRange(messages, range)
     } catch {
       db.close()
     }
   }
-  return parseCopilotFile(resolveHome('~/.copilot/usage.jsonl'))
+  return filterMessagesByDateRange(
+    parseCopilotFile(resolveHome('~/.copilot/usage.jsonl')),
+    range
+  )
 }
 
 // ─── SQLite parser (current Copilot CLI) ────────────────────────────────────

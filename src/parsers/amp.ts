@@ -1,6 +1,8 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import {
+  DateRange,
   fileModifiedTimestampMs,
+  filterMessagesByDateRange,
   inferProviderFromModel,
   readFileOrNone,
   resolveHome,
@@ -69,7 +71,7 @@ interface AmpUsageRecord {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseAmp(): Promise<UsageDataMessage[]> {
+export async function parseAmp(range?: DateRange): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
 
   const root = resolveHome('~/.local/share/amp/threads')
@@ -81,7 +83,7 @@ export async function parseAmp(): Promise<UsageDataMessage[]> {
     results.push(...messages)
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── Internal ────────────────────────────────────────────────────────────────

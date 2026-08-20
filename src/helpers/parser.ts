@@ -1,4 +1,4 @@
-import type { UsageDataToken } from '@/core/types.js'
+import type { UsageDataMessage, UsageDataToken } from '@/core/types.js'
 import {
   createReadStream,
   existsSync,
@@ -85,6 +85,27 @@ export function parseTimestampValue(value: unknown): number | undefined {
     }
   }
   return undefined
+}
+
+export type DateRange = {
+  from: Date | null
+  to: Date | null
+}
+
+export function filterMessagesByDateRange(
+  messages: UsageDataMessage[],
+  range?: DateRange
+): UsageDataMessage[] {
+  if (!range) return messages
+  const fromMs = range.from ? range.from.getTime() : null
+  const toMs = range.to ? range.to.getTime() : null
+  if (fromMs === null && toMs === null) return messages
+  return messages.filter((message) => {
+    const timestamp = message.date.getTime()
+    if (fromMs !== null && timestamp < fromMs) return false
+    if (toMs !== null && timestamp > toMs) return false
+    return true
+  })
 }
 
 export function extractI64(value: unknown): number | undefined {

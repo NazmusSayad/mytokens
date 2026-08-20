@@ -1,6 +1,8 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import {
+  DateRange,
   fileModifiedTimestampMs,
+  filterMessagesByDateRange,
   inferProviderFromModel,
   readFileOrNone,
   resolveHome,
@@ -26,7 +28,9 @@ interface DroidTokenUsage {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseDroid(): Promise<UsageDataMessage[]> {
+export async function parseDroid(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
 
   const root = resolveHome('~/.factory/sessions')
@@ -38,7 +42,7 @@ export async function parseDroid(): Promise<UsageDataMessage[]> {
     results.push(...messages)
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── Internal ────────────────────────────────────────────────────────────────

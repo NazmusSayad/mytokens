@@ -1,6 +1,8 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import {
+  DateRange,
   fileModifiedTimestampMs,
+  filterMessagesByDateRange,
   readFileOrNone,
   resolveHome,
   scanDirectory,
@@ -40,7 +42,7 @@ interface PiUsage {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parsePi(): Promise<UsageDataMessage[]> {
+export async function parsePi(range?: DateRange): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
 
   const root = resolveHome('~/.pi/agent/sessions')
@@ -51,7 +53,7 @@ export async function parsePi(): Promise<UsageDataMessage[]> {
     results.push(...messages)
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── Internal ────────────────────────────────────────────────────────────────

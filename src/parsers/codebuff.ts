@@ -1,6 +1,8 @@
 import type { UsageDataMessage } from '@/core/types.js'
 import {
+  DateRange,
   fileModifiedTimestampMs,
+  filterMessagesByDateRange,
   inferProviderFromModel,
   parseTimestampValue,
   readFileOrNone,
@@ -71,7 +73,9 @@ interface CodebuffRunStateMessage {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseCodebuff(): Promise<UsageDataMessage[]> {
+export async function parseCodebuff(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
 
   const channels = ['manicode', 'manicode-dev', 'manicode-staging']
@@ -85,7 +89,7 @@ export async function parseCodebuff(): Promise<UsageDataMessage[]> {
     }
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── Internal ────────────────────────────────────────────────────────────────

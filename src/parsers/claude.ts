@@ -1,9 +1,11 @@
 import { UsageDataMessage, UsageDataToken } from '@/core/types.js'
 import {
+  DateRange,
   deriveAgent,
   extractI64,
   extractString,
   fileModifiedTimestampMs,
+  filterMessagesByDateRange,
   normalizeAgentName,
   normalizeTokens,
   normalizeWorkspaceKey,
@@ -38,7 +40,9 @@ interface AgentMetaFile {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseClaude(): Promise<UsageDataMessage[]> {
+export async function parseClaude(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const results: UsageDataMessage[] = []
   const parentCache = new Map<string, Map<string, string>>()
 
@@ -60,7 +64,7 @@ export async function parseClaude(): Promise<UsageDataMessage[]> {
     results.push(...messages)
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── File-level parser ───────────────────────────────────────────────────────

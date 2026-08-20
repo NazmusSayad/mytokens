@@ -1,8 +1,10 @@
 import { UsageDataMessage } from '@/core/types.js'
 import {
+  DateRange,
   extractI64,
   extractString,
   fileModifiedTimestampMs,
+  filterMessagesByDateRange,
   normalizeTokens,
   parseTimestampValue,
   readFileOrNone,
@@ -50,7 +52,9 @@ interface GeminiHeadlessUsage {
 
 // ─── Public ──────────────────────────────────────────────────────────────────
 
-export async function parseGemini(): Promise<UsageDataMessage[]> {
+export async function parseGemini(
+  range?: DateRange
+): Promise<UsageDataMessage[]> {
   const root = resolveHome('~/.gemini/tmp')
   const files = scanDirectory(root, '*.json|*.jsonl')
   const results: UsageDataMessage[] = []
@@ -60,7 +64,7 @@ export async function parseGemini(): Promise<UsageDataMessage[]> {
     results.push(...messages)
   }
 
-  return results
+  return filterMessagesByDateRange(results, range)
 }
 
 // ─── File-level parser ───────────────────────────────────────────────────────
