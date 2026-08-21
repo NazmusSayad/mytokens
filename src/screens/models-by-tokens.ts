@@ -1,56 +1,30 @@
-import { UsageDataMessage } from '@/core/types.js'
 import { RenderScreen } from '@/render/render-screen.js'
-import { RenderDataItem } from '@/render/types.js'
+import { RenderDataItem, RenderScreenMessage } from '@/render/types.js'
 
 export class RenderModelsByTokensScreen extends RenderScreen {
+  protected groupModels = true
+
   protected title = 'Models by Tokens'
 
   protected resolveItem(
-    item: UsageDataMessage,
+    item: RenderScreenMessage,
     add: (resolved: RenderDataItem) => void
   ) {
-    if (item.tokens.input) {
-      add({
-        id: item.model.id,
-        name: item.model.id,
-        date: item.date,
-        value: item.tokens.input,
-      })
-    }
+    const model = item.groupedModel ?? item.model
+    const tokens = item.tokens
+    const value =
+      tokens.input +
+      tokens.output +
+      tokens.reasoning +
+      tokens.cacheInput +
+      tokens.cacheOutput
 
-    if (item.tokens.output) {
+    if (value > 0) {
       add({
-        id: item.model.id,
-        name: item.model.id,
+        id: model.id,
+        name: model.id,
         date: item.date,
-        value: item.tokens.output,
-      })
-    }
-
-    if (item.tokens.reasoning) {
-      add({
-        id: item.model.id,
-        name: item.model.id,
-        date: item.date,
-        value: item.tokens.reasoning,
-      })
-    }
-
-    if (item.tokens.cacheInput) {
-      add({
-        id: item.model.id,
-        name: item.model.id,
-        date: item.date,
-        value: item.tokens.cacheInput,
-      })
-    }
-
-    if (item.tokens.cacheOutput) {
-      add({
-        id: item.model.id,
-        name: item.model.id,
-        date: item.date,
-        value: item.tokens.cacheOutput,
+        value,
       })
     }
   }

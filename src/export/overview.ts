@@ -1,5 +1,6 @@
 import { initializePriceDetector } from '@/core/price-detector.js'
 import { UsageDataMessage } from '@/core/types.js'
+import { applyModelGroups, loadModelGroups } from '@/helpers/model-groups.js'
 import { ColorGenerator } from '@/render/color-generator.js'
 import { RenderValueShowBy } from '@/render/types.js'
 import { formatDateKey } from '@/render/utils.js'
@@ -62,13 +63,24 @@ export async function computeOverview(
     dateEnd: Date | null
     usageBy?: RenderValueShowBy
     projects?: number
+    groupModels?: boolean
+    autoGroupModels?: boolean
+    refetchRemote?: boolean
   }
 ): Promise<OverviewSummary> {
   if (messages.length === 0) {
     throw new Error('No data to export.')
   }
 
-  const priceDetector = await initializePriceDetector()
+  const fresh = range.refetchRemote
+  const priceDetector = await initializePriceDetector({ fresh })
+  const modelGroups =
+    range.groupModels === false
+      ? { groups: {}, nonFreeIds: new Set<string>() }
+      : await loadModelGroups({
+          auto: range.autoGroupModels,
+          fresh,
+        })
 
   const daily = new Map<string, OverviewDailyPoint>()
   const tokenTotals = { input: 0, output: 0, reasoning: 0, cache: 0 }
@@ -98,16 +110,15 @@ export async function computeOverview(
     const cache = tokens.cacheInput + tokens.cacheOutput
     const all = input + output + reasoning + cache
 
-    const inputPrice = priceDetector.getInputPrice(message.model)
-    const outputPrice = priceDetector.getOutputPrice(message.model)
-    const cacheInputPrice = priceDetector.getCacheInputPrice(message.model)
-    const cacheOutputPrice = priceDetector.getCacheOutputPrice(message.model)
-    totalCost +=
-      input * inputPrice +
-      output * outputPrice +
-      reasoning * outputPrice +
-      tokens.cacheInput * cacheInputPrice +
-      tokens.cacheOutput * cacheOutputPrice
+    const groupedModel = applyModelGroups(modelGroups, message.model)
+
+    const cost =
+      input * priceDetector.getInputPrice(message.model) +
+      output * priceDetector.getOutputPrice(message.model) +
+      reasoning * priceDetector.getOutputPrice(message.model) +
+      tokens.cacheInput * priceDetector.getCacheInputPrice(message.model) +
+      tokens.cacheOutput * priceDetector.getCacheOutputPrice(message.model)
+    totalCost += cost
 
     const key = formatDateKey(message.date, range.usageBy ?? 'day')
     let point = daily.get(key)
@@ -128,12 +139,7 @@ export async function computeOverview(
     point.output += output
     point.reasoning += reasoning
     point.cache += cache
-    point.cost +=
-      input * inputPrice +
-      output * outputPrice +
-      reasoning * outputPrice +
-      tokens.cacheInput * cacheInputPrice +
-      tokens.cacheOutput * cacheOutputPrice
+    point.cost += cost
 
     tokenTotals.input += input
     tokenTotals.output += output
@@ -141,10 +147,10 @@ export async function computeOverview(
     tokenTotals.cache += cache
 
     modelTotals.set(
-      message.model.id,
-      (modelTotals.get(message.model.id) ?? 0) + all
+      groupedModel.id,
+      (modelTotals.get(groupedModel.id) ?? 0) + all
     )
-    modelNames.set(message.model.id, message.model.id)
+    modelNames.set(groupedModel.id, groupedModel.id)
     sourceTotals.set(
       message.source,
       (sourceTotals.get(message.source) ?? 0) + all

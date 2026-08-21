@@ -1,10 +1,16 @@
 import { UsageDataMessage } from '@/core/types.js'
+import {
+  applyModelGroups,
+  loadModelGroups,
+  ResolvedModelGroups,
+} from '@/helpers/model-groups.js'
 import chalk from 'chalk'
 import { ColorGenerator } from './color-generator.js'
 import { foregroundForBackground } from './contrast.js'
 import { printLn } from './stdout.js'
 import {
   RenderDataItem,
+  RenderScreenMessage,
   RenderScreenOptions,
   RenderValueUnit,
 } from './types.js'
@@ -18,8 +24,9 @@ import {
 export class RenderScreen {
   private initialized = false
   private data: UsageDataMessage[]
-  private options: RenderScreenOptions
+  protected options: RenderScreenOptions
   private colorGenerator = new ColorGenerator()
+  private modelGroups: ResolvedModelGroups | null = null
 
   // Should be overridden by subclasses
   protected title: string = ''
@@ -27,13 +34,20 @@ export class RenderScreen {
   // Should be overridden by subclasses if they want to support units other than 'none'
   protected valueUnit: RenderValueUnit = 'none'
 
+  // Set to true in subclasses whose rows represent models, so model grouping applies.
+  // resolveItem then receives item.model (raw, for pricing) and item.groupedModel
+  // (grouped identity, for labels/keys).
+  protected groupModels = false
+
   // Ignore, anyone can override this if needed
   protected async init() {}
 
-  // Must be implemented by subclasses to resolve a UsageDataMessage into a RenderDataItem
+  // Must be implemented by subclasses to resolve a message into a RenderDataItem.
+  // When groupModels is true, item.model is the raw model (use for pricing) and
+  // item.groupedModel holds the grouped identity (use for keys/labels).
   protected resolveItem(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    item: UsageDataMessage,
+    item: RenderScreenMessage,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     add: (resolved: RenderDataItem) => void
   ) {
@@ -126,6 +140,13 @@ export class RenderScreen {
   }
 
   public async setup() {
+    if (this.groupModels && this.options.groupModels !== false) {
+      this.modelGroups = await loadModelGroups({
+        auto: this.options.autoGroupModels !== false,
+        fresh: this.options.refetchRemote,
+      })
+    }
+
     await this.init()
     this.initialized = true
   }
@@ -150,7 +171,15 @@ export class RenderScreen {
         continue
       }
 
-      this.resolveItem(message, (resolved) => {
+      const effectiveMessage =
+        this.groupModels && this.modelGroups
+          ? {
+              ...message,
+              groupedModel: applyModelGroups(this.modelGroups, message.model),
+            }
+          : message
+
+      this.resolveItem(effectiveMessage, (resolved) => {
         return resolvedData.push(resolved)
       })
     }

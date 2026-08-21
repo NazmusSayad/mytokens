@@ -1,4 +1,5 @@
 import { UsageDataMessage } from '@/core/types.js'
+import { loadModelGroups } from '@/helpers/model-groups.js'
 import { describe, expect, it, vi } from 'vitest'
 import { renderOverviewToSvg } from './overview-svg.js'
 import { computeOverview } from './overview.js'
@@ -11,7 +12,18 @@ vi.mock('@/core/price-detector.js', () => ({
     getCacheOutputPrice: () => 8e-6,
   }),
 }))
-
+vi.mock('@/helpers/model-groups.js', async () => {
+  const actual = await vi.importActual<
+    typeof import('@/helpers/model-groups.js')
+  >('@/helpers/model-groups.js')
+  return {
+    ...actual,
+    loadModelGroups: vi.fn().mockResolvedValue({
+      groups: {},
+      nonFreeIds: new Set(),
+    }),
+  }
+})
 function makeMessage(partial: Partial<UsageDataMessage>): UsageDataMessage {
   return {
     source: 'opencode',
@@ -225,6 +237,54 @@ describe('computeOverview', () => {
     )
 
     expect(overview.projects).toEqual([])
+  })
+
+  it('groups models but keeps providers and pricing raw', async () => {
+    vi.mocked(loadModelGroups).mockResolvedValueOnce({
+      groups: {
+        'x-preview-f-free': {
+          provider: 'openrouter',
+          model: 'stealth/ox-alpha',
+        },
+      },
+      nonFreeIds: new Set(),
+    })
+
+    const overview = await computeOverview(
+      [
+        makeMessage({
+          date: new Date('2026-08-10T10:00:00'),
+          model: { id: 'x-preview-f-free', provider: 'opencode' },
+          tokens: {
+            input: 100,
+            output: 0,
+            reasoning: 0,
+            cacheInput: 0,
+            cacheOutput: 0,
+          },
+        }),
+        makeMessage({
+          date: new Date('2026-08-11T10:00:00'),
+          model: { id: 'stealth/ox-alpha', provider: 'openrouter' },
+          tokens: {
+            input: 50,
+            output: 0,
+            reasoning: 0,
+            cacheInput: 0,
+            cacheOutput: 0,
+          },
+        }),
+      ],
+      { dateStart: null, dateEnd: null }
+    )
+
+    expect(overview.models).toEqual([
+      expect.objectContaining({ name: 'stealth/ox-alpha', value: 150 }),
+    ])
+    expect(overview.providers.map((provider) => provider.name)).toEqual([
+      'opencode',
+      'openrouter',
+    ])
   })
 
   it('throws when there are no messages', async () => {

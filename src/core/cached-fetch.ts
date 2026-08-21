@@ -55,13 +55,21 @@ async function readFromCache<T>(url: string): Promise<T | null> {
   return cacheContent as T
 }
 
+export type CachedFetchOptions = RequestInit & {
+  fresh?: boolean
+}
+
 export async function cachedFetchJSON<T>(
   url: string,
-  init?: RequestInit
+  options: CachedFetchOptions = {}
 ): Promise<T> {
-  const cachedData = await readFromCache<T>(url)
-  if (cachedData) {
-    return cachedData
+  const { fresh, ...init } = options
+
+  if (!fresh) {
+    const cachedData = await readFromCache<T>(url)
+    if (cachedData) {
+      return cachedData
+    }
   }
 
   const response = await fetch(url, init)

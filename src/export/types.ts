@@ -39,6 +39,10 @@ export type ExportFilterOptions = {
   disabledAgents: string[] | null
   enabledProjects: string[] | null
   disabledProjects: string[] | null
+
+  groupModels?: boolean
+  autoGroupModels?: boolean
+  refetchRemote?: boolean
 }
 
 export type ChartSegment = { id: string; value: number }
