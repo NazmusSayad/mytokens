@@ -306,6 +306,33 @@ describe('model-groups', () => {
       expect(explicit.id).toBe('remote-name')
     })
 
+    it('skips the remote download when defaults are disabled and uses only local overrides', async () => {
+      mkdirSync(homePath(), { recursive: true })
+      writeFileSync(
+        homePath('groups.json'),
+        JSON.stringify({
+          'local-model': { provider: 'local-provider', model: 'local-name' },
+        })
+      )
+      mkdirSync(homePath('cache'), { recursive: true })
+      writeFileSync(
+        homePath('cache', 'model-groups.json'),
+        JSON.stringify({
+          'cached-model': { provider: 'openai', model: 'cached-name' },
+        })
+      )
+
+      const fetchStub = stubFailingFetch()
+
+      const { loadModelGroups } = await freshModule()
+      const resolved = await loadModelGroups({ defaults: false })
+
+      expect(fetchStub).toHaveBeenCalledTimes(1)
+      expect(resolved.groups).toEqual({
+        'local-model': { provider: 'local-provider', model: 'local-name' },
+      })
+    })
+
     it('ignores the fetch cache when fresh is requested but still writes through', async () => {
       mkdirSync(homePath(), { recursive: true })
 

@@ -90,6 +90,7 @@ export async function buildOverviewSvg(
     usageBy: options.usageBy,
     projects,
     groupModels: options.groupModels,
+    defaultGroupModels: options.defaultGroupModels,
     autoGroupModels: options.autoGroupModels,
     refetchRemote: options.refetchRemote,
   })

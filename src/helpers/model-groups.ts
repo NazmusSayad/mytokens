@@ -84,6 +84,7 @@ async function fetchNonFreeIds(fresh?: boolean): Promise<Set<string>> {
 }
 
 export type LoadModelGroupsOptions = {
+  defaults?: boolean
   auto?: boolean
   fresh?: boolean
 }
@@ -92,20 +93,24 @@ export async function loadModelGroups(
   options: LoadModelGroupsOptions = {}
 ): Promise<ResolvedModelGroups> {
   const [remote, nonFreeIds] = await Promise.all([
-    fetchRemoteGroups(options.fresh),
+    options.defaults === false
+      ? Promise.resolve(null)
+      : fetchRemoteGroups(options.fresh),
     options.auto === false
       ? Promise.resolve(new Set<string>())
       : fetchNonFreeIds(options.fresh),
   ])
 
-  let persisted: ModelGroups
-  if (remote) {
-    persisted = remote
-    await writeFileAsJSON(MYTOKENS_GROUPS_CACHE_PATH, remote)
-  } else {
-    persisted = sanitizeModelGroups(
-      await readFileAsJSON<unknown>(MYTOKENS_GROUPS_CACHE_PATH)
-    )
+  let persisted: ModelGroups = {}
+  if (options.defaults !== false) {
+    if (remote) {
+      persisted = remote
+      await writeFileAsJSON(MYTOKENS_GROUPS_CACHE_PATH, remote)
+    } else {
+      persisted = sanitizeModelGroups(
+        await readFileAsJSON<unknown>(MYTOKENS_GROUPS_CACHE_PATH)
+      )
+    }
   }
 
   const localGroups = await readLocalGroups()
