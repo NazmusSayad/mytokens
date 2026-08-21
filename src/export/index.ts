@@ -89,6 +89,9 @@ export async function buildOverviewSvg(
     dateEnd: options.dateEnd,
     usageBy: options.usageBy,
     projects,
+    groupModels: options.groupModels,
+    autoGroupModels: options.autoGroupModels,
+    refetchRemote: options.refetchRemote,
   })
   return renderOverviewToSvg(overview, themeId)
 }

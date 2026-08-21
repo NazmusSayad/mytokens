@@ -3,23 +3,19 @@ import {
   ModelsDotDevModel,
   ModelsDotDevResponse,
 } from './fetch-models-dot-dev.js'
-import { fetchOpenrouter, OpenrouterResponse } from './fetch-openrouter.js'
 import { UsageDataModel } from './types.js'
 
 type ConstructorInput = {
   modelsDotDev: ModelsDotDevResponse
-  openrouter: OpenrouterResponse
 }
 
 const $1_M = 1_000_000
 
 export class PriceDetector {
   private modelsDotDev: ModelsDotDevResponse
-  private openrouter: OpenrouterResponse
 
   constructor(input: ConstructorInput) {
     this.modelsDotDev = input.modelsDotDev
-    this.openrouter = input.openrouter
   }
 
   public getModelsDotDevModel(input: UsageDataModel) {
@@ -95,20 +91,16 @@ export class PriceDetector {
 }
 
 let cachedPriceDetector: PriceDetector | null = null
-export async function initializePriceDetector() {
+export async function initializePriceDetector(
+  options: { fresh?: boolean } = {}
+) {
   if (cachedPriceDetector) {
     return cachedPriceDetector
   }
 
-  const [modelsDotDev, openrouter] = await Promise.all([
-    fetchModelsDotDev(),
-    fetchOpenrouter(),
-  ])
+  const modelsDotDev = await fetchModelsDotDev({ fresh: options.fresh })
 
-  cachedPriceDetector = new PriceDetector({
-    modelsDotDev,
-    openrouter,
-  })
+  cachedPriceDetector = new PriceDetector({ modelsDotDev })
 
   return cachedPriceDetector
 }

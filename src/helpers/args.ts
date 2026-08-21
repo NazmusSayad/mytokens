@@ -4,6 +4,10 @@ import Fuse from 'fuse.js'
 
 const ScreenMap: Record<AppScreenType, string[]> = {
   'models-by-tokens': [
+    'token',
+    'tokens',
+    'usage',
+    'usages',
     'model',
     'models',
     'model/token',
@@ -18,6 +22,10 @@ const ScreenMap: Record<AppScreenType, string[]> = {
     'models.token',
   ],
   'models-by-costs': [
+    'cost',
+    'costs',
+    'price',
+    'prices',
     'model.',
     'models.',
     'model/',

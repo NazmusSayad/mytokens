@@ -1,5 +1,11 @@
+import { UsageDataMessage, UsageDataModel } from '@/core/types.js'
+
 export type RenderValueUnit = 'none' | 'dollar'
 export type RenderValueShowBy = 'day' | 'week' | 'month' | 'year'
+
+export type RenderScreenMessage = UsageDataMessage & {
+  groupedModel?: UsageDataModel
+}
 
 export type RenderDataItem = {
   id: string
@@ -32,4 +38,8 @@ export type RenderScreenOptions = {
 
   dateStart: Date | null
   dateEnd: Date | null
+
+  groupModels?: boolean
+  autoGroupModels?: boolean
+  refetchRemote?: boolean
 }

@@ -23,12 +23,18 @@ type ExportCommandOptions = UsageFilterOptionValues & {
   format?: ExportFormat
   scale?: number
   theme?: ExportThemeId
+  group?: boolean
+  autoGroup?: boolean
+  cache?: boolean
 }
 
 type ImageCommandOptions = UsageFilterOptionValues & {
   projects?: number
   copy?: boolean
   theme?: ExportThemeId
+  group?: boolean
+  autoGroup?: boolean
+  cache?: boolean
 }
 
 function addProjectCountOption<
@@ -100,6 +106,15 @@ export function attachExportCommands<
   addUsageByOption(exportCommand)
   addProjectCountOption(exportCommand)
   addThemeOption(exportCommand)
+  exportCommand.option('--no-group', 'Disable model grouping entirely.')
+  exportCommand.option(
+    '--no-auto-group',
+    'Disable automatic free-variant/gateway grouping (explicit groups still apply).'
+  )
+  exportCommand.option(
+    '--no-cache',
+    'Refetch remote data (model groups, price tables) ignoring the fetch cache.'
+  )
 
   exportCommand
     .option(
@@ -129,12 +144,21 @@ export function attachExportCommands<
           options.output,
           options.format
         )
-        const savedPath = await exportReportToSvg(outputPath, renderOptions, {
-          format,
-          theme: options.theme ?? DEFAULT_EXPORT_THEME,
-          scale: options.scale ?? 1,
-          projects: options.projects ?? 10,
-        })
+        const savedPath = await exportReportToSvg(
+          outputPath,
+          {
+            ...renderOptions,
+            groupModels: options.group !== false,
+            autoGroupModels: options.autoGroup !== false,
+            refetchRemote: options.cache === false,
+          },
+          {
+            format,
+            theme: options.theme ?? DEFAULT_EXPORT_THEME,
+            scale: options.scale ?? 1,
+            projects: options.projects ?? 10,
+          }
+        )
         console.log(
           chalk.green(`Saved usage overview to ${chalk.bold(savedPath)}`)
         )
@@ -158,6 +182,15 @@ export function attachExportCommands<
 
   imageCommand
     .option('-c, --copy', 'Copy the rendered PNG image to the macOS clipboard.')
+    .option('--no-group', 'Disable model grouping entirely.')
+    .option(
+      '--no-auto-group',
+      'Disable automatic free-variant/gateway grouping (explicit groups still apply).'
+    )
+    .option(
+      '--no-cache',
+      'Refetch remote data (model groups, price tables) ignoring the fetch cache.'
+    )
     .on('--help', () => {
       console.log('\nExamples:')
       console.log('  $ mytokens image')
@@ -178,12 +211,20 @@ export function attachExportCommands<
         }
 
         const renderOptions = buildUsageFilterOptions(imageOptions)
-        await showReportImage(renderOptions, {
-          width: '100%',
-          copy: imageOptions.copy,
-          theme: imageOptions.theme ?? DEFAULT_EXPORT_THEME,
-          projects: imageOptions.projects ?? 10,
-        })
+        await showReportImage(
+          {
+            ...renderOptions,
+            groupModels: imageOptions.group !== false,
+            autoGroupModels: imageOptions.autoGroup !== false,
+            refetchRemote: imageOptions.cache === false,
+          },
+          {
+            width: '100%',
+            copy: imageOptions.copy,
+            theme: imageOptions.theme ?? DEFAULT_EXPORT_THEME,
+            projects: imageOptions.projects ?? 10,
+          }
+        )
         console.log(
           `${chalk.bgYellow.dim.white(' WARN ')} ${chalk.dim.yellow(
             'If your terminal fails to render the image, run `mytokens export` to export it and view it normally.'

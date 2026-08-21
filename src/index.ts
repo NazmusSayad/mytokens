@@ -25,6 +25,9 @@ type DashboardCommandOptions = UsageFilterOptionValues & {
   screen?: string | boolean
   display?: string | boolean
   fresh?: boolean
+  group?: boolean
+  autoGroup?: boolean
+  cache?: boolean
 }
 
 const program = new Command('mytokens')
@@ -55,6 +58,15 @@ program.option('--all', 'Show all history instead of the default last 30 days.')
 program.option(
   '--fresh',
   'Parse all sources from scratch, ignoring the parse cache.'
+)
+program.option('--no-group', 'Disable model grouping entirely.')
+program.option(
+  '--no-auto-group',
+  'Disable automatic free-variant/gateway grouping (explicit groups still apply).'
+)
+program.option(
+  '--no-cache',
+  'Refetch remote data (model groups, price tables) ignoring the fetch cache.'
 )
 program.enablePositionalOptions()
 
@@ -133,6 +145,10 @@ program.action(async (screen, options: DashboardCommandOptions) => {
 
     screenPadding: 1,
     screenWidth: process.stdout.columns ?? 80,
+
+    groupModels: options.group !== false,
+    autoGroupModels: options.autoGroup !== false,
+    refetchRemote: options.cache === false,
 
     ...filterOptions,
   })

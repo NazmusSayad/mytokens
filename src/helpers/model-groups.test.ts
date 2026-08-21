@@ -1,0 +1,269 @@
+import type { UsageDataMessage } from '@/core/types.js'
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+let originalUserProfile: string | undefined
+let originalHome: string | undefined
+let tempHome: string
+
+function setupTempHome(): string {
+  tempHome = mkdtempSync(join(tmpdir(), 'mgroups-home-'))
+  originalUserProfile = process.env.USERPROFILE
+  originalHome = process.env.HOME
+  process.env.USERPROFILE = tempHome
+  process.env.HOME = tempHome
+  return tempHome
+}
+
+function restoreHome() {
+  if (originalUserProfile !== undefined) {
+    process.env.USERPROFILE = originalUserProfile
+  } else {
+    delete process.env.USERPROFILE
+  }
+  if (originalHome !== undefined) {
+    process.env.HOME = originalHome
+  } else {
+    delete process.env.HOME
+  }
+}
+
+function homePath(...segments: string[]): string {
+  return join(tempHome, '.mytokens', ...segments)
+}
+
+function messageWithModel(id: string, provider = 'unknown'): UsageDataMessage {
+  return {
+    source: 'test',
+    agent: 'default',
+    type: 'assistant',
+    date: new Date('2024-03-01T10:00:00Z'),
+    model: { id, provider },
+    tokens: {
+      input: 1,
+      output: 2,
+      reasoning: 0,
+      cacheInput: 0,
+      cacheOutput: 0,
+    },
+  }
+}
+
+function stubFailingFetch() {
+  const fetchStub = vi.fn(async () => {
+    throw new Error('network down')
+  })
+  vi.stubGlobal('fetch', fetchStub)
+  return fetchStub
+}
+
+function stubFetchByResponse(responses: Record<string, unknown>) {
+  const fetchStub = vi.fn(async (url: string | URL | RequestInfo) => {
+    const key = String(url)
+    if (!(key in responses)) {
+      throw new Error(`Unexpected fetch url: ${key}`)
+    }
+    return { ok: true, json: async () => responses[key] }
+  })
+  vi.stubGlobal('fetch', fetchStub)
+  return fetchStub
+}
+
+describe('model-groups', () => {
+  beforeEach(() => {
+    setupTempHome()
+  })
+
+  afterEach(() => {
+    restoreHome()
+    vi.unstubAllGlobals()
+  })
+
+  async function freshModule() {
+    vi.resetModules()
+    return await import('./model-groups.js')
+  }
+
+  const MODELS_DEV_URL = 'https://models.dev/api.json'
+
+  function stubCatalogFetch(catalogPayload: unknown) {
+    return stubFetchByResponse({
+      [MODELS_DEV_URL]: catalogPayload,
+    })
+  }
+
+  describe('applyModelGroups', () => {
+    function resolution(
+      groups: Record<string, { provider: string; model: string }>,
+      nonFreeIds: string[] = []
+    ) {
+      return { groups, nonFreeIds: new Set(nonFreeIds) }
+    }
+
+    it('rewrites id and provider on match', async () => {
+      const { applyModelGroups } = await freshModule()
+      const grouped = applyModelGroups(
+        resolution({
+          'gpt-4o-2024-08-13': { provider: 'openai', model: 'gpt-4o' },
+        }),
+        messageWithModel('gpt-4o-2024-08-13').model
+      )
+      expect(grouped.id).toBe('gpt-4o')
+      expect(grouped.provider).toBe('openai')
+    })
+
+    it('auto-groups free variants when the provider has the non-free model', async () => {
+      const { applyModelGroups } = await freshModule()
+      const grouped = applyModelGroups(
+        resolution({}, ['deepseek::deepseek-v4-flash']),
+        messageWithModel('deepseek-v4-flash-free', 'deepseek').model
+      )
+      expect(grouped.id).toBe('deepseek-v4-flash')
+    })
+
+    it('keeps the id when no non-free counterpart exists for the provider', async () => {
+      const { applyModelGroups } = await freshModule()
+      const original = messageWithModel('some-model-free').model
+      const grouped = applyModelGroups(resolution({}, []), original)
+      expect(grouped).toBe(original)
+    })
+
+    it('returns the original model when there is no match', async () => {
+      const { applyModelGroups } = await freshModule()
+      const original = messageWithModel('gpt-4o').model
+      const grouped = applyModelGroups(
+        resolution({
+          'other-id': { provider: 'openai', model: 'gpt-4o' },
+        }),
+        original
+      )
+      expect(grouped).toBe(original)
+    })
+
+    it('groups gateway org-prefixed ids to the direct provider when known', async () => {
+      const { applyModelGroups } = await freshModule()
+      const grouped = applyModelGroups(
+        resolution({}, ['openai::gpt-oss-120b']),
+        messageWithModel('openai/gpt-oss-120b', 'openrouter').model
+      )
+      expect(grouped.id).toBe('gpt-oss-120b')
+      expect(grouped.provider).toBe('openai')
+    })
+
+    it('keeps gateway ids when the prefix is not a known provider', async () => {
+      const { applyModelGroups } = await freshModule()
+      const original = messageWithModel('stealth/ox-alpha', 'openrouter').model
+      const grouped = applyModelGroups(resolution({}, []), original)
+      expect(grouped).toBe(original)
+    })
+
+    it('keeps gateway ids when the direct provider lacks that model', async () => {
+      const { applyModelGroups } = await freshModule()
+      const original = messageWithModel(
+        'deepseek/deepseek-v4-flash-0731',
+        'vercel'
+      ).model
+      const grouped = applyModelGroups(
+        resolution({}, ['deepseek::deepseek-v4-flash']),
+        original
+      )
+      expect(grouped).toBe(original)
+    })
+
+    it('ignores org-prefixed ids for providers outside the gateway list', async () => {
+      const { applyModelGroups } = await freshModule()
+      const original = messageWithModel(
+        'qwen/qwen3.6-max-preview',
+        'kilo'
+      ).model
+      const grouped = applyModelGroups(
+        resolution({}, ['qwen::qwen3.6-max-preview']),
+        original
+      )
+      expect(grouped).toBe(original)
+    })
+
+    it('prefers same-provider free-suffix grouping over the gateway prefix rule', async () => {
+      const { applyModelGroups } = await freshModule()
+      const grouped = applyModelGroups(
+        resolution({}, ['openrouter::z-ai/glm-5.2', 'zai::glm-5.2']),
+        messageWithModel('z-ai/glm-5.2:free', 'openrouter').model
+      )
+      expect(grouped.id).toBe('z-ai/glm-5.2')
+      expect(grouped.provider).toBe('openrouter')
+    })
+  })
+
+  describe('loadModelGroups', () => {
+    it('loads explicit entries from the user groups file', async () => {
+      mkdirSync(homePath(), { recursive: true })
+      writeFileSync(
+        homePath('groups.json'),
+        JSON.stringify({
+          'user-model': { provider: 'user-provider', model: 'user-model' },
+          'broken-entry': { provider: 'openai' },
+          'numeric-entry': 42,
+        })
+      )
+
+      const fetchStub = stubCatalogFetch({
+        deepseek: { models: { 'deepseek-v4-flash': {} } },
+      })
+
+      const { loadModelGroups } = await freshModule()
+      const resolved = await loadModelGroups()
+
+      expect(fetchStub).toHaveBeenCalledTimes(1)
+      expect(resolved.groups).toEqual({
+        'user-model': { provider: 'user-provider', model: 'user-model' },
+      })
+      expect(resolved.nonFreeIds.has('deepseek::deepseek-v4-flash')).toBe(true)
+    })
+
+    it('returns empty groups when the user has no groups file and is offline', async () => {
+      stubFailingFetch()
+
+      const { loadModelGroups } = await freshModule()
+      const resolved = await loadModelGroups()
+
+      expect(resolved.groups).toEqual({})
+      expect(resolved.nonFreeIds.size).toBe(0)
+    })
+
+    it('skips every fetch when auto-grouping is disabled', async () => {
+      mkdirSync(homePath(), { recursive: true })
+      writeFileSync(
+        homePath('groups.json'),
+        JSON.stringify({
+          'user-model': { provider: 'user-provider', model: 'user-name' },
+        })
+      )
+
+      const fetchStub = stubFailingFetch()
+
+      const { applyModelGroups, loadModelGroups } = await freshModule()
+      const resolved = await loadModelGroups({ auto: false })
+
+      expect(fetchStub).not.toHaveBeenCalled()
+      expect(resolved.groups).toEqual({
+        'user-model': { provider: 'user-provider', model: 'user-name' },
+      })
+      expect(resolved.nonFreeIds.size).toBe(0)
+
+      const grouped = applyModelGroups(
+        resolved,
+        messageWithModel('deepseek-v4-flash-free', 'deepseek').model
+      )
+      expect(grouped.id).toBe('deepseek-v4-flash-free')
+
+      const explicit = applyModelGroups(
+        resolved,
+        messageWithModel('user-model', 'openai').model
+      )
+      expect(explicit.id).toBe('user-name')
+      expect(explicit.provider).toBe('user-provider')
+    })
+  })
+})
