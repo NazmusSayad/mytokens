@@ -99,4 +99,23 @@ describe('cached-fetch', () => {
     expect(data).toEqual({ hello: 'world' })
     expect(failingFetch).not.toHaveBeenCalled()
   })
+
+  it('does not cache error responses', async () => {
+    const { cachedFetchJSON } = await freshModule()
+    const failing = vi.fn(async () => ({
+      ok: false,
+      status: 404,
+      json: async () => ({ message: 'Not Found' }),
+    }))
+    vi.stubGlobal('fetch', failing)
+
+    await expect(cachedFetchJSON('https://example.com/data')).rejects.toThrow(
+      'status 404'
+    )
+
+    const good = stubFetch({ hello: 'world' })
+    const data = await cachedFetchJSON('https://example.com/data')
+    expect(data).toEqual({ hello: 'world' })
+    expect(good).toHaveBeenCalledTimes(1)
+  })
 })

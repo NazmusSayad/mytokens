@@ -24,7 +24,7 @@ async function readRegistry() {
   )
 }
 
-async function writeCache(url: string, data: Record<string, unknown>) {
+async function persistCacheEntry(url: string, data: Record<string, unknown>) {
   const registry = await readRegistry()
 
   const previousEntry = registry[url]
@@ -36,6 +36,19 @@ async function writeCache(url: string, data: Record<string, unknown>) {
 
   await writeFileForced(cacheFilePath, JSON.stringify(data))
   await writeFileAsJSON(MYTOKENS_CACHE_REGISTRY_PATH, registry)
+}
+
+// Serializes registry updates so concurrent fetches cannot overwrite
+// each other's entries (read-modify-write would otherwise race).
+let cacheWrites: Promise<void> = Promise.resolve()
+
+function writeCache(url: string, data: Record<string, unknown>) {
+  const write = cacheWrites.then(() => persistCacheEntry(url, data))
+  cacheWrites = write.then(
+    () => {},
+    () => {}
+  )
+  return write
 }
 
 async function readFromCache<T>(url: string): Promise<T | null> {
@@ -73,6 +86,9 @@ export async function cachedFetchJSON<T>(
   }
 
   const response = await fetch(url, init)
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`)
+  }
   const data = (await response.json()) as unknown as Record<string, unknown>
   await writeCache(url, data)
 
