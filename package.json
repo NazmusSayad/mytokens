@@ -3,6 +3,7 @@
   "version": "1.2.7",
   "type": "module",
   "scripts": {
+    "prepare": "husky",
     "start": "tsx ./src/index.ts",
     "dev": "tsx --watch ./src/index.ts",
     "export": "tsx ./src/index.ts export",
