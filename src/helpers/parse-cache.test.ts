@@ -1,5 +1,11 @@
 import type { UsageDataMessage } from '@/core/types.js'
-import { mkdirSync, mkdtempSync, utimesSync, writeFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  utimesSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -163,5 +169,98 @@ describe('parse-cache', () => {
 
     expect(calls).toBe(1)
     expect(served).toHaveLength(1)
+  })
+
+  it('skips reading and storing when disabled', async () => {
+    const mod = await freshModule()
+    const path = join(mkdtempSync(join(tmpdir(), 'pcache-')), 's.jsonl')
+    writeFileSync(path, '{}')
+
+    mod.disableFileMessagesCache()
+
+    let calls = 0
+    function parse() {
+      calls++
+      return [messageAt(new Date())]
+    }
+
+    mod.cachedFileMessages(path, parse)
+    mod.cachedFileMessages(path, parse)
+    mod.flushFileMessagesCache()
+
+    expect(calls).toBe(2)
+
+    const fresh = await freshModule()
+    let freshCalls = 0
+    fresh.cachedFileMessages(path, () => {
+      freshCalls++
+      return []
+    })
+    expect(freshCalls).toBe(1)
+  })
+
+  it('clearFileMessagesCache deletes the disk cache', async () => {
+    const mod = await freshModule()
+    const path = join(mkdtempSync(join(tmpdir(), 'pcache-')), 's.jsonl')
+    writeFileSync(path, '{}')
+
+    mod.cachedFileMessages(path, () => [messageAt(new Date())])
+    mod.flushFileMessagesCache()
+    expect(
+      existsSync(join(tempHome, '.mytokens', 'cache', 'parse-cache-v1.json'))
+    ).toBe(true)
+
+    mod.clearFileMessagesCache()
+    expect(
+      existsSync(join(tempHome, '.mytokens', 'cache', 'parse-cache-v1.json'))
+    ).toBe(false)
+
+    const fresh = await freshModule()
+    let calls = 0
+    fresh.cachedFileMessages(path, () => {
+      calls++
+      return []
+    })
+    expect(calls).toBe(1)
+  })
+
+  it('listFileMessagesCache returns sorted paths with message counts', async () => {
+    const { cachedFileMessages, listFileMessagesCache } = await freshModule()
+    const dir = mkdtempSync(join(tmpdir(), 'pcache-'))
+    const pathB = join(dir, 'b.jsonl')
+    const pathA = join(dir, 'a.jsonl')
+    writeFileSync(pathB, '{}')
+    writeFileSync(pathA, '{}')
+
+    cachedFileMessages(pathA, () => [
+      messageAt(new Date()),
+      messageAt(new Date()),
+    ])
+    cachedFileMessages(pathB, () => [messageAt(new Date())])
+
+    const listed = listFileMessagesCache()
+    expect(listed).toEqual([
+      { path: pathA, messages: 2 },
+      { path: pathB, messages: 1 },
+    ])
+  })
+
+  it('getFileMessagesCacheInfo reports disk size and totals', async () => {
+    const mod = await freshModule()
+    expect(mod.getFileMessagesCacheInfo().existsOnDisk).toBe(false)
+
+    const path = join(mkdtempSync(join(tmpdir(), 'pcache-')), 's.jsonl')
+    writeFileSync(path, '{}')
+    mod.cachedFileMessages(path, () => [
+      messageAt(new Date()),
+      messageAt(new Date()),
+    ])
+    mod.flushFileMessagesCache()
+
+    const info = mod.getFileMessagesCacheInfo()
+    expect(info.existsOnDisk).toBe(true)
+    expect(info.fileBytes).toBeGreaterThan(0)
+    expect(info.entries).toBe(1)
+    expect(info.messages).toBe(2)
   })
 })

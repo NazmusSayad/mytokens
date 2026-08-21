@@ -3,9 +3,11 @@
 import { Command } from '@commander-js/extra-typings'
 import chalk from 'chalk'
 import { runApp } from './app.js'
+import { attachCacheCommands } from './cache-cli.js'
 import { APP_SCREENS_MAP, AppScreenType } from './constants/screen.js'
 import { attachExportCommands } from './export/cli.js'
 import { parseScreenArg, resolveBy } from './helpers/args.js'
+import { disableFileMessagesCache } from './helpers/parse-cache.js'
 import { pickScreen } from './helpers/picker.js'
 import {
   addUsageFilterOptions,
@@ -22,6 +24,7 @@ type DashboardCommandOptions = UsageFilterOptionValues & {
   year?: boolean
   screen?: string | boolean
   display?: string | boolean
+  fresh?: boolean
 }
 
 const program = new Command('mytokens')
@@ -48,6 +51,11 @@ const program = new Command('mytokens')
   .option('--year', 'shorthand for --by year')
 
 addUsageFilterOptions(program)
+program.option('--all', 'Show all history instead of the default last 30 days.')
+program.option(
+  '--fresh',
+  'Parse all sources from scratch, ignoring the parse cache.'
+)
 program.enablePositionalOptions()
 
 program.action(async (screen, options: DashboardCommandOptions) => {
@@ -101,6 +109,10 @@ program.action(async (screen, options: DashboardCommandOptions) => {
   let filterOptions
 
   try {
+    if (options.fresh) {
+      disableFileMessagesCache()
+    }
+
     filterOptions = buildUsageFilterOptions(options, { lastDays: 30 })
 
     showBy = resolveBy({
@@ -127,4 +139,5 @@ program.action(async (screen, options: DashboardCommandOptions) => {
 })
 
 attachExportCommands(program)
+attachCacheCommands(program)
 program.parse()

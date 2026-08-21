@@ -9,6 +9,7 @@ import { resolveDateRange } from './args.js'
 
 export type UsageFilterOptionValues = {
   usageBy?: RenderValueShowBy
+  all?: boolean
   from?: string
   to?: string
   today?: boolean

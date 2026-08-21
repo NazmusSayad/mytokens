@@ -298,6 +298,7 @@ export function resolveBy(options: {
 
 export function resolveDateRange(
   options: {
+    all?: boolean
     from?: string
     to?: string
     today?: boolean
@@ -313,6 +314,7 @@ export function resolveDateRange(
   defaults: { lastDays?: number } = {}
 ): { dateStart: Date | null; dateEnd: Date | null } {
   const shorthandOptions = [
+    options.all ? '--all' : null,
     options.today ? '--today' : null,
     options.yesterday ? '--yesterday' : null,
     options.lastWeek ? '--last-week' : null,
@@ -335,6 +337,13 @@ export function resolveDateRange(
   }
 
   const now = new Date()
+
+  if (options.all) {
+    return {
+      dateStart: null,
+      dateEnd: null,
+    }
+  }
 
   if (options.today) {
     return {

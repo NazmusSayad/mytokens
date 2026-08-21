@@ -5,6 +5,7 @@ import {
   readFileSync,
   renameSync,
   statSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs'
 import { dirname } from 'node:path'
@@ -21,6 +22,7 @@ type ParseCacheFile = {
 
 let cacheEntries: Map<string, StoredMessage[]> | undefined
 let cacheDirty = false
+let cacheDisabled = false
 
 function loadCache(): Map<string, StoredMessage[]> {
   if (cacheEntries) return cacheEntries
@@ -63,9 +65,25 @@ function fileIdentityKey(path: string): string | undefined {
   }
 }
 
+export function disableFileMessagesCache(): void {
+  cacheDisabled = true
+}
+
+export function clearFileMessagesCache(): void {
+  cacheEntries = new Map()
+  cacheDirty = false
+  try {
+    unlinkSync(MYTOKENS_PARSE_CACHE_PATH)
+  } catch {
+    // no cache file on disk
+  }
+}
+
 export function getCachedFileMessages(
   path: string
 ): UsageDataMessage[] | undefined {
+  if (cacheDisabled) return undefined
+
   const key = fileIdentityKey(path)
   if (!key) return undefined
 
@@ -82,6 +100,8 @@ export function storeFileMessages(
   path: string,
   messages: UsageDataMessage[]
 ): void {
+  if (cacheDisabled) return
+
   const key = fileIdentityKey(path)
   if (!key) return
 
@@ -130,4 +150,58 @@ export function flushFileMessagesCache(): void {
   } catch {
     // cache write failures must not affect parsing results
   }
+}
+
+export type FileMessagesCacheEntry = {
+  path: string
+  messages: number
+}
+
+export function listFileMessagesCache(): FileMessagesCacheEntry[] {
+  const result: FileMessagesCacheEntry[] = []
+  for (const [key, messages] of loadCache()) {
+    result.push({ path: pathFromIdentityKey(key), messages: messages.length })
+  }
+  return result.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
+}
+
+export type FileMessagesCacheInfo = {
+  existsOnDisk: boolean
+  fileBytes: number
+  entries: number
+  messages: number
+}
+
+export function getFileMessagesCacheInfo(): FileMessagesCacheInfo {
+  let existsOnDisk = false
+  let fileBytes = 0
+  try {
+    fileBytes = statSync(MYTOKENS_PARSE_CACHE_PATH).size
+    existsOnDisk = true
+  } catch {
+    // no cache file on disk yet
+  }
+
+  let messages = 0
+  for (const stored of loadCache().values()) {
+    messages += stored.length
+  }
+
+  return {
+    existsOnDisk,
+    fileBytes,
+    entries: loadCache().size,
+    messages,
+  }
+}
+
+function pathFromIdentityKey(key: string): string {
+  const segments = key.split('|')
+  while (
+    segments.length > 1 &&
+    /^\d+(\.\d+)?$/.test(segments[segments.length - 1])
+  ) {
+    segments.pop()
+  }
+  return segments.join('|')
 }

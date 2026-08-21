@@ -60,6 +60,24 @@ describe('resolveDateRange', () => {
     )
   })
 
+  it('returns null range when --all is set, bypassing defaults', () => {
+    const range = resolveDateRange({ all: true }, { lastDays: 30 })
+    expect(range.dateStart).toBeNull()
+    expect(range.dateEnd).toBeNull()
+  })
+
+  it('still rejects --all combined with other shorthands', () => {
+    expect(() =>
+      resolveDateRange({ all: true, today: true }, { lastDays: 30 })
+    ).toThrow()
+  })
+
+  it('still rejects --all combined with --from', () => {
+    expect(() =>
+      resolveDateRange({ all: true, from: '2024-01-01' }, { lastDays: 30 })
+    ).toThrow()
+  })
+
   it('still rejects conflicting shorthands', () => {
     expect(() =>
       resolveDateRange({ today: true, yesterday: true }, { lastDays: 30 })
