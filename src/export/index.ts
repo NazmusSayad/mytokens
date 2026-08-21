@@ -11,7 +11,6 @@ import { parseCopilot } from '@/parsers/copilot.js'
 import { parseCrush } from '@/parsers/crush.js'
 import { parseCursor } from '@/parsers/cursor.js'
 import { parseDroid } from '@/parsers/droid.js'
-import { parseGemini } from '@/parsers/gemini.js'
 import { parseGoose } from '@/parsers/goose.js'
 import { parseHermes } from '@/parsers/hermes.js'
 import { parseKilo } from '@/parsers/kilo.js'
@@ -49,7 +48,6 @@ export async function loadUsageData(
       parseCrush(range),
       parseCursor(range),
       parseDroid(range),
-      parseGemini(range),
       parseGoose(range),
       parseHermes(range),
       parseKilo(range),
