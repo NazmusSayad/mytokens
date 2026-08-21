@@ -144,6 +144,59 @@ describe('model-groups', () => {
       )
       expect(grouped).toBe(original)
     })
+
+    it('groups gateway org-prefixed ids to the direct provider when known', async () => {
+      const { applyModelGroups } = await freshModule()
+      const grouped = applyModelGroups(
+        resolution({}, ['openai::gpt-oss-120b']),
+        messageWithModel('openai/gpt-oss-120b', 'openrouter').model
+      )
+      expect(grouped.id).toBe('gpt-oss-120b')
+      expect(grouped.provider).toBe('openai')
+    })
+
+    it('keeps gateway ids when the prefix is not a known provider', async () => {
+      const { applyModelGroups } = await freshModule()
+      const original = messageWithModel('stealth/ox-alpha', 'openrouter').model
+      const grouped = applyModelGroups(resolution({}, []), original)
+      expect(grouped).toBe(original)
+    })
+
+    it('keeps gateway ids when the direct provider lacks that model', async () => {
+      const { applyModelGroups } = await freshModule()
+      const original = messageWithModel(
+        'deepseek/deepseek-v4-flash-0731',
+        'vercel'
+      ).model
+      const grouped = applyModelGroups(
+        resolution({}, ['deepseek::deepseek-v4-flash']),
+        original
+      )
+      expect(grouped).toBe(original)
+    })
+
+    it('ignores org-prefixed ids for providers outside the gateway list', async () => {
+      const { applyModelGroups } = await freshModule()
+      const original = messageWithModel(
+        'qwen/qwen3.6-max-preview',
+        'kilo'
+      ).model
+      const grouped = applyModelGroups(
+        resolution({}, ['qwen::qwen3.6-max-preview']),
+        original
+      )
+      expect(grouped).toBe(original)
+    })
+
+    it('prefers same-provider free-suffix grouping over the gateway prefix rule', async () => {
+      const { applyModelGroups } = await freshModule()
+      const grouped = applyModelGroups(
+        resolution({}, ['openrouter::z-ai/glm-5.2', 'zai::glm-5.2']),
+        messageWithModel('z-ai/glm-5.2:free', 'openrouter').model
+      )
+      expect(grouped.id).toBe('z-ai/glm-5.2')
+      expect(grouped.provider).toBe('openrouter')
+    })
   })
 
   describe('loadModelGroups', () => {

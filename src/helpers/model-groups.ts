@@ -23,6 +23,10 @@ export type ResolvedModelGroups = {
   nonFreeIds: Set<string>
 }
 
+// Gateways whose model ids follow the "<org>/<model>" structure of the
+// upstream provider. Only these get auto-grouped to the direct provider.
+const ORG_PREFIXED_GATEWAYS = new Set(['openrouter', 'vercel'])
+
 function isModelGroupEntry(value: unknown): value is ModelGroupEntry {
   if (typeof value !== 'object' || value === null) return false
   const entry = value as Record<string, unknown>
@@ -132,6 +136,21 @@ export function applyModelGroups(
     return {
       ...model,
       id: nonFreeId,
+    }
+  }
+
+  if (ORG_PREFIXED_GATEWAYS.has(model.provider)) {
+    const slashIndex = model.id.indexOf('/')
+    if (slashIndex > 0) {
+      const provider = model.id.slice(0, slashIndex)
+      const id = model.id.slice(slashIndex + 1)
+      if (id && resolved.nonFreeIds.has(`${provider}::${id}`)) {
+        return {
+          ...model,
+          provider,
+          id,
+        }
+      }
     }
   }
 
