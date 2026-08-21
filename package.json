@@ -2,6 +2,13 @@
   "name": "mytokens",
   "version": "1.2.7",
   "type": "module",
+  "bin": {
+    "mytokens": "dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NazmusSayad/mytokens.git"
+  },
   "scripts": {
     "prepare": "husky",
     "start": "tsx ./src/index.ts",
@@ -19,7 +26,6 @@
     "test": "vitest run",
     "test:watch": "vitest watch"
   },
-  "bin": "dist/index.js",
   "dependencies": {
     "@resvg/resvg-js": "^2.6.2"
   },
