@@ -26,7 +26,6 @@ type DashboardCommandOptions = UsageFilterOptionValues & {
   display?: string | boolean
   fresh?: boolean
   group?: boolean
-  defaultGroup?: boolean
   autoGroup?: boolean
   cache?: boolean
 }
@@ -61,10 +60,6 @@ program.option(
   'Parse all sources from scratch, ignoring the parse cache.'
 )
 program.option('--no-group', 'Disable model grouping entirely.')
-program.option(
-  '--no-default-group',
-  'Skip the default groups download; use only ~/.mytokens/groups.json.'
-)
 program.option(
   '--no-auto-group',
   'Disable automatic free-variant/gateway grouping (explicit groups still apply).'
@@ -152,7 +147,6 @@ program.action(async (screen, options: DashboardCommandOptions) => {
     screenWidth: process.stdout.columns ?? 80,
 
     groupModels: options.group !== false,
-    defaultGroupModels: options.defaultGroup !== false,
     autoGroupModels: options.autoGroup !== false,
     refetchRemote: options.cache === false,
 

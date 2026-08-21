@@ -41,7 +41,6 @@ export type ExportFilterOptions = {
   disabledProjects: string[] | null
 
   groupModels?: boolean
-  defaultGroupModels?: boolean
   autoGroupModels?: boolean
   refetchRemote?: boolean
 }

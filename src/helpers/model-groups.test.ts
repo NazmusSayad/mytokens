@@ -1,5 +1,5 @@
 import type { UsageDataMessage } from '@/core/types.js'
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -86,13 +86,10 @@ describe('model-groups', () => {
     return await import('./model-groups.js')
   }
 
-  const REMOTE_URL =
-    'https://raw.githubusercontent.com/NazmusSayad/mytokens/main/groups.json'
   const MODELS_DEV_URL = 'https://models.dev/api.json'
 
-  function stubCatalogFetch(groupsPayload: unknown, catalogPayload: unknown) {
+  function stubCatalogFetch(catalogPayload: unknown) {
     return stubFetchByResponse({
-      [REMOTE_URL]: groupsPayload,
       [MODELS_DEV_URL]: catalogPayload,
     })
   }
@@ -200,96 +197,58 @@ describe('model-groups', () => {
   })
 
   describe('loadModelGroups', () => {
-    it('downloads the remote groups, persists them and applies local overrides', async () => {
+    it('loads explicit entries from the user groups file', async () => {
       mkdirSync(homePath(), { recursive: true })
       writeFileSync(
         homePath('groups.json'),
         JSON.stringify({
           'user-model': { provider: 'user-provider', model: 'user-model' },
-          'shared-model': { provider: 'local-provider', model: 'local-name' },
+          'broken-entry': { provider: 'openai' },
+          'numeric-entry': 42,
         })
       )
 
-      const fetchStub = stubCatalogFetch(
-        {
-          'remote-model': { provider: 'openai', model: 'remote-name' },
-          'shared-model': { provider: 'remote-provider', model: 'remote-name' },
-          'broken-entry': { provider: 'openai' },
-          'numeric-entry': 42,
-        },
-        { deepseek: { models: { 'deepseek-v4-flash': {} } } }
-      )
+      const fetchStub = stubCatalogFetch({
+        deepseek: { models: { 'deepseek-v4-flash': {} } },
+      })
 
       const { loadModelGroups } = await freshModule()
       const resolved = await loadModelGroups()
 
-      expect(fetchStub).toHaveBeenCalledTimes(2)
+      expect(fetchStub).toHaveBeenCalledTimes(1)
       expect(resolved.groups).toEqual({
-        'remote-model': { provider: 'openai', model: 'remote-name' },
-        'shared-model': { provider: 'local-provider', model: 'local-name' },
         'user-model': { provider: 'user-provider', model: 'user-model' },
       })
       expect(resolved.nonFreeIds.has('deepseek::deepseek-v4-flash')).toBe(true)
-
-      const persisted = JSON.parse(
-        readFileSync(homePath('cache', 'model-groups.json'), 'utf-8')
-      ) as Record<string, unknown>
-      expect(persisted['remote-model']).toEqual({
-        provider: 'openai',
-        model: 'remote-name',
-      })
-      expect(persisted['broken-entry']).toBeUndefined()
-      expect(persisted['numeric-entry']).toBeUndefined()
     })
 
-    it('falls back to the persisted download when offline', async () => {
-      mkdirSync(homePath('cache'), { recursive: true })
-      writeFileSync(
-        homePath('cache', 'model-groups.json'),
-        JSON.stringify({
-          'cached-model': { provider: 'openai', model: 'cached-name' },
-          invalid: null,
-        })
-      )
-
-      const fetchStub = stubFailingFetch()
-
-      const { loadModelGroups } = await freshModule()
-      const resolved = await loadModelGroups()
-
-      expect(fetchStub).toHaveBeenCalledTimes(2)
-      expect(resolved.groups).toEqual({
-        'cached-model': { provider: 'openai', model: 'cached-name' },
-      })
-    })
-
-    it('returns empty groups when offline and nothing is persisted', async () => {
-      mkdirSync(homePath(), { recursive: true })
-
+    it('returns empty groups when the user has no groups file and is offline', async () => {
       stubFailingFetch()
 
       const { loadModelGroups } = await freshModule()
       const resolved = await loadModelGroups()
 
       expect(resolved.groups).toEqual({})
+      expect(resolved.nonFreeIds.size).toBe(0)
     })
 
-    it('skips the catalog fetch when auto-grouping is disabled', async () => {
+    it('skips every fetch when auto-grouping is disabled', async () => {
       mkdirSync(homePath(), { recursive: true })
-
-      const fetchStub = stubCatalogFetch(
-        {
-          'remote-model': { provider: 'openai', model: 'remote-name' },
-        },
-        { deepseek: { models: { 'deepseek-v4-flash': {} } } }
+      writeFileSync(
+        homePath('groups.json'),
+        JSON.stringify({
+          'user-model': { provider: 'user-provider', model: 'user-name' },
+        })
       )
+
+      const fetchStub = stubFailingFetch()
 
       const { applyModelGroups, loadModelGroups } = await freshModule()
       const resolved = await loadModelGroups({ auto: false })
 
-      expect(fetchStub).toHaveBeenCalledTimes(1)
+      expect(fetchStub).not.toHaveBeenCalled()
       expect(resolved.groups).toEqual({
-        'remote-model': { provider: 'openai', model: 'remote-name' },
+        'user-model': { provider: 'user-provider', model: 'user-name' },
       })
       expect(resolved.nonFreeIds.size).toBe(0)
 
@@ -301,65 +260,10 @@ describe('model-groups', () => {
 
       const explicit = applyModelGroups(
         resolved,
-        messageWithModel('remote-model', 'openai').model
+        messageWithModel('user-model', 'openai').model
       )
-      expect(explicit.id).toBe('remote-name')
-    })
-
-    it('skips the remote download when defaults are disabled and uses only local overrides', async () => {
-      mkdirSync(homePath(), { recursive: true })
-      writeFileSync(
-        homePath('groups.json'),
-        JSON.stringify({
-          'local-model': { provider: 'local-provider', model: 'local-name' },
-        })
-      )
-      mkdirSync(homePath('cache'), { recursive: true })
-      writeFileSync(
-        homePath('cache', 'model-groups.json'),
-        JSON.stringify({
-          'cached-model': { provider: 'openai', model: 'cached-name' },
-        })
-      )
-
-      const fetchStub = stubFailingFetch()
-
-      const { loadModelGroups } = await freshModule()
-      const resolved = await loadModelGroups({ defaults: false })
-
-      expect(fetchStub).toHaveBeenCalledTimes(1)
-      expect(resolved.groups).toEqual({
-        'local-model': { provider: 'local-provider', model: 'local-name' },
-      })
-    })
-
-    it('ignores the fetch cache when fresh is requested but still writes through', async () => {
-      mkdirSync(homePath(), { recursive: true })
-
-      const seedFetch = stubCatalogFetch(
-        {
-          'seeded-model': { provider: 'openai', model: 'seeded-name' },
-        },
-        {}
-      )
-      const seeded = await freshModule()
-      await seeded.loadModelGroups()
-      expect(seedFetch).toHaveBeenCalledTimes(2)
-
-      const refetchStub = stubCatalogFetch(
-        {
-          'fresh-model': { provider: 'openai', model: 'fresh-name' },
-        },
-        {}
-      )
-
-      const { loadModelGroups } = await freshModule()
-      const resolved = await loadModelGroups({ fresh: true })
-
-      expect(refetchStub).toHaveBeenCalledTimes(2)
-      expect(resolved.groups).toEqual({
-        'fresh-model': { provider: 'openai', model: 'fresh-name' },
-      })
+      expect(explicit.id).toBe('user-name')
+      expect(explicit.provider).toBe('user-provider')
     })
   })
 })

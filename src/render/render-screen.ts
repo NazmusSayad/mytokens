@@ -142,7 +142,6 @@ export class RenderScreen {
   public async setup() {
     if (this.groupModels && this.options.groupModels !== false) {
       this.modelGroups = await loadModelGroups({
-        defaults: this.options.defaultGroupModels !== false,
         auto: this.options.autoGroupModels !== false,
         fresh: this.options.refetchRemote,
       })

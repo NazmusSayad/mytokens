@@ -64,7 +64,6 @@ export async function computeOverview(
     usageBy?: RenderValueShowBy
     projects?: number
     groupModels?: boolean
-    defaultGroupModels?: boolean
     autoGroupModels?: boolean
     refetchRemote?: boolean
   }
@@ -79,7 +78,6 @@ export async function computeOverview(
     range.groupModels === false
       ? { groups: {}, nonFreeIds: new Set<string>() }
       : await loadModelGroups({
-          defaults: range.defaultGroupModels,
           auto: range.autoGroupModels,
           fresh,
         })

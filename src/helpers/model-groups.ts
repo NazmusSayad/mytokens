@@ -1,15 +1,10 @@
-import {
-  MODEL_GROUPS_REMOTE_URL,
-  MYTOKENS_GROUPS_CACHE_PATH,
-  MYTOKENS_GROUPS_PATH,
-} from '@/config.js'
-import { cachedFetchJSON } from '@/core/cached-fetch.js'
+import { MYTOKENS_GROUPS_PATH } from '@/config.js'
 import {
   fetchModelsDotDev,
   ModelsDotDevResponse,
 } from '@/core/fetch-models-dot-dev.js'
 import type { UsageDataModel } from '@/core/types.js'
-import { readFileAsJSON, writeFileAsJSON } from '@/helpers/fs.js'
+import { readFileAsJSON } from '@/helpers/fs.js'
 
 export type ModelGroupEntry = {
   provider: string
@@ -48,17 +43,6 @@ function sanitizeModelGroups(value: unknown): ModelGroups {
   return result
 }
 
-async function fetchRemoteGroups(fresh?: boolean): Promise<ModelGroups | null> {
-  try {
-    const remote = await cachedFetchJSON<unknown>(MODEL_GROUPS_REMOTE_URL, {
-      fresh,
-    })
-    return sanitizeModelGroups(remote)
-  } catch {
-    return null
-  }
-}
-
 async function readLocalGroups(): Promise<ModelGroups> {
   return sanitizeModelGroups(
     await readFileAsJSON<unknown>(MYTOKENS_GROUPS_PATH)
@@ -84,7 +68,6 @@ async function fetchNonFreeIds(fresh?: boolean): Promise<Set<string>> {
 }
 
 export type LoadModelGroupsOptions = {
-  defaults?: boolean
   auto?: boolean
   fresh?: boolean
 }
@@ -92,30 +75,15 @@ export type LoadModelGroupsOptions = {
 export async function loadModelGroups(
   options: LoadModelGroupsOptions = {}
 ): Promise<ResolvedModelGroups> {
-  const [remote, nonFreeIds] = await Promise.all([
-    options.defaults === false
-      ? Promise.resolve(null)
-      : fetchRemoteGroups(options.fresh),
+  const [localGroups, nonFreeIds] = await Promise.all([
+    readLocalGroups(),
     options.auto === false
       ? Promise.resolve(new Set<string>())
       : fetchNonFreeIds(options.fresh),
   ])
 
-  let persisted: ModelGroups = {}
-  if (options.defaults !== false) {
-    if (remote) {
-      persisted = remote
-      await writeFileAsJSON(MYTOKENS_GROUPS_CACHE_PATH, remote)
-    } else {
-      persisted = sanitizeModelGroups(
-        await readFileAsJSON<unknown>(MYTOKENS_GROUPS_CACHE_PATH)
-      )
-    }
-  }
-
-  const localGroups = await readLocalGroups()
   return {
-    groups: { ...persisted, ...localGroups },
+    groups: localGroups,
     nonFreeIds,
   }
 }

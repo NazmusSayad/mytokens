@@ -40,7 +40,6 @@ export type RenderScreenOptions = {
   dateEnd: Date | null
 
   groupModels?: boolean
-  defaultGroupModels?: boolean
   autoGroupModels?: boolean
   refetchRemote?: boolean
 }

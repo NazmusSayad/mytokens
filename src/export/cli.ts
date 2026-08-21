@@ -24,7 +24,6 @@ type ExportCommandOptions = UsageFilterOptionValues & {
   scale?: number
   theme?: ExportThemeId
   group?: boolean
-  defaultGroup?: boolean
   autoGroup?: boolean
   cache?: boolean
 }
@@ -34,7 +33,6 @@ type ImageCommandOptions = UsageFilterOptionValues & {
   copy?: boolean
   theme?: ExportThemeId
   group?: boolean
-  defaultGroup?: boolean
   autoGroup?: boolean
   cache?: boolean
 }
@@ -110,10 +108,6 @@ export function attachExportCommands<
   addThemeOption(exportCommand)
   exportCommand.option('--no-group', 'Disable model grouping entirely.')
   exportCommand.option(
-    '--no-default-group',
-    'Skip the default groups download; use only ~/.mytokens/groups.json.'
-  )
-  exportCommand.option(
     '--no-auto-group',
     'Disable automatic free-variant/gateway grouping (explicit groups still apply).'
   )
@@ -155,7 +149,6 @@ export function attachExportCommands<
           {
             ...renderOptions,
             groupModels: options.group !== false,
-            defaultGroupModels: options.defaultGroup !== false,
             autoGroupModels: options.autoGroup !== false,
             refetchRemote: options.cache === false,
           },
@@ -191,10 +184,6 @@ export function attachExportCommands<
     .option('-c, --copy', 'Copy the rendered PNG image to the macOS clipboard.')
     .option('--no-group', 'Disable model grouping entirely.')
     .option(
-      '--no-default-group',
-      'Skip the default groups download; use only ~/.mytokens/groups.json.'
-    )
-    .option(
       '--no-auto-group',
       'Disable automatic free-variant/gateway grouping (explicit groups still apply).'
     )
@@ -226,7 +215,6 @@ export function attachExportCommands<
           {
             ...renderOptions,
             groupModels: imageOptions.group !== false,
-            defaultGroupModels: imageOptions.defaultGroup !== false,
             autoGroupModels: imageOptions.autoGroup !== false,
             refetchRemote: imageOptions.cache === false,
           },

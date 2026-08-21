@@ -15,9 +15,3 @@ export const MYTOKENS_PARSE_CACHE_PATH = path.join(
   'parse-cache-v1.json'
 )
 export const MYTOKENS_GROUPS_PATH = path.join(MYTOKENS_PATH, 'groups.json')
-export const MYTOKENS_GROUPS_CACHE_PATH = path.join(
-  MYTOKENS_CACHE_PATH,
-  'model-groups.json'
-)
-export const MODEL_GROUPS_REMOTE_URL =
-  'https://raw.githubusercontent.com/NazmusSayad/mytokens/main/groups.json'
