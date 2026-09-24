@@ -22,9 +22,10 @@ import {
 interface OpenCodeMessage {
   id?: string
   sessionID?: string
-  role: string
+  role?: string
   modelID?: string
   providerID?: string
+  model?: { id?: string; providerID?: string }
   cost?: number
   tokens?: OpenCodeTokens
   time: OpenCodeTime
@@ -79,6 +80,14 @@ async function parseOpenCodeSqlite(
   const db = await readSQLiteDB(dbPath)
   if (!db) return []
 
+  const v2Query = `
+    SELECT m.id, m.session_id, m.data, NULLIF(s.directory, '') AS workspace_root
+    FROM session_message m
+    LEFT JOIN session_v2 s ON s.id = m.session_id
+    WHERE m.type = 'assistant'
+      AND json_extract(m.data, '$.tokens') IS NOT NULL
+  `
+
   const modernQuery = `
     SELECT m.id, m.session_id, m.data, NULLIF(s.directory, '') AS workspace_root
     FROM message m
@@ -96,13 +105,17 @@ async function parseOpenCodeSqlite(
 
   let rows: Record<string, unknown>[]
   try {
-    rows = await sqliteAll(db, modernQuery)
+    rows = await sqliteAll(db, v2Query)
   } catch {
     try {
-      rows = await sqliteAll(db, legacyQuery)
+      rows = await sqliteAll(db, modernQuery)
     } catch {
-      db.close()
-      return []
+      try {
+        rows = await sqliteAll(db, legacyQuery)
+      } catch {
+        db.close()
+        return []
+      }
     }
   }
 
@@ -128,9 +141,9 @@ function processOpenCodeRows(
       continue
     }
 
-    if (msg.role !== 'assistant') continue
     if (!msg.tokens) continue
-    if (!msg.modelID) continue
+    const modelID = msg.modelID || msg.model?.id
+    if (!modelID) continue
 
     const tokens = msg.tokens
     const input = Math.max(tokens.input || 0, 0)
@@ -167,8 +180,8 @@ function processOpenCodeRows(
       type: 'assistant',
       date: new Date(timestamp),
       model: {
-        id: msg.modelID,
-        provider: msg.providerID || 'unknown',
+        id: modelID,
+        provider: msg.providerID || msg.model?.providerID || 'unknown',
       },
       tokens: normalizeTokens(input, output, cacheRead, cacheWrite, reasoning),
       project: workspaceKey
