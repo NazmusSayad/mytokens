@@ -54,6 +54,7 @@ export async function parseClaude(
     resolveHome('~/.config/claude/usage.jsonl'),
   ]
   for (const path of fixedPaths) {
+    if (filePredatesRange(path, range)) continue
     const messages = cachedFileMessages(path, () =>
       parseClaudeFile(path, parentCache)
     )

@@ -40,11 +40,20 @@ export function attachCacheCommands<
         return
       }
 
-      for (const entry of entries) {
-        console.log(`${String(entry.messages).padStart(7)}  ${entry.path}`)
-      }
       console.log(
-        chalk.dim(`\n${entries.length} files, ${MYTOKENS_PARSE_CACHE_PATH}`)
+        chalk.dim(`${'MESSAGES'.padStart(8)}  ${'SIZE'.padStart(9)}  PATH`)
+      )
+      for (const entry of entries) {
+        console.log(
+          `${String(entry.messages).padStart(8)}  ${formatBytes(entry.bytes).padStart(9)}  ${entry.path}`
+        )
+      }
+
+      const info = getFileMessagesCacheInfo()
+      console.log(
+        chalk.dim(
+          `\n${entries.length} files, ${info.messages} messages, ${formatBytes(info.fileBytes)} on disk\n${MYTOKENS_PARSE_CACHE_PATH}`
+        )
       )
     })
 

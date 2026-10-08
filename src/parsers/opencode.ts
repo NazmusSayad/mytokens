@@ -53,7 +53,7 @@ export async function parseOpenCode(
 ): Promise<UsageDataMessage[]> {
   const dbPath = resolveHome('~/.local/share/opencode/opencode.db')
   const messages = await parseOpenCodeSqlite(dbPath, range)
-  if (messages.length > 0) return filterMessagesByDateRange(messages, range)
+  if (messages) return filterMessagesByDateRange(messages, range)
 
   // Legacy JSON fallback
   const legacyDir = resolveHome('~/.local/share/opencode/storage/message')
@@ -71,14 +71,26 @@ export async function parseOpenCode(
 async function parseOpenCodeSqlite(
   dbPath: string,
   range?: DateRange
-): Promise<UsageDataMessage[]> {
+): Promise<UsageDataMessage[] | undefined> {
   const cached = getCachedFileMessages(dbPath)
   if (cached) {
     return filterMessagesByDateRange(cached, range)
   }
 
   const db = await readSQLiteDB(dbPath)
-  if (!db) return []
+  if (!db) return undefined
+
+  const dateConditions: string[] = []
+  const dateParams: number[] = []
+  if (range?.from) {
+    dateConditions.push(`AND json_extract(m.data, '$.time.created') >= ?`)
+    dateParams.push(range.from.getTime())
+  }
+  if (range?.to) {
+    dateConditions.push(`AND json_extract(m.data, '$.time.created') <= ?`)
+    dateParams.push(range.to.getTime())
+  }
+  const dateFilter = dateConditions.join('\n      ')
 
   const v2Query = `
     SELECT m.id, m.session_id, m.data, NULLIF(s.directory, '') AS workspace_root
@@ -86,6 +98,7 @@ async function parseOpenCodeSqlite(
     LEFT JOIN session_v2 s ON s.id = m.session_id
     WHERE m.type = 'assistant'
       AND json_extract(m.data, '$.tokens') IS NOT NULL
+      ${dateFilter}
   `
 
   const modernQuery = `
@@ -94,6 +107,7 @@ async function parseOpenCodeSqlite(
     LEFT JOIN session s ON s.id = m.session_id
     WHERE json_extract(m.data, '$.role') = 'assistant'
       AND json_extract(m.data, '$.tokens') IS NOT NULL
+      ${dateFilter}
   `
 
   const legacyQuery = `
@@ -101,27 +115,28 @@ async function parseOpenCodeSqlite(
     FROM message m
     WHERE json_extract(m.data, '$.role') = 'assistant'
       AND json_extract(m.data, '$.tokens') IS NOT NULL
+      ${dateFilter}
   `
 
   let rows: Record<string, unknown>[]
   try {
-    rows = await sqliteAll(db, v2Query)
+    rows = await sqliteAll(db, v2Query, dateParams)
   } catch {
     try {
-      rows = await sqliteAll(db, modernQuery)
+      rows = await sqliteAll(db, modernQuery, dateParams)
     } catch {
       try {
-        rows = await sqliteAll(db, legacyQuery)
+        rows = await sqliteAll(db, legacyQuery, dateParams)
       } catch {
         db.close()
-        return []
+        return undefined
       }
     }
   }
 
   db.close()
   const messages = processOpenCodeRows(rows)
-  storeFileMessages(dbPath, messages)
+  if (dateConditions.length === 0) storeFileMessages(dbPath, messages)
   return filterMessagesByDateRange(messages, range)
 }
 

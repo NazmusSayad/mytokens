@@ -12,6 +12,10 @@ export const MYTOKENS_CACHE_REGISTRY_PATH = path.join(
 )
 export const MYTOKENS_PARSE_CACHE_PATH = path.join(
   MYTOKENS_CACHE_PATH,
+  'parse-cache-v2.json'
+)
+export const MYTOKENS_LEGACY_PARSE_CACHE_PATH = path.join(
+  MYTOKENS_CACHE_PATH,
   'parse-cache-v1.json'
 )
 export const MYTOKENS_GROUPS_PATH = path.join(MYTOKENS_PATH, 'groups.json')

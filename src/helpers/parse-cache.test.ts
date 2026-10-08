@@ -155,7 +155,7 @@ describe('parse-cache', () => {
   it('falls back to parsing when the cache file is corrupt', async () => {
     const cacheDir = join(tempHome, '.mytokens', 'cache')
     mkdirSync(cacheDir, { recursive: true })
-    writeFileSync(join(cacheDir, 'parse-cache-v1.json'), '{not json')
+    writeFileSync(join(cacheDir, 'parse-cache-v2.json'), '{not json')
 
     const { cachedFileMessages } = await freshModule()
     const path = join(mkdtempSync(join(tmpdir(), 'pcache-')), 's.jsonl')
@@ -207,12 +207,12 @@ describe('parse-cache', () => {
     mod.cachedFileMessages(path, () => [messageAt(new Date())])
     mod.flushFileMessagesCache()
     expect(
-      existsSync(join(tempHome, '.mytokens', 'cache', 'parse-cache-v1.json'))
+      existsSync(join(tempHome, '.mytokens', 'cache', 'parse-cache-v2.json'))
     ).toBe(true)
 
     mod.clearFileMessagesCache()
     expect(
-      existsSync(join(tempHome, '.mytokens', 'cache', 'parse-cache-v1.json'))
+      existsSync(join(tempHome, '.mytokens', 'cache', 'parse-cache-v2.json'))
     ).toBe(false)
 
     const fresh = await freshModule()
@@ -240,8 +240,8 @@ describe('parse-cache', () => {
 
     const listed = listFileMessagesCache()
     expect(listed).toEqual([
-      { path: pathA, messages: 2 },
-      { path: pathB, messages: 1 },
+      { path: pathA, messages: 2, bytes: expect.any(Number) },
+      { path: pathB, messages: 1, bytes: expect.any(Number) },
     ])
   })
 

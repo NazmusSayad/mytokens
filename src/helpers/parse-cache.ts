@@ -1,4 +1,7 @@
-import { MYTOKENS_PARSE_CACHE_PATH } from '@/config.js'
+import {
+  MYTOKENS_LEGACY_PARSE_CACHE_PATH,
+  MYTOKENS_PARSE_CACHE_PATH,
+} from '@/config.js'
 import type { UsageDataMessage } from '@/core/types.js'
 import {
   mkdirSync,
@@ -10,24 +13,34 @@ import {
 } from 'node:fs'
 import { dirname } from 'node:path'
 
-const PARSE_CACHE_VERSION = 1
+const PARSE_CACHE_VERSION = 2
 const PARSE_CACHE_MAX_ENTRIES = 20_000
 
 type StoredMessage = Omit<UsageDataMessage, 'date'> & { date: string }
 
-type ParseCacheFile = {
-  version: number
-  entries: Record<string, StoredMessage[]>
+type CacheEntry = {
+  identity: string
+  messages: StoredMessage[]
 }
 
-let cacheEntries: Map<string, StoredMessage[]> | undefined
+type ParseCacheFile = {
+  version: number
+  entries: Record<string, CacheEntry>
+}
+
+let cacheEntries: Map<string, CacheEntry> | undefined
 let cacheDirty = false
 let cacheDisabled = false
 
-function loadCache(): Map<string, StoredMessage[]> {
+function loadCache(): Map<string, CacheEntry> {
   if (cacheEntries) return cacheEntries
 
   cacheEntries = new Map()
+  try {
+    unlinkSync(MYTOKENS_LEGACY_PARSE_CACHE_PATH)
+  } catch {
+    // no legacy cache file on disk
+  }
   try {
     const parsed = JSON.parse(
       readFileSync(MYTOKENS_PARSE_CACHE_PATH, 'utf-8')
@@ -37,8 +50,14 @@ function loadCache(): Map<string, StoredMessage[]> {
       parsed.entries &&
       typeof parsed.entries === 'object'
     ) {
-      for (const [key, messages] of Object.entries(parsed.entries)) {
-        if (Array.isArray(messages)) cacheEntries.set(key, messages)
+      for (const [path, entry] of Object.entries(parsed.entries)) {
+        if (
+          entry &&
+          typeof entry.identity === 'string' &&
+          Array.isArray(entry.messages)
+        ) {
+          cacheEntries.set(path, entry)
+        }
       }
     }
   } catch {
@@ -77,6 +96,11 @@ export function clearFileMessagesCache(): void {
   } catch {
     // no cache file on disk
   }
+  try {
+    unlinkSync(MYTOKENS_LEGACY_PARSE_CACHE_PATH)
+  } catch {
+    // no legacy cache file on disk
+  }
 }
 
 export function getCachedFileMessages(
@@ -84,13 +108,13 @@ export function getCachedFileMessages(
 ): UsageDataMessage[] | undefined {
   if (cacheDisabled) return undefined
 
-  const key = fileIdentityKey(path)
-  if (!key) return undefined
+  const identity = fileIdentityKey(path)
+  if (!identity) return undefined
 
-  const stored = loadCache().get(key)
-  if (!stored) return undefined
+  const entry = loadCache().get(path)
+  if (!entry || entry.identity !== identity) return undefined
 
-  return stored.map((message) => ({
+  return entry.messages.map((message) => ({
     ...message,
     date: new Date(message.date),
   }))
@@ -102,16 +126,16 @@ export function storeFileMessages(
 ): void {
   if (cacheDisabled) return
 
-  const key = fileIdentityKey(path)
-  if (!key) return
+  const identity = fileIdentityKey(path)
+  if (!identity) return
 
   const serialized: StoredMessage[] = messages.map((message) => ({
     ...message,
     date: message.date.toISOString(),
   }))
   const entries = loadCache()
-  entries.delete(key)
-  entries.set(key, serialized)
+  entries.delete(path)
+  entries.set(path, { identity, messages: serialized })
   cacheDirty = true
 }
 
@@ -155,12 +179,17 @@ export function flushFileMessagesCache(): void {
 export type FileMessagesCacheEntry = {
   path: string
   messages: number
+  bytes: number
 }
 
 export function listFileMessagesCache(): FileMessagesCacheEntry[] {
   const result: FileMessagesCacheEntry[] = []
-  for (const [key, messages] of loadCache()) {
-    result.push({ path: pathFromIdentityKey(key), messages: messages.length })
+  for (const [path, entry] of loadCache()) {
+    result.push({
+      path,
+      messages: entry.messages.length,
+      bytes: Buffer.byteLength(JSON.stringify(entry)),
+    })
   }
   return result.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
 }
@@ -183,8 +212,8 @@ export function getFileMessagesCacheInfo(): FileMessagesCacheInfo {
   }
 
   let messages = 0
-  for (const stored of loadCache().values()) {
-    messages += stored.length
+  for (const entry of loadCache().values()) {
+    messages += entry.messages.length
   }
 
   return {
@@ -193,15 +222,4 @@ export function getFileMessagesCacheInfo(): FileMessagesCacheInfo {
     entries: loadCache().size,
     messages,
   }
-}
-
-function pathFromIdentityKey(key: string): string {
-  const segments = key.split('|')
-  while (
-    segments.length > 1 &&
-    /^\d+(\.\d+)?$/.test(segments[segments.length - 1])
-  ) {
-    segments.pop()
-  }
-  return segments.join('|')
 }
