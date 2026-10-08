@@ -1,6 +1,6 @@
 {
   "name": "mytokens",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "type": "module",
   "bin": {
     "mytokens": "dist/index.js"
