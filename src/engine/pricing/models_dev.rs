@@ -1,7 +1,7 @@
 use super::litellm::ModelPricing;
 use super::{cache, fetch};
 use serde::Deserialize;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 const CACHE_FILENAME: &str = "pricing-models-dev.json";
 const MODELS_DEV_URL: &str = "https://models.dev/api.json";
@@ -85,6 +85,11 @@ pub fn load_cached() -> Option<PricingDataset> {
 
 pub fn load_cached_any_age() -> Option<PricingDataset> {
     cache::load_cache_any_age(CACHE_FILENAME)
+}
+
+pub fn load_cached_ids_any_age() -> Option<HashSet<String>> {
+    cache::load_cache_any_age::<HashMap<String, serde::de::IgnoredAny>>(CACHE_FILENAME)
+        .map(|data| data.into_keys().collect())
 }
 
 pub(crate) fn parse_dataset(content: &str) -> Result<PricingDataset, serde_json::Error> {

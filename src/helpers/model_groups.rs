@@ -49,8 +49,8 @@ fn read_local_groups() -> HashMap<String, ModelGroupEntry> {
 }
 
 fn load_non_free_ids() -> HashSet<String> {
-    match tokscale_core::pricing::models_dev::load_cached_any_age() {
-        Some(dataset) => dataset.into_keys().collect(),
+    match tokscale_core::pricing::models_dev::load_cached_ids_any_age() {
+        Some(ids) => ids,
         None => HashSet::new(),
     }
 }

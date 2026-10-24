@@ -3292,9 +3292,9 @@ fn parse_all_messages_streaming<S: MessageSink>(
             desktop_coverage = Some(desktop.coverage.clone());
         }
         desktop.merge_into(&mut claude_messages);
-        for message in &mut claude_messages {
-            apply_pricing_if_available(message, pricing);
-        }
+        claude_messages
+            .par_iter_mut()
+            .for_each(|message| apply_pricing_if_available(message, pricing));
     }
     for index in sessions::claudecode::reconcile_advisor_billing(&mut claude_messages) {
         apply_pricing_if_available(&mut claude_messages[index], pricing);

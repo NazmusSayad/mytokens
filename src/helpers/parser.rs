@@ -32,32 +32,27 @@ async fn load_pricing(refetch_remote: bool) -> Option<Arc<PricingService>> {
 }
 
 fn to_usage_message(
-    message: &UnifiedMessage,
+    message: UnifiedMessage,
     price_detector: &mut PriceDetector,
 ) -> Option<UsageDataMessage> {
     if message.timestamp <= 0 {
         return None;
     }
     let date = Local.timestamp_millis_opt(message.timestamp).single()?;
+    let costs = price_detector.get_costs(&message);
 
-    let project = match (&message.workspace_label, &message.workspace_key) {
+    let project = match (message.workspace_label, message.workspace_key) {
         (None, None) => None,
-        (name, path) => Some(UsageDataProject {
-            name: name.clone(),
-            path: path.clone(),
-        }),
+        (name, path) => Some(UsageDataProject { name, path }),
     };
 
     Some(UsageDataMessage {
-        source: message.client.clone(),
-        agent: message
-            .agent
-            .clone()
-            .unwrap_or_else(|| "default".to_string()),
+        source: message.client,
+        agent: message.agent.unwrap_or_else(|| "default".to_string()),
         date,
         model: UsageDataModel {
-            id: message.model_id.clone(),
-            provider: message.provider_id.clone(),
+            id: message.model_id,
+            provider: message.provider_id,
         },
         tokens: UsageDataToken {
             input: message.tokens.input,
@@ -66,7 +61,7 @@ fn to_usage_message(
             cache_input: message.tokens.cache_read,
             cache_output: message.tokens.cache_write,
         },
-        costs: price_detector.get_costs(message),
+        costs,
         requests: message.message_count as i64,
         project,
     })
@@ -101,7 +96,7 @@ pub async fn load_usage_data(
 
     let mut price_detector = PriceDetector::new(pricing.as_deref());
     Ok(messages
-        .iter()
+        .into_iter()
         .filter_map(|message| to_usage_message(message, &mut price_detector))
         .collect())
 }
