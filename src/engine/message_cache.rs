@@ -3316,7 +3316,7 @@ pub(crate) struct SourceMessageCache {
 // not reveal a sharing or atomicity failure -- all shard round-trip/concurrency
 // tests passed -- so retaining the established serial I/O is the safe default.
 #[cfg(not(windows))]
-const MAX_PARALLEL_SHARD_SAVE_LANES: usize = 2;
+const MAX_PARALLEL_SHARD_SAVE_LANES: usize = 16;
 #[cfg(windows)]
 const MAX_PARALLEL_SHARD_SAVE_LANES: usize = 1;
 
@@ -3430,16 +3430,38 @@ impl SourceMessageCache {
             }
         };
 
-        for dir_entry in read_dir.filter_map(Result::ok) {
-            let Some(index) = parse_shard_filename(&dir_entry.file_name()) else {
-                continue;
-            };
+        let shard_files: Vec<(usize, PathBuf)> = read_dir
+            .filter_map(Result::ok)
+            .filter_map(|dir_entry| {
+                parse_shard_filename(&dir_entry.file_name()).map(|index| (index, dir_entry.path()))
+            })
+            .collect();
+        let workers = std::thread::available_parallelism().map_or(1, |count| count.get());
+        let chunk_size = shard_files.len().div_ceil(workers).max(1);
+        let shard_reads: Vec<ShardReadStatus> = std::thread::scope(|scope| {
+            let handles: Vec<_> = shard_files
+                .chunks(chunk_size)
+                .map(|chunk| {
+                    scope.spawn(move || {
+                        chunk
+                            .iter()
+                            .map(|(_, path)| read_shard(path, identity))
+                            .collect::<Vec<_>>()
+                    })
+                })
+                .collect();
+            handles
+                .into_iter()
+                .flat_map(|handle| handle.join().expect("shard read thread panicked"))
+                .collect()
+        });
+
+        for ((index, path), shard_read) in shard_files.into_iter().zip(shard_reads) {
             let shard_key = CacheShardKey {
                 namespace: namespace.to_string(),
                 index,
             };
-            let path = dir_entry.path();
-            let (entries, migrated) = match read_shard(&path, identity) {
+            let (entries, migrated) = match shard_read {
                 ShardReadStatus::Loaded(entries) => (entries, false),
                 ShardReadStatus::Migrated(entries) => (entries, true),
                 ShardReadStatus::Missing => continue,
@@ -3571,6 +3593,11 @@ impl SourceMessageCache {
     ///   other.
     /// * An entry already marked dirty is written back from memory by
     ///   `save_if_dirty`, so its payload has to still be there.
+    pub(crate) fn preload(&self, identity: CacheIdentity) {
+        let mut state = self.state();
+        self.ensure_namespace_loaded(&mut state, identity.namespace);
+    }
+
     pub(crate) fn take(&self, identity: CacheIdentity, path: &Path) -> Option<CachedSourceEntry> {
         let key = CacheKey::new(identity, path);
         let mut state = self.state();

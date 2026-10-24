@@ -882,23 +882,27 @@ fn parse_claude_lines(
             }
 
             if entry.entry_type == "user" || entry.entry_type == "tool_result" {
-                let tool_result_message = extract_claude_tool_result_message(
-                    trimmed,
-                    ClaudeToolResultContext {
-                        entry: &entry,
-                        last_model: last_model.as_deref(),
-                        last_provider_hint: last_provider_hint.as_deref(),
-                        client_id,
-                        default_provider_hint: metadata_provider_hint,
-                        session_id: &session_id,
-                        fallback_timestamp,
-                        workspace_key: workspace_key.clone(),
-                        workspace_label: workspace_label.clone(),
-                        sidechain_agent: sidechain_agent.clone(),
-                        suppress_unattributed: suppress_unattributed_tool_results,
-                        allow_char_estimate: false,
-                    },
-                );
+                let tool_result_message = if may_carry_explicit_tool_result_tokens(trimmed) {
+                    extract_claude_tool_result_message(
+                        trimmed,
+                        ClaudeToolResultContext {
+                            entry: &entry,
+                            last_model: last_model.as_deref(),
+                            last_provider_hint: last_provider_hint.as_deref(),
+                            client_id,
+                            default_provider_hint: metadata_provider_hint,
+                            session_id: &session_id,
+                            fallback_timestamp,
+                            workspace_key: workspace_key.clone(),
+                            workspace_label: workspace_label.clone(),
+                            sidechain_agent: sidechain_agent.clone(),
+                            suppress_unattributed: suppress_unattributed_tool_results,
+                            allow_char_estimate: false,
+                        },
+                    )
+                } else {
+                    None
+                };
 
                 let entry_timestamp_ms = parse_claude_entry_timestamp(entry.timestamp.as_deref());
                 // Without the entry's own timestamp the result may be stamped
@@ -1174,7 +1178,7 @@ fn parse_claude_lines(
             }
         }
 
-        if handled {
+        if handled || !may_carry_headless_usage(trimmed) {
             continue;
         }
 
@@ -1704,6 +1708,17 @@ struct ClaudeToolResultContext<'a> {
     /// tool_result text, so the char fallback double-counts (tokscale#1011).
     /// Explicit tool-result token metadata is still honored.
     allow_char_estimate: bool,
+}
+
+fn may_carry_explicit_tool_result_tokens(line: &str) -> bool {
+    line.contains("tool_result")
+        && (line.contains("\"input_tokens\"")
+            || line.contains("\"token_count\"")
+            || line.contains("\"tokens\""))
+}
+
+fn may_carry_headless_usage(line: &str) -> bool {
+    line.contains("\"message_") || line.contains("\"usage\"")
 }
 
 fn extract_claude_tool_result_message(

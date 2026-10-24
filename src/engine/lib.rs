@@ -3134,6 +3134,9 @@ fn parse_all_messages_streaming<S: MessageSink>(
     }
 
     let claude_home = PathBuf::from(home_dir);
+    if !scan_result.get(ClientId::Claude).is_empty() {
+        source_cache.preload(message_cache::CacheIdentity::for_client(ClientId::Claude));
+    }
     let mut claude_outcomes: Vec<CachedParseOutcome> = scan_result
         .get(ClientId::Claude)
         .par_iter()
@@ -3163,6 +3166,16 @@ fn parse_all_messages_streaming<S: MessageSink>(
                     )
                 },
                 |path| {
+                    if matches!(cache_policy, SourceCachePolicy::InMemory) {
+                        return SourceParse {
+                            messages: sessions::claudecode::parse_claude_file_with_home(
+                                path,
+                                Some(&claude_home),
+                            ),
+                            cacheable: true,
+                            claude_checkpoint: None,
+                        };
+                    }
                     let parsed = sessions::claudecode::parse_claude_file_with_checkpoint(
                         path,
                         Some(&claude_home),
