@@ -13,16 +13,10 @@
 
 ## Install
 
-Use it directly from npm (no cloning/building needed):
+Install from the repository with Cargo:
 
 ```bash
-npx mytokens
-```
-
-Or install globally:
-
-```bash
-npm i -g mytokens
+cargo install --git https://github.com/NazmusSayad/mytokens
 mytokens
 ```
 
@@ -31,7 +25,7 @@ mytokens
 Run with default database path:
 
 ```bash
-npx mytokens
+mytokens
 ```
 
 You can also pass your database file as the first CLI argument, or set `OPENCODE_DB_PATH`.
@@ -52,6 +46,6 @@ The CLI prints three tables:
 
 ## Requirements
 
-- Node.js 18+
+- Rust toolchain (to build from source)
 - Access to your OpenCode SQLite database
 - Network access to OpenRouter models endpoint
