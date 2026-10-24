@@ -1,4 +1,52 @@
-dist
+.DS_Store
 node_modules
-mytokens.png
-mytokens.svg
+dist/
+
+# Benchmark results (except .gitkeep)
+packages/benchmarks/results/*
+!packages/benchmarks/results/.gitkeep
+packages/benchmarks/synthetic-data/
+coverage/
+
+# Legacy paths (keep for safety)
+benchmarks/results/*
+!benchmarks/results/.gitkeep
+benchmarks/synthetic-data/
+
+target/
+*.node
+__pycache__/
+
+# Debug logs
+*.log
+ffi_otui_debug_*.log
+
+# Temporary files and archives
+opencodetmp/
+*.zip
+.turbo
+notepad.md
+ai-todolist.md
+*.tgz
+.sisyphus
+# The TUI's export key writes to the process cwd, so these land wherever
+# tokscale (or `cargo test`, from the workspace root) was run from — not only
+# under the CLI crate.
+tokscale-export-*.json
+self-host/tokscale-key.pem
+self-host/
+.next/
+.vercel
+.env*.local
+# Ephemeral git worktrees created by Claude Code. These are real checkouts
+# containing their own .git file, so `git add -A` from the repo root stages
+# them as embedded-repository gitlinks rather than ignoring them. Only the
+# worktrees are ignored, not all of .claude/ -- project-level agent config
+# there is worth committing deliberately.
+.claude/worktrees/
+.claude/skills/
+.omp/
+.omx/
+.codegraph/
+.agents/
+skills-lock.json

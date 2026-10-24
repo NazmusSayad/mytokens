@@ -1,0 +1,288 @@
+//! Kilo CLI session parser
+//!
+//! Parses messages from:
+//! - SQLite database: ~/.local/share/kilo/kilo.db
+//!
+//! Kilo stores assistant turns in OpenCode's message schema, so the parse
+//! itself lives in [`super::opencode_schema`]; only the places where Kilo's
+//! behaviour departs from OpenCode's are declared here, as
+//! `OpenCodeSchemaConfig::kilo`.
+
+use super::opencode_schema::{parse_opencode_schema_sqlite, OpenCodeSchemaConfig};
+use super::utils::file_modified_timestamp_ms;
+use super::UnifiedMessage;
+use std::path::Path;
+
+pub fn parse_kilo_sqlite(db_path: &Path) -> Vec<UnifiedMessage> {
+    let fallback_timestamp = file_modified_timestamp_ms(db_path);
+    parse_kilo_sqlite_with_fallback(db_path, fallback_timestamp)
+}
+
+/// Parse with an explicit timestamp for assistant turns whose payload carries
+/// no `time` object. Kilo, unlike the other OpenCode-schema clients, keeps such
+/// messages rather than dropping them.
+pub fn parse_kilo_sqlite_with_fallback(
+    db_path: &Path,
+    fallback_timestamp: i64,
+) -> Vec<UnifiedMessage> {
+    parse_opencode_schema_sqlite(db_path, OpenCodeSchemaConfig::kilo(fallback_timestamp))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sessions::opencode_schema::OpenCodeSchemaMessage;
+    use rusqlite::{params, Connection};
+    use tempfile::TempDir;
+
+    fn create_kilo_sqlite_db(dir: &TempDir) -> std::path::PathBuf {
+        let db_path = dir.path().join("kilo.db");
+        let conn = Connection::open(&db_path).unwrap();
+        conn.execute_batch(
+            r#"
+            CREATE TABLE message (
+                id TEXT PRIMARY KEY,
+                session_id TEXT NOT NULL,
+                data TEXT NOT NULL
+            );
+            "#,
+        )
+        .unwrap();
+        db_path
+    }
+
+    fn insert_kilo_message(conn: &Connection, row_id: &str, session_id: &str, data_json: &str) {
+        conn.execute(
+            "INSERT INTO message (id, session_id, data) VALUES (?1, ?2, ?3)",
+            params![row_id, session_id, data_json],
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn test_parse_kilo_message_structure() {
+        let json = r#"{
+            "id": "msg-123",
+            "session_id": "sess-456",
+            "role": "assistant",
+            "modelID": "minimax/m2.5",
+            "providerID": "kilo",
+            "cost": 0.15,
+            "tokens": {
+                "input": 1000,
+                "output": 200,
+                "cache": {"read": 500, "write": 100}
+            },
+            "time": {"created": 1700000000000}
+        }"#;
+
+        let mut bytes = json.as_bytes().to_vec();
+        let msg: OpenCodeSchemaMessage = simd_json::from_slice(&mut bytes).unwrap();
+        assert_eq!(msg.role.as_deref(), Some("assistant"));
+        assert_eq!(msg.cost, Some(0.15));
+        assert_eq!(msg.model_id, Some("minimax/m2.5".to_string()));
+    }
+
+    #[test]
+    fn test_parse_kilo_sqlite_reads_assistant_rows() {
+        let dir = TempDir::new().unwrap();
+        let db_path = create_kilo_sqlite_db(&dir);
+        let conn = Connection::open(&db_path).unwrap();
+
+        let data_json = r#"{
+            "id": "embedded-msg-1",
+            "session_id": "sess-1",
+            "role": "assistant",
+            "modelID": "claude-sonnet-4",
+            "providerID": "anthropic",
+            "cost": 0.42,
+            "agent": "architect",
+            "tokens": {
+                "input": 1200,
+                "output": 300,
+                "reasoning": 40,
+                "cache": {"read": 75, "write": 25}
+            },
+            "time": {"created": 1700000000123.0}
+        }"#;
+        insert_kilo_message(&conn, "row-msg-1", "sess-1", data_json);
+        drop(conn);
+
+        let messages = parse_kilo_sqlite_with_fallback(&db_path, 42);
+        assert_eq!(messages.len(), 1);
+
+        let msg = &messages[0];
+        assert_eq!(msg.client, "kilo");
+        assert_eq!(msg.session_id, "sess-1");
+        assert_eq!(msg.model_id, "claude-sonnet-4");
+        assert_eq!(msg.provider_id, "anthropic");
+        assert_eq!(msg.timestamp, 1_700_000_000_123);
+        assert_eq!(msg.tokens.input, 1200);
+        assert_eq!(msg.tokens.output, 300);
+        assert_eq!(msg.tokens.reasoning, 40);
+        assert_eq!(msg.tokens.cache_read, 75);
+        assert_eq!(msg.tokens.cache_write, 25);
+        assert_eq!(msg.cost, 0.42);
+        assert_eq!(msg.agent.as_deref(), Some("architect"));
+        assert_eq!(msg.dedup_key.as_deref(), Some("embedded-msg-1"));
+    }
+
+    #[test]
+    fn test_parse_kilo_sqlite_skips_invalid_rows_and_clamps_values() {
+        let dir = TempDir::new().unwrap();
+        let db_path = create_kilo_sqlite_db(&dir);
+        let conn = Connection::open(&db_path).unwrap();
+
+        insert_kilo_message(
+            &conn,
+            "row-user",
+            "sess-user",
+            r#"{
+                "session_id": "sess-user",
+                "role": "user",
+                "modelID": "gpt-5.4",
+                "tokens": {"input": 1, "output": 1, "cache": {"read": 0, "write": 0}}
+            }"#,
+        );
+        insert_kilo_message(
+            &conn,
+            "row-no-tokens",
+            "sess-no-tokens",
+            r#"{
+                "session_id": "sess-no-tokens",
+                "role": "assistant",
+                "modelID": "gpt-5.4"
+            }"#,
+        );
+        insert_kilo_message(
+            &conn,
+            "row-no-model",
+            "sess-no-model",
+            r#"{
+                "session_id": "sess-no-model",
+                "role": "assistant",
+                "tokens": {"input": 1, "output": 1, "cache": {"read": 0, "write": 0}}
+            }"#,
+        );
+        insert_kilo_message(&conn, "row-invalid-json", "sess-invalid", "{not-json");
+        insert_kilo_message(
+            &conn,
+            "row-valid",
+            "sess-valid",
+            r#"{
+                "role": "assistant",
+                "modelID": "gpt-5.4",
+                "cost": -0.75,
+                "mode": "debug",
+                "tokens": {
+                    "input": -100,
+                    "output": -50,
+                    "reasoning": -5,
+                    "cache": {"read": -20, "write": -10}
+                }
+            }"#,
+        );
+        drop(conn);
+
+        let messages = parse_kilo_sqlite_with_fallback(&db_path, 1_800_000_000_000);
+        assert_eq!(messages.len(), 1);
+
+        let msg = &messages[0];
+        assert_eq!(msg.session_id, "sess-valid");
+        assert_eq!(msg.model_id, "gpt-5.4");
+        assert_eq!(msg.provider_id, "openai");
+        assert_eq!(msg.timestamp, 1_800_000_000_000);
+        assert_eq!(msg.tokens.input, 0);
+        assert_eq!(msg.tokens.output, 0);
+        assert_eq!(msg.tokens.reasoning, 0);
+        assert_eq!(msg.tokens.cache_read, 0);
+        assert_eq!(msg.tokens.cache_write, 0);
+        assert_eq!(msg.cost, 0.0);
+        assert_eq!(msg.agent.as_deref(), Some("debug"));
+        assert_eq!(msg.dedup_key.as_deref(), Some("row-valid"));
+    }
+
+    #[test]
+    fn test_parse_kilo_sqlite_skips_rows_migrated_from_vscode_extension() {
+        let dir = TempDir::new().unwrap();
+        let db_path = create_kilo_sqlite_db(&dir);
+        let conn = Connection::open(&db_path).unwrap();
+
+        // Shape the Kilo CLI writes when it imports Kilo Code extension tasks.
+        insert_kilo_message(
+            &conn,
+            "msg_migrated_1",
+            "ses_migrated_1",
+            r#"{"role":"assistant","time":{"created":1748038767854,"completed":1748038767854},"modelID":"legacy","providerID":"legacy","mode":"code","agent":"main","cost":0,"tokens":{"input":0,"output":0,"reasoning":0,"cache":{"read":0,"write":0}}}"#,
+        );
+        insert_kilo_message(
+            &conn,
+            "msg_native_1",
+            "ses_native_1",
+            r#"{"role":"assistant","time":{"created":1768678556423},"modelID":"kilo-auto/frontier","providerID":"kilo","cost":0.01,"tokens":{"input":100,"output":20,"reasoning":0,"cache":{"read":0,"write":0}}}"#,
+        );
+        drop(conn);
+
+        let messages = parse_kilo_sqlite_with_fallback(&db_path, 42);
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages[0].session_id, "ses_native_1");
+        assert_eq!(messages[0].model_id, "kilo-auto/frontier");
+    }
+
+    /// The skip is for the migration's zero-usage stubs, identified by the
+    /// whole shape. A row that merely spells its provider and model `legacy`
+    /// is somebody's real spend and must still be counted.
+    #[test]
+    fn test_parse_kilo_sqlite_keeps_legacy_named_rows_that_carry_usage() {
+        let dir = TempDir::new().unwrap();
+        let db_path = create_kilo_sqlite_db(&dir);
+        let conn = Connection::open(&db_path).unwrap();
+
+        // `legacy/legacy` ids, but real tokens: not a migration stub.
+        insert_kilo_message(
+            &conn,
+            "msg_legacy_usage",
+            "ses_migrated_2",
+            r#"{"role":"assistant","time":{"created":1748038767854},"modelID":"legacy","providerID":"legacy","cost":0,"tokens":{"input":500,"output":20,"reasoning":0,"cache":{"read":0,"write":0}}}"#,
+        );
+        // Zero tokens but a real charge: also not a stub.
+        insert_kilo_message(
+            &conn,
+            "msg_legacy_cost",
+            "ses_migrated_3",
+            r#"{"role":"assistant","time":{"created":1748038767855},"modelID":"legacy","providerID":"legacy","cost":0.02,"tokens":{"input":0,"output":0,"reasoning":0,"cache":{"read":0,"write":0}}}"#,
+        );
+        // Zero usage and `legacy/legacy`, but outside the migration namespace.
+        insert_kilo_message(
+            &conn,
+            "msg_legacy_native_session",
+            "ses_native_2",
+            r#"{"role":"assistant","time":{"created":1748038767856},"modelID":"legacy","providerID":"legacy","cost":0,"tokens":{"input":0,"output":0,"reasoning":0,"cache":{"read":0,"write":0}}}"#,
+        );
+        drop(conn);
+
+        let messages = parse_kilo_sqlite_with_fallback(&db_path, 42);
+        let sessions: Vec<&str> = messages
+            .iter()
+            .map(|message| message.session_id.as_str())
+            .collect();
+        assert!(
+            sessions.contains(&"ses_migrated_2"),
+            "a `legacy` row with real tokens was dropped: {sessions:?}"
+        );
+        assert!(
+            sessions.contains(&"ses_migrated_3"),
+            "a `legacy` row with a real cost was dropped: {sessions:?}"
+        );
+        assert!(
+            sessions.contains(&"ses_native_2"),
+            "a non-migrated `legacy` row was dropped: {sessions:?}"
+        );
+    }
+
+    #[test]
+    fn test_parse_kilo_sqlite_returns_empty_for_missing_db() {
+        let messages = parse_kilo_sqlite(std::path::Path::new("/nonexistent/kilo.db"));
+        assert!(messages.is_empty());
+    }
+}

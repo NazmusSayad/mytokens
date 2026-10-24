@@ -1,6 +1,0 @@
-{
-  "*.{js,jsx,ts,tsx}": [
-    "oxlint --fix --max-warnings 5 --no-error-on-unmatched-pattern"
-  ],
-  "*.{json,md,yml,yaml,css,scss}": ["oxfmt --write"]
-}
