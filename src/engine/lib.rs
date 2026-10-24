@@ -48,6 +48,13 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Instant;
 
+pub fn version() -> &'static str {
+    match option_env!("MYTOKENS_VERSION") {
+        Some(tag) => tag.trim_start_matches('v'),
+        None => env!("CARGO_PKG_VERSION"),
+    }
+}
+
 /// Counts Claude cache entries rebuilt because they predate retention
 /// provenance. Tests assert the rebuild is a one-time upgrade cost: the count
 /// must stop growing once every entry carries the marker.

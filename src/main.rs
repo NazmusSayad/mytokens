@@ -28,7 +28,7 @@ use crate::render::types::RenderScreenOptions;
 #[derive(Parser, Debug)]
 #[command(
     name = "mytokens",
-    version,
+    version = tokscale_core::version(),
     about = "CLI tool to see detailed all the coding cli usage"
 )]
 struct Cli {

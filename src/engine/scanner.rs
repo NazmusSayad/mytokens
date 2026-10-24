@@ -7246,11 +7246,13 @@ mod tests {
             "TOKSCALE_EXTRA_DIRS",
             "CODEX_HOME",
             "GEMINI_CLI_HOME",
+            "CLAUDE_CONFIG_DIR",
         ]);
         env.remove("TOKSCALE_HEADLESS_DIR");
         env.remove("TOKSCALE_EXTRA_DIRS");
         env.remove("CODEX_HOME");
         env.remove("GEMINI_CLI_HOME");
+        env.remove("CLAUDE_CONFIG_DIR");
 
         let dir = TempDir::new().unwrap();
         let home = dir.path();
@@ -7984,6 +7986,8 @@ mod tests {
     #[serial]
     fn test_scan_all_clients_with_extra_dirs() {
         let previous = std::env::var("TOKSCALE_EXTRA_DIRS").ok();
+        let mut env = EnvGuard::capture(&["CLAUDE_CONFIG_DIR"]);
+        env.remove("CLAUDE_CONFIG_DIR");
 
         let dir = TempDir::new().unwrap();
         let home = dir.path();

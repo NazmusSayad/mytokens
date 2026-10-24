@@ -350,7 +350,7 @@ pub fn generate_graph_result_v2(
     GraphResultV2 {
         meta: GraphMeta {
             generated_at: chrono::Utc::now().to_rfc3339(),
-            version: env!("CARGO_PKG_VERSION").to_string(),
+            version: crate::version().to_string(),
             date_range_start,
             date_range_end,
             processing_time_ms,

@@ -10578,7 +10578,7 @@ mod tests {
         // budget. The gate keeps the first jobs resident long enough to measure
         // actual overlap without relying on a sleep.
         let pool = rayon::ThreadPoolBuilder::new()
-            .num_threads(8)
+            .num_threads(MAX_PARALLEL_SHARD_SAVE_LANES * 2)
             .build()
             .unwrap();
         let gate = Arc::new((Mutex::new(false), Condvar::new()));
@@ -10587,16 +10587,19 @@ mod tests {
         let (started_tx, started_rx) = mpsc::channel();
         let coordinator_gate = Arc::clone(&gate);
         let coordinator = std::thread::spawn(move || {
-            let first = started_rx.recv_timeout(Duration::from_secs(5));
-            let second = started_rx.recv_timeout(Duration::from_secs(5));
+            let started = (0..MAX_PARALLEL_SHARD_SAVE_LANES)
+                .filter(|_| started_rx.recv_timeout(Duration::from_secs(5)).is_ok())
+                .count();
             let (open, ready) = &*coordinator_gate;
             *open.lock().unwrap() = true;
             ready.notify_all();
-            assert!(first.is_ok(), "the first shard never started");
-            assert!(second.is_ok(), "the shard batch ran serially");
+            assert_eq!(
+                started, MAX_PARALLEL_SHARD_SAVE_LANES,
+                "the shard batch did not fill every lane"
+            );
         });
 
-        let work: Vec<u8> = (0..8).collect();
+        let work: Vec<u8> = (0..(MAX_PARALLEL_SHARD_SAVE_LANES * 2) as u8).collect();
         let results = pool.install(|| {
             run_shard_save_batch(work.clone(), |item| {
                 let current = active.fetch_add(1, Ordering::SeqCst) + 1;
