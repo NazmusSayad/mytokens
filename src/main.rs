@@ -9,6 +9,7 @@ mod render;
 mod screens;
 
 use std::io::IsTerminal;
+use std::sync::atomic::Ordering;
 
 use clap::{Parser, Subcommand};
 use colored::Colorize;
@@ -83,6 +84,11 @@ struct Cli {
         help = "Refetch remote data (model groups, price tables) ignoring the fetch cache."
     )]
     no_cache: bool,
+    #[arg(
+        long = "claude-code",
+        help = "Count Claude Code tokens like its /stats does: every log line, duplicates included."
+    )]
+    claude_code: bool,
 }
 
 #[derive(Subcommand, Debug)]
@@ -182,7 +188,12 @@ async fn run_dashboard(cli: Cli) {
         }
     };
 
-    if let Err(message) = run_app(screen, options, cli.fresh).await {
+    if cli.claude_code {
+        tokscale_core::sessions::claudecode::KEEP_STREAMING_DUPLICATES
+            .store(true, Ordering::Relaxed);
+    }
+
+    if let Err(message) = run_app(screen, options, cli.fresh || cli.claude_code).await {
         eprintln!("{}", message.red());
         std::process::exit(1);
     }

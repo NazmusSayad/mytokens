@@ -23,8 +23,11 @@ use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 
 type ParentSubagentTypeCache = HashMap<PathBuf, HashMap<String, String>>;
+
+pub static KEEP_STREAMING_DUPLICATES: AtomicBool = AtomicBool::new(false);
 
 /// Claude Code entry structure (from JSONL files)
 #[derive(Debug, Deserialize)]
@@ -996,6 +999,7 @@ fn parse_claude_lines(
                 // Advisor usage may arrive on a later streaming duplicate. Process it
                 // after assembling the parent, rather than skipping that entire row.
                 let pending_hash = match (&message.id, &entry.request_id) {
+                    _ if KEEP_STREAMING_DUPLICATES.load(Ordering::Relaxed) => None,
                     (Some(msg_id), Some(req_id)) => Some(format!("{msg_id}:{req_id}")),
                     (Some(msg_id), None) => Some(format!("message:{msg_id}")),
                     _ => None,
