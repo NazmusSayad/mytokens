@@ -12,10 +12,16 @@ enum TerminalProtocol {
     Blocks,
 }
 
-fn detect_protocol() -> TerminalProtocol {
+struct TerminalReport {
+    cell_width: Option<u32>,
+    kitty: bool,
+}
+
+fn detect_protocol(kitty: bool) -> TerminalProtocol {
     let env = |name: &str| std::env::var(name).unwrap_or_default();
 
-    if !env("KITTY_WINDOW_ID").is_empty()
+    if kitty
+        || !env("KITTY_WINDOW_ID").is_empty()
         || env("TERM") == "xterm-kitty"
         || env("TERM_PROGRAM") == "ghostty"
     {
@@ -41,7 +47,8 @@ pub fn render_image_in_terminal(svg: &str) -> Result<Vec<u8>, String> {
     let tree = parse_svg(svg)?;
     let base_width = tree.size().width();
     let columns = terminal_columns();
-    let target_width = columns as f32 * read_terminal_cell_width().unwrap_or(0) as f32;
+    let report = query_terminal();
+    let target_width = columns as f32 * report.cell_width.unwrap_or(0) as f32;
 
     let scale = if target_width > base_width {
         target_width / base_width
@@ -57,7 +64,7 @@ pub fn render_image_in_terminal(svg: &str) -> Result<Vec<u8>, String> {
         render_png(&tree, scale)?
     };
 
-    let output = match detect_protocol() {
+    let output = match detect_protocol(report.kitty) {
         TerminalProtocol::Kitty => kitty_image(&png, columns),
         TerminalProtocol::ITerm => iterm_image(&png),
         TerminalProtocol::Blocks => block_image(&tree, columns)?,
@@ -132,29 +139,36 @@ fn block_image(tree: &resvg::usvg::Tree, columns: u16) -> Result<String, String>
 }
 
 #[cfg(unix)]
-fn read_terminal_cell_width() -> Option<u32> {
+fn query_terminal() -> TerminalReport {
     use std::io::Read;
     use std::os::fd::AsRawFd;
     use std::time::{Duration, Instant};
 
+    let mut report = TerminalReport {
+        cell_width: None,
+        kitty: false,
+    };
     let stdin = std::io::stdin();
     if !stdin.is_terminal() {
-        return None;
+        return report;
     }
     if crossterm::terminal::is_raw_mode_enabled().unwrap_or(true) {
-        return None;
+        return report;
+    }
+    if crossterm::terminal::enable_raw_mode().is_err() {
+        return report;
     }
 
-    crossterm::terminal::enable_raw_mode().ok()?;
     let mut stdout = std::io::stdout();
-    let _ = stdout.write_all(b"\x1b[16t").and_then(|()| stdout.flush());
+    let _ = stdout
+        .write_all(b"\x1b[16t\x1b_Gi=31,s=1,v=1,a=q,t=d,f=24;AAAA\x1b\\\x1b[c")
+        .and_then(|()| stdout.flush());
 
-    let deadline = Instant::now() + Duration::from_millis(100);
+    let deadline = Instant::now() + Duration::from_millis(1000);
     let fd = stdin.as_raw_fd();
     let mut response: Vec<u8> = Vec::new();
-    let mut width: Option<u32> = None;
 
-    while width.is_none() {
+    while !has_device_attributes(&String::from_utf8_lossy(&response)) {
         let remaining = deadline.saturating_duration_since(Instant::now());
         if remaining.is_zero() {
             break;
@@ -174,16 +188,29 @@ fn read_terminal_cell_width() -> Option<u32> {
             _ => break,
         };
         response.extend_from_slice(&buffer[..count]);
-        width = parse_cell_size_response(&String::from_utf8_lossy(&response));
     }
 
     let _ = crossterm::terminal::disable_raw_mode();
-    width
+    let response = String::from_utf8_lossy(&response);
+    report.cell_width = parse_cell_size_response(&response);
+    report.kitty = response.contains("\x1b_Gi=31;OK");
+    report
 }
 
 #[cfg(not(unix))]
-fn read_terminal_cell_width() -> Option<u32> {
-    None
+fn query_terminal() -> TerminalReport {
+    TerminalReport {
+        cell_width: None,
+        kitty: false,
+    }
+}
+
+fn has_device_attributes(response: &str) -> bool {
+    response.match_indices("\x1b[?").any(|(start, _)| {
+        let rest = &response[start + 3..];
+        let end = rest.find(|c: char| !c.is_ascii_digit() && c != ';');
+        matches!(end, Some(end) if rest[end..].starts_with('c'))
+    })
 }
 
 fn parse_cell_size_response(response: &str) -> Option<u32> {
