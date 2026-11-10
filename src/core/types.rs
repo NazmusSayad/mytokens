@@ -1,12 +1,13 @@
 use chrono::{DateTime, Local};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UsageDataModel {
     pub id: String,
     pub provider: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UsageDataToken {
     pub input: i64,
     pub output: i64,
@@ -21,7 +22,7 @@ impl UsageDataToken {
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct UsageDataCost {
     pub input: f64,
     pub output: f64,
@@ -36,13 +37,13 @@ impl UsageDataCost {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UsageDataProject {
     pub name: Option<String>,
     pub path: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UsageDataMessage {
     pub source: String,
     pub agent: String,

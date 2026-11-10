@@ -9,3 +9,7 @@ pub fn mytokens_path() -> PathBuf {
 pub fn mytokens_groups_path() -> PathBuf {
     mytokens_path().join("groups.json")
 }
+
+pub fn mytokens_ssh_path() -> PathBuf {
+    mytokens_path().join("mytokens.ssh.json")
+}
