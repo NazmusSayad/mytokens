@@ -9,7 +9,7 @@ use crate::helpers::parser::load_usage_data;
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct SshDevice {
+pub struct SshDevice {
     host: String,
     user: Option<String>,
     port: Option<u16>,
@@ -17,7 +17,7 @@ struct SshDevice {
     command: Option<String>,
 }
 
-fn load_ssh_devices() -> Result<Vec<SshDevice>, String> {
+pub fn load_ssh_devices() -> Result<Vec<SshDevice>, String> {
     let path = mytokens_ssh_path();
     let content = match std::fs::read_to_string(&path) {
         Ok(content) => content,
@@ -58,8 +58,12 @@ fn fetch_device_usage_data(device: SshDevice) -> Result<Vec<UsageDataMessage>, S
         return Err(format!("{} failed: {error}", device.host));
     }
 
-    serde_json::from_slice(&output.stdout)
-        .map_err(|err| format!("{} failed: invalid usage JSON: {err}", device.host))
+    let mut messages: Vec<UsageDataMessage> = serde_json::from_slice(&output.stdout)
+        .map_err(|err| format!("{} failed: invalid usage JSON: {err}", device.host))?;
+    for message in &mut messages {
+        message.device = device.host.clone();
+    }
+    Ok(messages)
 }
 
 pub async fn load_all_devices_usage_data(

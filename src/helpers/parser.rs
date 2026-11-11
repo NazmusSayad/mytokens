@@ -88,6 +88,7 @@ fn to_usage_message(
     };
 
     Some(UsageDataMessage {
+        device: "local".to_string(),
         source: message.client,
         agent: message.agent.unwrap_or_else(|| "default".to_string()),
         date,

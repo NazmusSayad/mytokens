@@ -45,6 +45,8 @@ pub struct UsageDataProject {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UsageDataMessage {
+    #[serde(skip)]
+    pub device: String,
     pub source: String,
     pub agent: String,
     pub date: DateTime<Local>,

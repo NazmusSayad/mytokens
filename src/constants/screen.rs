@@ -3,6 +3,9 @@ use crate::screens::agents_by_costs::RenderAgentsByCostsScreen;
 use crate::screens::agents_by_requests::RenderAgentsByRequestsScreen;
 use crate::screens::agents_by_tokens::RenderAgentsByTokensScreen;
 use crate::screens::costs::RenderCostsScreen;
+use crate::screens::devices_by_costs::RenderDevicesByCostsScreen;
+use crate::screens::devices_by_requests::RenderDevicesByRequestsScreen;
+use crate::screens::devices_by_tokens::RenderDevicesByTokensScreen;
 use crate::screens::models_by_costs::RenderModelsByCostsScreen;
 use crate::screens::models_by_requests::RenderModelsByRequestsScreen;
 use crate::screens::models_by_tokens::RenderModelsByTokensScreen;
@@ -35,13 +38,16 @@ pub enum AppScreenType {
     AgentsByCosts,
     AgentsByTokens,
     AgentsByRequests,
+    DevicesByCosts,
+    DevicesByTokens,
+    DevicesByRequests,
     TypeByCosts,
     TypeByTokens,
     TypeByRequests,
 }
 
 impl AppScreenType {
-    pub const ALL: [AppScreenType; 18] = [
+    pub const ALL: [AppScreenType; 21] = [
         AppScreenType::ModelsByCosts,
         AppScreenType::ModelsByTokens,
         AppScreenType::ModelsByRequests,
@@ -57,6 +63,9 @@ impl AppScreenType {
         AppScreenType::AgentsByCosts,
         AppScreenType::AgentsByTokens,
         AppScreenType::AgentsByRequests,
+        AppScreenType::DevicesByCosts,
+        AppScreenType::DevicesByTokens,
+        AppScreenType::DevicesByRequests,
         AppScreenType::TypeByCosts,
         AppScreenType::TypeByTokens,
         AppScreenType::TypeByRequests,
@@ -79,6 +88,9 @@ impl AppScreenType {
             AppScreenType::AgentsByCosts => "agents-by-costs",
             AppScreenType::AgentsByTokens => "agents-by-tokens",
             AppScreenType::AgentsByRequests => "agents-by-requests",
+            AppScreenType::DevicesByCosts => "devices-by-costs",
+            AppScreenType::DevicesByTokens => "devices-by-tokens",
+            AppScreenType::DevicesByRequests => "devices-by-requests",
             AppScreenType::TypeByCosts => "type-by-costs",
             AppScreenType::TypeByTokens => "type-by-tokens",
             AppScreenType::TypeByRequests => "type-by-requests",
@@ -102,6 +114,9 @@ impl AppScreenType {
             AppScreenType::AgentsByCosts => Box::new(RenderAgentsByCostsScreen),
             AppScreenType::AgentsByTokens => Box::new(RenderAgentsByTokensScreen),
             AppScreenType::AgentsByRequests => Box::new(RenderAgentsByRequestsScreen),
+            AppScreenType::DevicesByCosts => Box::new(RenderDevicesByCostsScreen),
+            AppScreenType::DevicesByTokens => Box::new(RenderDevicesByTokensScreen),
+            AppScreenType::DevicesByRequests => Box::new(RenderDevicesByRequestsScreen),
             AppScreenType::TypeByCosts => Box::new(RenderCostsScreen),
             AppScreenType::TypeByTokens => Box::new(RenderTokensScreen),
             AppScreenType::TypeByRequests => Box::new(RenderRequestsScreen),
@@ -123,7 +138,7 @@ pub struct AppScreenInfo {
     pub description: &'static str,
 }
 
-pub const APP_SCREENS_INFO: [AppScreenInfo; 18] = [
+pub const APP_SCREENS_INFO: [AppScreenInfo; 21] = [
     AppScreenInfo {
         screen_type: AppScreenType::ModelsByTokens,
         title: "Models by Tokens",
@@ -180,6 +195,16 @@ pub const APP_SCREENS_INFO: [AppScreenInfo; 18] = [
         description: "Estimated cost grouped by the agent that produced it such as default, build, agent or plan.",
     },
     AppScreenInfo {
+        screen_type: AppScreenType::DevicesByTokens,
+        title: "Devices by Tokens",
+        description: "Token usage grouped by device (this machine and the SSH devices in mytokens.ssh.json).",
+    },
+    AppScreenInfo {
+        screen_type: AppScreenType::DevicesByCosts,
+        title: "Devices by Costs",
+        description: "Estimated cost grouped by device (this machine and the SSH devices in mytokens.ssh.json).",
+    },
+    AppScreenInfo {
         screen_type: AppScreenType::TypeByTokens,
         title: "Types by Tokens",
         description: "Total token usage broken down by input, output, cache and reasoning tokens over time.",
@@ -216,6 +241,11 @@ pub const APP_SCREENS_INFO: [AppScreenInfo; 18] = [
         screen_type: AppScreenType::AgentsByRequests,
         title: "Agents by Requests",
         description: "Request count grouped by the agent that produced it such as default, build, agent or plan.",
+    },
+    AppScreenInfo {
+        screen_type: AppScreenType::DevicesByRequests,
+        title: "Devices by Requests",
+        description: "Request count grouped by device (this machine and the SSH devices in mytokens.ssh.json).",
     },
     AppScreenInfo {
         screen_type: AppScreenType::TypeByRequests,

@@ -6,7 +6,7 @@ use colored::Colorize;
 use crate::constants::screen::AppScreenType;
 use crate::render::types::RenderValueShowBy;
 
-const SCREEN_MAP: [(AppScreenType, &[&str]); 18] = [
+const SCREEN_MAP: [(AppScreenType, &[&str]); 21] = [
     (
         AppScreenType::ModelsByTokens,
         &[
@@ -312,6 +312,39 @@ const SCREEN_MAP: [(AppScreenType, &[&str]); 18] = [
             "apps/request",
             "app/requests",
             "apps/requests",
+        ],
+    ),
+    (
+        AppScreenType::DevicesByTokens,
+        &[
+            "device",
+            "devices",
+            "device/token",
+            "devices/token",
+            "device/tokens",
+            "devices/tokens",
+        ],
+    ),
+    (
+        AppScreenType::DevicesByCosts,
+        &[
+            "device.",
+            "devices.",
+            "device/",
+            "devices/",
+            "device/cost",
+            "devices/cost",
+            "device/costs",
+            "devices/costs",
+        ],
+    ),
+    (
+        AppScreenType::DevicesByRequests,
+        &[
+            "device/request",
+            "devices/request",
+            "device/requests",
+            "devices/requests",
         ],
     ),
     (
