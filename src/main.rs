@@ -5,6 +5,7 @@ mod constants;
 mod core;
 mod export;
 mod helpers;
+mod json_cli;
 mod render;
 mod screens;
 
@@ -24,6 +25,7 @@ use crate::helpers::picker::pick_screen;
 use crate::helpers::usage_options::{
     build_usage_filter_options, ProjectFilterArgs, UsageFilterArgs,
 };
+use crate::json_cli::{run_json, JsonCommandArgs};
 use crate::render::types::RenderScreenOptions;
 
 #[derive(Parser, Debug)]
@@ -101,6 +103,8 @@ enum Command {
         about = "Render the aggregated usage overview (all sources, models and providers) as an image in the terminal."
     )]
     Image(ImageCommandArgs),
+    #[command(about = "Print the found usage records as JSON for other tools.")]
+    Json(JsonCommandArgs),
     #[command(about = "List all available export themes.")]
     Themes,
     #[command(about = "Manage the local parse cache.")]
@@ -203,6 +207,7 @@ async fn run(mut cli: Cli) {
     match cli.command.take() {
         Some(Command::Export(args)) => run_export(args).await,
         Some(Command::Image(args)) => run_image(args).await,
+        Some(Command::Json(args)) => run_json(args).await,
         Some(Command::Themes) => run_themes(),
         Some(Command::Cache { command }) => run_cache_command(command),
         None => run_dashboard(cli).await,

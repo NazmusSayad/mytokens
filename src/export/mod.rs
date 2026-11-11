@@ -9,7 +9,7 @@ pub mod themes;
 pub mod types;
 
 use crate::core::types::UsageDataMessage;
-use crate::helpers::parser::load_usage_data;
+use crate::helpers::ssh::load_all_devices_usage_data;
 
 use self::chart::is_message_ignored;
 use self::clipboard::copy_png_to_clipboard;
@@ -24,7 +24,7 @@ pub async fn build_overview_svg(
     theme: &ExportTheme,
     projects: usize,
 ) -> Result<String, String> {
-    let data = load_usage_data(false, options.refetch_remote).await?;
+    let data = load_all_devices_usage_data(false, options.refetch_remote).await?;
     let messages: Vec<&UsageDataMessage> = data
         .iter()
         .filter(|message| !is_message_ignored(message, &options.filters))
